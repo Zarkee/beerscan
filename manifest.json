@@ -1,0 +1,56 @@
+{
+  "name": "BeerScan - Skeniraj Pivo",
+  "short_name": "BeerScan",
+  "description": "Skeniraj bar-kodove piva, čuvaj ocene, lokacije i osvajaj bedževe!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070A10",
+  "theme_color": "#070A10",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "lifestyle", "utilities"],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Skeniraj pivo",
+      "short_name": "Scan",
+      "description": "Pokreni kameru i skeniraj bar-kod",
+      "url": "/?action=scan",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Istorija",
+      "short_name": "History",
+      "description": "Pregledaj skenirane proizvode",
+      "url": "/?action=history",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Statistika",
+      "short_name": "Stats",
+      "description": "Vidi bedževe i dostignuća",
+      "url": "/?action=stats",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
