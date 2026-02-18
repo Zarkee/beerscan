@@ -1753,7 +1753,8 @@ select{
             <div id="currentMeta" class="resultMeta">—</div>
             
             <div class="row sheetBtns" style="margin-top:10px;">
-              <button id="btnCapture" class="good" disabled>✅ Sačuvaj “Probao” + sliku</button>
+              <button id="btnCapture" class="good" disabled>âœ… Probao</button>
+              <button id="btnCapturePhoto" class="primary" disabled>ðŸ“¸ Dodaj sliku</button>
               <button id="btnOpenOff" class="primary" disabled>ℹ️ Detalji (OFF)</button>
             </div>
             <div class="row" style="margin-top:10px; gap:10px; flex-wrap:wrap;">
@@ -2528,7 +2529,7 @@ async function handleBarcode(raw, opts = {}){
 
   currentBarcode = bc;
   currentBarcodeEl.textContent = bc;
-  btnCapture.disabled = false;
+  btnCapture.disabled = false;  if(btnCapturePhoto) btnCapturePhoto.disabled = false;
   if(btnFav) btnFav.disabled = false;
   if(btnShare) btnShare.disabled = false;
   if(btnSaveNote) btnSaveNote.disabled = false;
@@ -2882,6 +2883,52 @@ async function toggleTorch(){
 /* =======================
    Snimanje slike + označavanje kao "Probao"
 ======================= */
+
+async function markAsTried(){
+  if(!currentBarcode) return;
+  
+  const rec = (await dbGet(currentBarcode)) || {
+    barcode: currentBarcode,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    timesTried: 0,
+    off: null,
+    photo: null,
+    favorite: false,
+    rating: 0,
+    note: ""
+  };
+
+  rec.timesTried = (rec.timesTried || 0) + 1;
+  rec.updatedAt = Date.now();
+  await dbPut(rec);
+
+  setStatus(`Označeno kao "Probao" (${currentBarcode}).`, "ok");
+  await handleBarcode(currentBarcode, { fromHistoryClick: true });
+}
+
+async function markAsTried(){
+  if(!currentBarcode) return;
+  
+  const rec = (await dbGet(currentBarcode)) || {
+    barcode: currentBarcode,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    timesTried: 0,
+    off: null,
+    photo: null,
+    favorite: false,
+    rating: 0,
+    note: ""
+  };
+
+  rec.timesTried = (rec.timesTried || 0) + 1;
+  rec.updatedAt = Date.now();
+  await dbPut(rec);
+
+  setStatus(`Označeno kao "Probao" (${currentBarcode}).`, "ok");
+  await handleBarcode(currentBarcode, { fromHistoryClick: true });
+}
 async function capturePhotoToCurrent(){
   if(!currentBarcode){
     setStatus("Nema aktivnog bar-koda.", "warn");
@@ -2956,7 +3003,12 @@ if(scanFab){
   });
 }
 btnTorch.addEventListener("click", toggleTorch);
-btnCapture.addEventListener("click", capturePhotoToCurrent);
+btnCapture.addEventListener("click", markAsTried);
+
+const btnCapturePhoto = document.getElementById("btnCapturePhoto");
+if(btnCapturePhoto){
+  btnCapturePhoto.addEventListener("click", capturePhotoToCurrent);
+}
 
 btnLookup.addEventListener("click", async () => {
   const bc = normalizeBarcode(manualBarcodeEl.value);
@@ -3473,7 +3525,7 @@ function placeSpotlightOn(el) {
     
     tourTooltip.style.left = tx + "px";
     tourTooltip.style.top = Math.max(14, ty) + "px";
-  }, 180);
+  }, 140);
 }
 
 function renderTour(){
@@ -3922,53 +3974,53 @@ const calendarEvents = document.getElementById("calendarEvents");
 
 let globalCalendarEvents = [];
 
-// Default pivski događaji za 2025-2026
+// Default pivski događaji za 2026 (pravi datumi sa interneta)
 const defaultBeerEvents = [
   {
     id: 1,
-    title: "Belgrade Beer Fest 2025",
-    date: "2025-08-13 18:00",
-    location: "Ušće, Beograd",
+    title: "Prague Beer Fest 2026",
+    date: "2026-04-10 16:00",
+    location: "Prag, Češka",
     createdAt: Date.now(),
     isDefault: true
   },
   {
     id: 2,
-    title: "Oktoberfest München 2025",
-    date: "2025-09-20 10:00",
-    location: "München, Nemačka",
-    createdAt: Date.now(),
-    isDefault: true
-  },
-  {
-    id: 3,
-    title: "Craft Beer Festival Zagreb 2025",
-    date: "2025-06-15 16:00",
+    title: "Zagreb Beer Fest 2026",
+    date: "2026-05-22 17:00",
     location: "Zagreb, Hrvatska",
     createdAt: Date.now(),
     isDefault: true
   },
   {
-    id: 4,
-    title: "Novi Sad Beer Week 2025",
-    date: "2025-05-10 17:00",
-    location: "Novi Sad, Srbija",
-    createdAt: Date.now(),
-    isDefault: true
-  },
-  {
-    id: 5,
-    title: "IPA Day 2025 - Međunarodni dan IPA piva",
-    date: "2025-08-07 12:00",
+    id: 3,
+    title: "International Beer Day 2026",
+    date: "2026-08-07 12:00",
     location: "Širom sveta",
     createdAt: Date.now(),
     isDefault: true
   },
   {
-    id: 6,
+    id: 4,
     title: "Belgrade Beer Fest 2026",
-    date: "2026-08-12 18:00",
-    location: "Ušće, Beograd",
+    date: "2026-08-27 18:00",
+    location: "Ušće, Beograd, Srbija",
+    createdAt: Date.now(),
+    isDefault: true
+  },
+  {
+    id: 5,
+    title: "Oktoberfest München 2026 (191st)",
+    date: "2026-09-19 10:00",
+    location: "Theresienwiese, München, Nemačka",
+    createdAt: Date.now(),
+    isDefault: true
+  },
+  {
+    id: 6,
+    title: "International Stout Day 2026",
+    date: "2026-11-05 12:00",
+    location: "Širom sveta",
     createdAt: Date.now(),
     isDefault: true
   }
