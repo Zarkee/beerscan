@@ -3,179 +3,76 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BeerScan ? skeniraj pivo</title>
+  <title>BeerScan — skeniraj pivo</title>
   <meta name="version" content="2.1.0" />
   
   <!-- PWA Meta -->
   <meta name="theme-color" content="#070A10" />
-  <meta name="description" content="Skeniraj bar-kodove piva, cuvaj ocene i lokacije, osvajaj bed?eve!" />
+  <meta name="description" content="Skeniraj bar-kodove piva, čuvaj ocene i lokacije, osvajaj bedževe!" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
 
   <style>
     :root{
-      --bg: #0A0E1A;
-      --bg-gradient-1: rgba(138,43,226,.15);
-      --bg-gradient-2: rgba(0,191,255,.12);
-      --bg-gradient-3: rgba(255,20,147,.10);
-      --bg-gradient-4: rgba(50,205,50,.08);
-      
-      --card: rgba(255,255,255,.12);
-      --card2: rgba(255,255,255,.08);
-      --stroke: rgba(255,255,255,.25);
-      --stroke2: rgba(255,255,255,.30);
-      --txt: #F0F4FF;
-      --muted: rgba(240,244,255,.80);
-      --muted2: rgba(240,244,255,.60);
+      --bg: #070A10;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.04);
+      --stroke: rgba(255,255,255,.10);
+      --stroke2: rgba(255,255,255,.16);
+      --txt: #EAF1FF;
+      --muted: rgba(234,241,255,.72);
+      --muted2: rgba(234,241,255,.52);
 
-      --good: rgba(50,255,150,.22);
-      --goodStroke: rgba(50,255,150,.60);
-      --warn: rgba(255,200,50,.22);
-      --warnStroke: rgba(255,200,50,.60);
-      --bad: rgba(255,70,100,.22);
-      --badStroke: rgba(255,70,100,.60);
+      --good: rgba(92,255,164,.18);
+      --goodStroke: rgba(92,255,164,.35);
+      --warn: rgba(255,210,92,.18);
+      --warnStroke: rgba(255,210,92,.35);
+      --bad: rgba(255,92,92,.18);
+      --badStroke: rgba(255,92,92,.35);
 
-      --accent: rgba(100,200,255,.30);
-      --accentStroke: rgba(100,200,255,.65);
-      
-      --neon-blue: rgba(0,191,255,.85);
-      --neon-purple: rgba(138,43,226,.85);
-      --neon-pink: rgba(255,20,147,.85);
-      --neon-green: rgba(50,255,150,.85);
+      --accent: rgba(124,178,255,.22);
+      --accentStroke: rgba(124,178,255,.42);
 
-      --r: 24px;
-      --pad: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      letter-spacing: -0.02em;
-      line-height: 1.65;
+      --r: 18px;
+      --pad: 14px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       
       scroll-behavior: smooth;
     }
-    *{ 
-      box-sizing:border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    *{ box-sizing:border-box; }
     
     html{
       scroll-behavior: smooth;
-      scroll-padding-top: 90px;
     }
     body{
       margin:0;
       color:var(--txt);
       background:
-        radial-gradient(ellipse at 15% 15%, var(--bg-gradient-1), transparent 45%),
-        radial-gradient(ellipse at 85% 20%, var(--bg-gradient-2), transparent 50%),
-        radial-gradient(ellipse at 70% 85%, var(--bg-gradient-3), transparent 45%),
-        radial-gradient(ellipse at 25% 75%, var(--bg-gradient-4), transparent 50%),
-        linear-gradient(135deg, #0A0E1A 0%, #0D1220 50%, #0A0E1A 100%);
-      background-size: 300% 300%;
-      animation: gradientShift 25s ease infinite;
+        radial-gradient(1200px 700px at 20% -10%, rgba(124,178,255,.18), transparent 60%),
+        radial-gradient(900px 600px at 110% 10%, rgba(92,255,164,.10), transparent 55%),
+        radial-gradient(900px 700px at 50% 120%, rgba(255,210,92,.12), transparent 60%),
+        var(--bg);
       min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
-    
-    @keyframes gradientShift{
-      0%{ background-position: 0% 0%; }
-      25%{ background-position: 100% 0%; }
-      50%{ background-position: 100% 100%; }
-      75%{ background-position: 0% 100%; }
-      100%{ background-position: 0% 0%; }
     }
     header{
       position: sticky;
       top: 0;
       z-index: 50;
-      padding: 22px 22px 18px;
-      backdrop-filter: blur(32px) saturate(200%);
-      background: 
-        linear-gradient(135deg, rgba(10,14,26,.92) 0%, rgba(13,18,32,.88) 100%);
-      border-bottom: 1px solid rgba(100,200,255,.25);
-      box-shadow: 
-        0 8px 32px rgba(0,0,0,.4),
-        0 0 60px rgba(0,191,255,.15),
-        inset 0 1px 0 rgba(255,255,255,.08);
-      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 16px 16px 12px;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(7,10,16,.85), rgba(7,10,16,.55));
+      border-bottom: 1px solid var(--stroke);
     }
-    header:hover{
-      box-shadow: 
-        0 12px 48px rgba(0,0,0,.5),
-        0 0 80px rgba(0,191,255,.25),
-        inset 0 1px 0 rgba(255,255,255,.12);
-    }
-    .brand{ 
-      display:flex; 
-      align-items:center; 
-      gap:14px;
-      transition: transform .3s ease;
-    }
-    .brand:hover{
-      transform: translateX(4px);
-    }
+    .brand{ display:flex; align-items:center; gap:10px; }
     .logo{
-      width: 52px; 
-      height: 52px; 
-      border-radius: 20px;
-      background: 
-        radial-gradient(circle at 25% 15%, rgba(0,191,255,.95), transparent 65%),
-        radial-gradient(circle at 75% 85%, rgba(138,43,226,.75), transparent 65%),
-        linear-gradient(135deg, rgba(50,255,150,.45), rgba(255,20,147,.35));
-      border: 1.5px solid rgba(255,255,255,.30);
-      box-shadow: 
-        0 8px 24px rgba(0,191,255,.35),
-        0 16px 48px rgba(138,43,226,.25),
-        0 0 60px rgba(0,191,255,.20),
-        inset 0 2px 0 rgba(255,255,255,.20),
-        inset 0 0 40px rgba(255,255,255,.08);
-      animation: logoGlow 4s ease-in-out infinite;
-      position: relative;
-      overflow: hidden;
+      width: 40px; height: 40px; border-radius: 14px;
+      background: radial-gradient(circle at 30% 20%, rgba(124,178,255,.65), rgba(124,178,255,.15) 55%, rgba(0,0,0,.10)),
+                  linear-gradient(135deg, rgba(92,255,164,.22), rgba(255,210,92,.18));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
     }
-    .logo::before{
-      content: "";
-      position: absolute;
-      inset: -50%;
-      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,.3) 50%, transparent 70%);
-      animation: logoShine 3s ease-in-out infinite;
-    }
-    @keyframes logoGlow{
-      0%, 100%{
-        box-shadow: 
-          0 8px 24px rgba(0,191,255,.35),
-          0 16px 48px rgba(138,43,226,.25),
-          0 0 60px rgba(0,191,255,.20),
-          inset 0 2px 0 rgba(255,255,255,.20);
-      }
-      50%{
-        box-shadow: 
-          0 12px 32px rgba(0,191,255,.55),
-          0 20px 64px rgba(138,43,226,.40),
-          0 0 90px rgba(0,191,255,.35),
-          inset 0 2px 0 rgba(255,255,255,.25);
-      }
-    }
-    @keyframes logoShine{
-      0%{ transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-      100%{ transform: translateX(200%) translateY(200%) rotate(45deg); }
-    }
-    h1{ 
-      margin:0; 
-      font-size: 18px; 
-      font-weight: 900;
-      letter-spacing: .3px;
-      background: linear-gradient(135deg, #fff 0%, rgba(100,200,255,.95) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .sub{ 
-      margin-top:3px; 
-      font-size: 13px; 
-      color: var(--muted); 
-      line-height: 1.3;
-      font-weight: 500;
-    }
+    h1{ margin:0; font-size: 16px; letter-spacing: .2px; }
+    .sub{ margin-top:2px; font-size: 12px; color: var(--muted); line-height: 1.25; }
 
     main{
       padding: 16px;
@@ -195,87 +92,39 @@
     }
 
     .card{
-      background: 
-        radial-gradient(circle at 20% 20%, rgba(100,200,255,.15), transparent 60%),
-        linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      backdrop-filter: blur(28px) saturate(200%);
-      border: 1.5px solid var(--stroke);
+      background: var(--card);
+      border: 1px solid var(--stroke);
       border-radius: var(--r);
       padding: var(--pad);
-      box-shadow: 
-        0 4px 16px rgba(0,0,0,.2),
-        0 12px 40px rgba(0,0,0,.25),
-        0 24px 80px rgba(0,0,0,.20),
-        0 0 60px rgba(0,191,255,.08),
-        inset 0 1px 0 rgba(255,255,255,.15),
-        inset 0 0 40px rgba(255,255,255,.03);
-      transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
       position: relative;
       overflow: hidden;
-      transform-style: preserve-3d;
     }
     
     .card::before{
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(
-        circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
-        rgba(100,200,255,.18), 
-        transparent 65%
-      );
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(124,178,255,.08), transparent 60%);
       opacity: 0;
-      transition: opacity .5s ease;
+      transition: opacity .3s ease;
       pointer-events: none;
-    }
-    
-    .card::after{
-      content: "";
-      position: absolute;
-      inset: -2px;
-      background: linear-gradient(
-        135deg,
-        rgba(0,191,255,.0) 0%,
-        rgba(138,43,226,.0) 25%,
-        rgba(255,20,147,.0) 50%,
-        rgba(50,255,150,.0) 75%,
-        rgba(0,191,255,.0) 100%
-      );
-      border-radius: var(--r);
-      opacity: 0;
-      transition: opacity .5s ease;
-      pointer-events: none;
-      z-index: -1;
-      filter: blur(20px);
-      will-change: opacity;
     }
     
     .card:hover{
-      transform: translateY(-8px) scale(1.02) rotateX(2deg);
+      transform: translateY(-2px);
       box-shadow: 
-        0 8px 24px rgba(0,0,0,.25),
-        0 20px 60px rgba(0,0,0,.35),
-        0 40px 100px rgba(0,0,0,.25),
-        0 0 100px rgba(0,191,255,.25),
-        0 0 150px rgba(138,43,226,.15),
-        inset 0 1px 0 rgba(255,255,255,.20);
-      border-color: rgba(100,200,255,.45);
+        0 18px 50px rgba(0,0,0,.45),
+        0 0 30px rgba(124,178,255,.15);
+      border-color: rgba(124,178,255,.25);
     }
     
     .card:hover::before{
       opacity: 1;
     }
     
-    .card:hover::after{
-      opacity: 0.6;
-    }
-    
-    .card.soft{ 
-      background: 
-        radial-gradient(circle at 30% 30%, rgba(138,43,226,.10), transparent 60%),
-        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      backdrop-filter: blur(24px) saturate(180%);
-    }
+    .card.soft{ background: var(--card2); }
     
     /* Ripple effect on click */
     @keyframes ripple{
@@ -293,151 +142,62 @@
     .spacer{ flex: 1; }
 
     button, input{
-      border-radius: 18px;
-      border: 1.5px solid rgba(255,255,255,.22);
-      background: 
-        radial-gradient(circle at 30% 20%, rgba(255,255,255,.12), transparent 70%),
-        linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-      backdrop-filter: blur(16px) saturate(160%);
+      border-radius: 14px;
+      border: 1px solid var(--stroke2);
+      background: rgba(0,0,0,.22);
       color: var(--txt);
-      padding: 14px 20px;
-      font-size: 15px;
-      font-weight: 700;
+      padding: 11px 12px;
+      font-size: 14px;
       outline: none;
-      transition: all .35s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 
-        0 4px 12px rgba(0,0,0,.15),
-        0 0 30px rgba(0,191,255,.05),
-        inset 0 1px 0 rgba(255,255,255,.12);
-      position: relative;
-      overflow: hidden;
     }
-    button{ 
-      cursor:pointer;
-      transform-style: preserve-3d;
-    }
-    button::before{
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.20), transparent 75%);
-      opacity: 0;
-      transition: opacity .35s ease;
-    }
-    button:hover{
-      transform: translateY(-3px) scale(1.03);
-      box-shadow: 
-        0 8px 20px rgba(0,0,0,.25),
-        0 0 50px rgba(0,191,255,.20);
-      border-color: rgba(100,200,255,.40);
-    }
-    button:hover::before{
-      opacity: 1;
-    }
-    input:focus{
-      border-color: rgba(100,200,255,.65);
-      box-shadow: 
-        0 6px 18px rgba(100,200,255,.25),
-        0 0 40px rgba(0,191,255,.20),
-        inset 0 1px 0 rgba(255,255,255,.15);
-      background: rgba(255,255,255,.14);
-      transform: translateY(-2px);
-    }
-    
-    textarea{
-      font-family: inherit;
-      resize: vertical;
-    }
-    textarea:focus{
-      border-color: rgba(124,178,255,.50) !important;
-      box-shadow: 
-        0 4px 12px rgba(124,178,255,.20),
-        0 0 24px rgba(124,178,255,.15),
-        inset 0 1px 0 rgba(255,255,255,.12) !important;
-      background: rgba(255,255,255,.10) !important;
-    }
+    button{ cursor:pointer; }
+    button{ transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease; }
 
 button.primary{
-  background: 
-    radial-gradient(circle at 25% 20%, rgba(0,191,255,.70), transparent 70%),
-    linear-gradient(135deg, rgba(100,200,255,.65), rgba(50,255,150,.50));
-  border-color: rgba(0,191,255,.85);
-  box-shadow: 
-    0 6px 18px rgba(0,191,255,.35),
-    0 12px 36px rgba(50,255,150,.20),
-    0 0 60px rgba(0,191,255,.25),
-    inset 0 1px 0 rgba(255,255,255,.20);
-  text-shadow: 0 2px 8px rgba(0,0,0,.25);
+  background: linear-gradient(135deg, rgba(124,178,255,.40), rgba(124,178,255,.18));
+  border-color: rgba(124,178,255,.60);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
 }
-button.primary:hover{ 
-  box-shadow: 
-    0 10px 28px rgba(0,191,255,.50),
-    0 20px 56px rgba(50,255,150,.30),
-    0 0 90px rgba(0,191,255,.40),
-    0 0 120px rgba(50,255,150,.20);
-  transform: translateY(-4px) scale(1.05);
-  border-color: rgba(0,191,255,.95);
-}
+button.primary:hover{ box-shadow: 0 0 22px rgba(124,178,255,.40); }
 
 button.good{
-  background:
-    radial-gradient(circle at 25% 25%, rgba(255,255,255,.25), transparent 70%),
-    linear-gradient(135deg, rgba(50,255,150,.80), rgba(100,200,255,.60));
-  border: 1.5px solid rgba(50,255,150,1);
-  box-shadow:
-    0 6px 20px rgba(50,255,150,.50),
-    0 12px 40px rgba(50,255,150,.30),
-    0 0 70px rgba(50,255,150,.40),
-    inset 0 1px 0 rgba(255,255,255,.25);
-  text-shadow: 0 2px 10px rgba(0,0,0,.30);
-}
-button.good:hover{
-  box-shadow:
-    0 10px 30px rgba(50,255,150,.65),
-    0 20px 60px rgba(50,255,150,.45),
-    0 0 100px rgba(50,255,150,.55),
-    0 0 140px rgba(50,255,150,.30);
-  transform: translateY(-5px) scale(1.06);
-}
 
+  background:
+    linear-gradient(
+      135deg,
+      rgba(92,255,164,.65),
+      rgba(124,178,255,.45)
+    );
+
+  border: 1px solid rgba(92,255,164,.95);
+
+  box-shadow:
+    0 0 25px rgba(92,255,164,.65),
+    0 10px 30px rgba(0,0,0,.55);
+
+}
 button.warn{
-  background: 
-    radial-gradient(circle at 30% 25%, rgba(255,255,255,.20), transparent 70%),
-    linear-gradient(135deg, rgba(255,200,50,.55), rgba(255,200,50,.35));
-  border-color: rgba(255,200,50,.80);
-  box-shadow: 
-    0 6px 18px rgba(255,200,50,.35),
-    0 0 50px rgba(255,200,50,.20),
-    inset 0 1px 0 rgba(255,255,255,.20);
+  background: linear-gradient(135deg, rgba(255,210,92,.30), rgba(255,210,92,.12));
+  border-color: rgba(255,210,92,.55);
 }
 button.danger{
-  background: 
-    radial-gradient(circle at 30% 25%, rgba(255,255,255,.20), transparent 70%),
-    linear-gradient(135deg, rgba(255,70,100,.55), rgba(255,70,100,.35));
-  border-color: rgba(255,70,100,.80);
-  box-shadow: 
-    0 6px 18px rgba(255,70,100,.35),
-    0 0 50px rgba(255,70,100,.20),
-    inset 0 1px 0 rgba(255,255,255,.20);
+  background: linear-gradient(135deg, rgba(255,92,92,.30), rgba(255,92,92,.12));
+  border-color: rgba(255,92,92,.55);
 }
 
 button:hover{ 
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+  transform: translateY(-1px); 
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
 }
 button:active{ 
   transform: scale(.96); 
-  transition: transform .12s ease;
+  transition: transform .1s ease;
 }
-button:disabled{ 
-  opacity:.45; 
-  cursor:not-allowed;
-  filter: grayscale(0.5);
-}
+button:disabled{ opacity:.55; cursor:not-allowed; }
 
 /* Button click animation */
 button.clicked{
-  animation: none;
+  animation: buttonClick 0.3s ease;
 }
 
 @keyframes buttonClick{
@@ -448,26 +208,12 @@ button.clicked{
 
     .pill{
       display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 14px;
+      padding: 7px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.15);
-      background: 
-        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      backdrop-filter: blur(12px) saturate(140%);
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
       font-size: 12px;
-      font-weight: 700;
       color: var(--muted);
-      box-shadow: 
-        0 2px 8px rgba(0,0,0,.12),
-        inset 0 1px 0 rgba(255,255,255,.10);
-      transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .pill:hover{
-      transform: translateY(-1px);
-      border-color: rgba(124,178,255,.30);
-      box-shadow: 
-        0 4px 12px rgba(0,0,0,.18),
-        0 0 20px rgba(124,178,255,.15);
     }
     .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 
@@ -505,16 +251,16 @@ button.clicked{
     .skeleton{
       background: linear-gradient(
         90deg,
-        rgba(255,255,255,.05) 25%,
-        rgba(255,255,255,.15) 50%,
-        rgba(255,255,255,.05) 75%
+        rgba(255,255,255,.05) 0%,
+        rgba(255,255,255,.10) 50%,
+        rgba(255,255,255,.05) 100%
       );
       background-size: 200% 100%;
-      animation: shimmer 2s ease-in-out infinite;
-      border-radius: 12px;
+      animation: skeleton 1.5s ease-in-out infinite;
+      border-radius: 8px;
     }
     
-    @keyframes shimmer{
+    @keyframes skeleton{
       0%{ background-position: 200% 0; }
       100%{ background-position: -200% 0; }
     }
@@ -525,25 +271,19 @@ button.clicked{
       bottom: 120px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      padding: 16px 24px;
-      border-radius: 18px;
-      background: 
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.15), transparent 70%),
-        linear-gradient(135deg, rgba(20,25,45,.95), rgba(10,14,25,.90));
-      border: 1px solid rgba(124,178,255,.40);
+      padding: 14px 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(20,25,45,.95), rgba(10,14,25,.90));
+      border: 1px solid rgba(124,178,255,.35);
       color: #fff;
       font-size: 14px;
       font-weight: 700;
-      box-shadow: 
-        0 8px 32px rgba(0,0,0,.5),
-        0 16px 64px rgba(0,0,0,.3),
-        0 0 40px rgba(124,178,255,.3),
-        inset 0 1px 0 rgba(255,255,255,.15);
-      backdrop-filter: blur(24px) saturate(180%);
+      box-shadow: 0 20px 60px rgba(0,0,0,.70), 0 0 30px rgba(124,178,255,.25);
+      backdrop-filter: blur(20px);
       z-index: 10000;
       opacity: 0;
       pointer-events: none;
-      transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all .3s cubic-bezier(0.34, 1.56, 0.64, 1);
       max-width: 90%;
     }
     
@@ -553,19 +293,13 @@ button.clicked{
     }
     
     .toast.success{
-      border-color: rgba(92,255,164,.50);
-      box-shadow: 
-        0 8px 32px rgba(0,0,0,.5),
-        0 16px 64px rgba(0,0,0,.3),
-        0 0 48px rgba(92,255,164,.4);
+      border-color: rgba(92,255,164,.45);
+      box-shadow: 0 20px 60px rgba(0,0,0,.70), 0 0 30px rgba(92,255,164,.35);
     }
     
     .toast.error{
-      border-color: rgba(255,92,92,.50);
-      box-shadow: 
-        0 8px 32px rgba(0,0,0,.5),
-        0 16px 64px rgba(0,0,0,.3),
-        0 0 48px rgba(255,92,92,.4);
+      border-color: rgba(255,92,92,.45);
+      box-shadow: 0 20px 60px rgba(0,0,0,.70), 0 0 30px rgba(255,92,92,.35);
     }
 
     .camWrap{
@@ -599,108 +333,101 @@ button.clicked{
   
   aspect-ratio: 1.8 / 1;
   
-  border-radius: 26px;
+  border-radius: 22px;
   
-  border: 3px solid rgba(0,191,255,.95);
+  border: 2px solid rgba(124, 178, 255, .85);
   
   box-shadow:
-    0 0 60px rgba(0,191,255,.95),
-    0 0 120px rgba(50,255,150,.45),
-    0 0 180px rgba(138,43,226,.25),
-    inset 0 0 40px rgba(0,191,255,.30);
+    0 0 40px rgba(124, 178, 255, .85),
+    0 0 80px rgba(92, 255, 164, .35),
+    inset 0 0 25px rgba(124, 178, 255, .25);
   
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(4px);
   
-  animation: framePulse 3s ease-in-out infinite;
-  
-  position: relative;
+  animation: framePulse 3.5s ease-in-out infinite;
   
 }
 @keyframes framePulse{
 
   0%{
     box-shadow:
-      0 0 50px rgba(0,191,255,.75),
-      0 0 100px rgba(50,255,150,.35);
-    border-color: rgba(0,191,255,.85);
+      0 0 30px rgba(124,178,255,.55),
+      0 0 60px rgba(92,255,164,.25);
   }
 
   50%{
     box-shadow:
-      0 0 65px rgba(0,191,255,.90),
-      0 0 130px rgba(50,255,150,.50);
-    border-color: rgba(50,255,150,.90);
+      0 0 40px rgba(124,178,255,.75),
+      0 0 80px rgba(92,255,164,.35);
   }
 
   100%{
     box-shadow:
-      0 0 50px rgba(0,191,255,.75),
-      0 0 100px rgba(50,255,150,.35);
-    border-color: rgba(0,191,255,.85);
+      0 0 30px rgba(124,178,255,.55),
+      0 0 60px rgba(92,255,164,.25);
   }
 
 }
 .frameBox::after{
   content:"";
   position:absolute;
-  inset:-3px;
-  border-radius: 24px;
+  inset:-2px;
+  border-radius: 20px;
   background:
-    linear-gradient(to right, rgba(0,191,255,.95) 0 16px, transparent 16px 100%),
-    linear-gradient(to bottom, rgba(0,191,255,.95) 0 16px, transparent 16px 100%);
+    linear-gradient(to right, rgba(124,178,255,.9) 0 14px, transparent 14px 100%),
+    linear-gradient(to bottom, rgba(124,178,255,.9) 0 14px, transparent 14px 100%);
   mask:
-    radial-gradient(circle at 0 0, #0000 16px, #000 17px) top left,
-    radial-gradient(circle at 100% 0, #0000 16px, #000 17px) top right,
-    radial-gradient(circle at 0 100%, #0000 16px, #000 17px) bottom left,
-    radial-gradient(circle at 100% 100%, #0000 16px, #000 17px) bottom right;
+    radial-gradient(circle at 0 0, #0000 14px, #000 15px) top left,
+    radial-gradient(circle at 100% 0, #0000 14px, #000 15px) top right,
+    radial-gradient(circle at 0 100%, #0000 14px, #000 15px) bottom left,
+    radial-gradient(circle at 100% 100%, #0000 14px, #000 15px) bottom right;
   mask-size: 50% 50%;
   mask-repeat:no-repeat;
-  opacity:.85;
+  opacity:.7;
   pointer-events:none;
 }
     .frameBox::before{
       content:"";
       position:absolute;
-      width: 65%;
-      height: 3px;
-      left: 17.5%;
-      background: linear-gradient(90deg, transparent, rgba(0,191,255,1), rgba(50,255,150,.85), rgba(0,191,255,1), transparent);
+      width: 60%;
+      height: 2px;
+      left: 20%;
+      background: linear-gradient(90deg, transparent, rgba(124,178,255,.85), transparent);
       top: 50%;
       transform: translateY(-50%);
-      filter: drop-shadow(0 0 10px rgba(0,191,255,.8));
-      animation: sweep 1.8s ease-in-out infinite;
-      box-shadow: 0 0 20px rgba(0,191,255,.6);
+      filter: drop-shadow(0 0 6px rgba(124,178,255,.6));
+      animation: sweep 1.6s ease-in-out infinite;
     }
     @keyframes sweep{
-      0%{ transform: translateY(-32px); opacity:.40; }
-      50%{ transform: translateY(0px); opacity:1; }
-      100%{ transform: translateY(32px); opacity:.40; }
+      0%{ transform: translateY(-28px); opacity:.35; }
+      50%{ transform: translateY(0px); opacity:.95; }
+      100%{ transform: translateY(28px); opacity:.35; }
     }
     
     /* Scan success animation */
     .frameBox.scan-success{
-      animation: scanSuccess 0.7s ease-out;
+      animation: scanSuccess 0.6s ease-out;
     }
     
     @keyframes scanSuccess{
       0%{ 
-        border-color: rgba(0,191,255,.95);
+        border-color: rgba(124,178,255,.85);
         box-shadow:
-          0 0 60px rgba(0,191,255,.95),
-          0 0 120px rgba(50,255,150,.45);
+          0 0 40px rgba(124,178,255,.85),
+          0 0 80px rgba(92,255,164,.35);
       }
       50%{ 
-        border-color: rgba(50,255,150,1);
+        border-color: rgba(92,255,164,.95);
         box-shadow:
-          0 0 120px rgba(50,255,150,1),
-          0 0 240px rgba(50,255,150,.80);
-        transform: scale(1.08);
+          0 0 80px rgba(92,255,164,.95),
+          0 0 160px rgba(92,255,164,.65);
+        transform: scale(1.05);
       }
       100%{ 
-        border-color: rgba(0,191,255,.95);
+        border-color: rgba(124,178,255,.85);
         box-shadow:
-          0 0 60px rgba(0,191,255,.95),
-          0 0 120px rgba(50,255,150,.45);
+          0 0 40px rgba(124,178,255,.85),
+          0 0 80px rgba(92,255,164,.35);
         transform: scale(1);
       }
     }
@@ -740,31 +467,14 @@ button.clicked{
 
     table{ width:100%; border-collapse: collapse; }
     th, td{
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
       font-size: 13px;
       vertical-align: top;
     }
-    th{ 
-      text-align:left; 
-      color: var(--muted); 
-      font-weight: 800;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      background: rgba(255,255,255,.03);
-    }
-    tr.clickable{ 
-      cursor: pointer; 
-      position: relative;
-      transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    tr.clickable:hover{ 
-      background: 
-        radial-gradient(circle at 50% 50%, rgba(124,178,255,.08), transparent 80%),
-        rgba(255,255,255,.06);
-      transform: translateX(2px);
-    }
+    th{ text-align:left; color: var(--muted); font-weight: 650; }
+    tr.clickable{ cursor: pointer; position: relative; }
+    tr.clickable:hover{ background: rgba(255,255,255,.04); }
     
     .quick-actions{
       position: absolute;
@@ -778,49 +488,24 @@ button.clicked{
     
     tr.clickable:hover .quick-actions{
       display: flex;
-      animation: quickActionsSlide 0.2s ease;
-    }
-    
-    @keyframes quickActionsSlide{
-      from{
-        opacity: 0;
-        transform: translateY(-50%) translateX(10px);
-      }
-      to{
-        opacity: 1;
-        transform: translateY(-50%) translateX(0);
-      }
     }
     
     .quick-btn{
-      padding: 7px 11px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.15);
-      background: 
-        linear-gradient(135deg, rgba(20,25,45,.95), rgba(10,14,25,.90));
-      backdrop-filter: blur(12px);
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.60);
+      backdrop-filter: blur(8px);
       color: var(--txt);
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
-      transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 
-        0 2px 8px rgba(0,0,0,.25),
-        inset 0 1px 0 rgba(255,255,255,.10);
+      transition: all .15s ease;
     }
     
     .quick-btn:hover{
-      background: 
-        radial-gradient(circle at 30% 30%, rgba(124,178,255,.35), transparent 70%),
-        linear-gradient(135deg, rgba(124,178,255,.30), rgba(92,255,164,.20));
-      border-color: rgba(124,178,255,.55);
-      transform: scale(1.08);
-      box-shadow: 
-        0 4px 12px rgba(124,178,255,.30),
-        0 0 20px rgba(124,178,255,.20);
-    }
-    
-    .quick-btn:active{
-      transform: scale(0.95);
+      background: rgba(124,178,255,.25);
+      border-color: rgba(124,178,255,.45);
+      transform: scale(1.05);
     }
 
     a{ color: rgba(142,203,255,1); text-decoration: none; }
@@ -833,121 +518,96 @@ button.clicked{
 
   position: fixed;
 
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
 
-  padding: 14px;
+  padding: 12px;
 
-  border-radius: 32px;
+  border-radius: 28px;
 
-  backdrop-filter: blur(36px) saturate(200%);
+  backdrop-filter: blur(28px);
 
   background:
-    radial-gradient(circle at 30% 30%, rgba(100,200,255,.12), transparent 70%),
     linear-gradient(
       135deg,
-      rgba(13,18,32,.88),
-      rgba(10,14,26,.82)
+      rgba(20,25,45,.75),
+      rgba(10,14,25,.65)
     );
 
-  border: 1.5px solid rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.18);
 
   box-shadow:
-    0 40px 120px rgba(0,0,0,.90),
-    0 0 80px rgba(0,191,255,.15),
-    inset 0 0 35px rgba(100,200,255,.08),
-    inset 0 1px 0 rgba(255,255,255,.12);
+    0 30px 80px rgba(0,0,0,.85),
+    inset 0 0 25px rgba(124,178,255,.12);
   
   display: flex;
-  gap: 10px;
+  gap: 8px;
   
   z-index: 100;
   pointer-events: auto;
-  
-  animation: bottomBarSlide 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-}
-
-@keyframes bottomBarSlide{
-  from{
-    opacity: 0;
-    transform: translateY(100px);
-  }
-  to{
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @media (max-width: 520px){
   .bottomBar{
-    padding: 12px;
-    gap: 8px;
+    padding: 10px;
+    gap: 6px;
   }
   
   .tabBtn{
     font-size: 12px;
-    padding: 11px 9px;
+    padding: 10px 8px;
   }
   
   .tabBtn .ico{
-    width: 17px;
-    height: 17px;
-    margin-right: 5px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
   }
 }
 
 /* ===== Tab button ===== */
 .tabBtn{
   flex:1;
-  border-radius: 22px;
-  padding: 14px 12px;
-  border: 1.5px solid rgba(255,255,255,.12);
-  background: 
-    radial-gradient(circle at 30% 30%, rgba(255,255,255,.08), transparent 70%),
-    rgba(255,255,255,.05);
-  color: rgba(240,244,255,.75);
-  font-weight: 800;
-  font-size: 14px;
-  letter-spacing: .3px;
-  transition: all .25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: 18px;
+  padding: 12px 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  color: rgba(234,241,255,.70);
+  font-weight: 750;
+  font-size: 13.5px;
+  letter-spacing: .2px;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
   position: relative;
   overflow: hidden;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:7px;
-  transform-style: preserve-3d;
+  gap:6px;
 }
 
 .tabBtn::after{
   content:"";
   position:absolute;
-  inset:-50%;
-  background: radial-gradient(circle at 25% 25%, rgba(100,200,255,.25), transparent 65%);
+  inset:-40%;
+  background: radial-gradient(circle at 30% 30%, rgba(124,178,255,.20), transparent 60%);
   opacity:0;
-  transition: opacity .25s ease;
+  transition: opacity .18s ease;
 }
 
 .tabBtn.active{
-  background: 
-    radial-gradient(circle at 20% 20%, rgba(0,191,255,.35), transparent 70%),
-    linear-gradient(135deg, rgba(100,200,255,.32), rgba(50,255,150,.22));
-  border-color: rgba(0,191,255,.75);
+  background: linear-gradient(135deg, rgba(124,178,255,.26), rgba(92,255,164,.16));
+  border-color: rgba(124,178,255,.60);
   color:#fff;
-  box-shadow: 
-    0 0 35px rgba(0,191,255,.50), 
-    0 0 70px rgba(50,255,150,.20),
-    inset 0 1px 0 rgba(255,255,255,.15);
-  transform: translateY(-2px) scale(1.02);
-  text-shadow: 0 2px 8px rgba(0,0,0,.25);
+  box-shadow: 0 0 22px rgba(124,178,255,.40), 0 0 44px rgba(92,255,164,.14);
+  transform: translateY(-1px);
 }
 .tabBtn.active::after{ opacity:1; }
 
 .tabBtn:active{ 
-  transform: scale(.97); 
-  transition: transform .12s ease;
+  transform: scale(.96); 
+  transition: transform .1s ease;
 }
 /* TAB PAGE animacija */
 .tabPage{
@@ -966,13 +626,13 @@ button.clicked{
 }
 /* ===== Animated background ===== */
 body{
-  background-size: 300% 300%;
-  animation: bgMove 30s ease-in-out infinite;
+  background-size: 200% 200%;
+  animation: bgMove 20s ease-in-out infinite;
   position: relative;
   overflow-x: hidden;
 }
 
-/* Floating particles */
+/* Floating beer bubbles */
 body::after{
   content: "";
   position: fixed;
@@ -982,40 +642,31 @@ body::after{
   left: 0;
   pointer-events: none;
   background-image: 
-    radial-gradient(circle at 15% 75%, rgba(0,191,255,.12) 0%, transparent 2.5%),
-    radial-gradient(circle at 85% 25%, rgba(138,43,226,.10) 0%, transparent 2.5%),
-    radial-gradient(circle at 35% 35%, rgba(50,255,150,.11) 0%, transparent 2.5%),
-    radial-gradient(circle at 65% 90%, rgba(255,20,147,.09) 0%, transparent 2.5%),
-    radial-gradient(circle at 90% 65%, rgba(0,191,255,.10) 0%, transparent 2.5%),
-    radial-gradient(circle at 50% 10%, rgba(138,43,226,.08) 0%, transparent 2.5%);
-  background-size: 250px 250px, 180px 180px, 220px 220px, 280px 280px, 200px 200px, 240px 240px;
-  background-position: 0 0, 120px 120px, 60px 60px, 180px 0, 0 180px, 100px 50px;
-  animation: floatParticles 30s ease-in-out infinite;
+    radial-gradient(circle at 20% 80%, rgba(255,210,92,.05) 0%, transparent 2%),
+    radial-gradient(circle at 80% 20%, rgba(124,178,255,.05) 0%, transparent 2%),
+    radial-gradient(circle at 40% 40%, rgba(92,255,164,.05) 0%, transparent 2%);
+  background-size: 200px 200px, 150px 150px, 180px 180px;
+  background-position: 0 0, 100px 100px, 50px 50px;
+  animation: floatBubbles 25s ease-in-out infinite;
   opacity: 0.4;
   z-index: 0;
 }
 
-@keyframes floatParticles{
+@keyframes floatBubbles{
   0%, 100%{ 
-    transform: translateY(0) translateX(0) scale(1); 
+    transform: translateY(0) scale(1); 
+    opacity: 0.4;
+  }
+  50%{ 
+    transform: translateY(-20px) scale(1.05); 
     opacity: 0.5;
-  }
-  33%{ 
-    transform: translateY(-25px) translateX(15px) scale(1.08); 
-    opacity: 0.65;
-  }
-  66%{ 
-    transform: translateY(-15px) translateX(-20px) scale(0.97); 
-    opacity: 0.55;
   }
 }
 
 @keyframes bgMove{
-  0%{ background-position: 0% 0%, 100% 0%, 50% 100%, 0% 50%; }
-  25%{ background-position: 100% 25%, 75% 75%, 25% 50%, 50% 0%; }
-  50%{ background-position: 50% 100%, 0% 50%, 100% 0%, 75% 75%; }
-  75%{ background-position: 25% 50%, 50% 0%, 75% 75%, 100% 25%; }
-  100%{ background-position: 0% 0%, 100% 0%, 50% 100%, 0% 50%; }
+  0%{ background-position: 0% 0%, 100% 0%, 50% 100%; }
+  50%{ background-position: 70% 10%, 40% 40%, 60% 60%; }
+  100%{ background-position: 0% 0%, 100% 0%, 50% 100%; }
 }
 
 /* ===== Stats UI ===== */
@@ -1029,58 +680,13 @@ body::after{
 }
 .statCard{
   border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.15);
-  background: 
-    radial-gradient(circle at 30% 20%, rgba(124,178,255,.12), transparent 70%),
-    linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-  backdrop-filter: blur(16px) saturate(160%);
-  padding: 16px;
-  box-shadow: 
-    0 4px 16px rgba(0,0,0,.15),
-    0 8px 32px rgba(0,0,0,.10),
-    inset 0 1px 0 rgba(255,255,255,.12),
-    inset 0 0 30px rgba(124,178,255,.06);
-  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  padding: 14px;
+  box-shadow: inset 0 0 25px rgba(124,178,255,.05);
 }
-.statCard::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(124,178,255,.15), transparent 70%);
-  opacity: 0;
-  transition: opacity .3s ease;
-}
-.statCard:hover{
-  transform: translateY(-3px);
-  border-color: rgba(124,178,255,.35);
-  box-shadow: 
-    0 6px 20px rgba(0,0,0,.20),
-    0 12px 40px rgba(0,0,0,.15),
-    0 0 40px rgba(124,178,255,.20),
-    inset 0 1px 0 rgba(255,255,255,.15);
-}
-.statCard:hover::before{
-  opacity: 1;
-}
-.statLabel{ 
-  color: var(--muted); 
-  font-size: 12px; 
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-}
-.statValue{ 
-  font-size: 32px; 
-  font-weight: 900; 
-  margin-top: 8px;
-  background: linear-gradient(135deg, #fff, rgba(234,241,255,.85));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
-}
+.statLabel{ color: var(--muted); font-size: 12px; }
+.statValue{ font-size: 26px; font-weight: 850; margin-top: 6px; }
 
 .badgeRow{
   display:grid;
@@ -1092,143 +698,39 @@ body::after{
 }
 .badge{
   border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: 
-    linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  backdrop-filter: blur(12px) saturate(140%);
-  padding: 14px;
-  font-weight: 800;
-  font-size: 13px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.18);
+  padding: 12px;
+  font-weight: 750;
   display:flex;
   justify-content: space-between;
   align-items:center;
-  color: rgba(234,241,255,.65);
-  box-shadow: 
-    0 2px 8px rgba(0,0,0,.12),
-    inset 0 1px 0 rgba(255,255,255,.08);
-  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  color: rgba(234,241,255,.70);
 }
-.badge::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.08), transparent 70%);
-  opacity: 0;
-  transition: opacity .3s ease;
-}
-.badge:hover::before{
-  opacity: 1;
-}
-.badge span{ 
-  opacity:.70; 
-  font-weight: 700; 
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  background: rgba(0,0,0,.25);
-  border: 1px solid rgba(255,255,255,.08);
-}
+.badge span{ opacity:.75; font-weight: 800; }
 .badge.unlocked{
   color: #fff;
-  border-color: rgba(92,255,164,.55);
-  background: 
-    radial-gradient(circle at 30% 20%, rgba(92,255,164,.25), transparent 70%),
-    linear-gradient(135deg, rgba(92,255,164,.28), rgba(124,178,255,.16));
-  box-shadow: 
-    0 4px 16px rgba(92,255,164,.25),
-    0 8px 32px rgba(92,255,164,.15),
-    0 0 32px rgba(92,255,164,.20),
-    inset 0 1px 0 rgba(255,255,255,.15);
-  animation: badgeGlow 3s ease-in-out infinite;
-}
-.badge.unlocked span{
-  background: rgba(92,255,164,.20);
-  border-color: rgba(92,255,164,.35);
-  opacity: 1;
-}
-.badge.unlocked:hover{
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 
-    0 6px 20px rgba(92,255,164,.35),
-    0 12px 40px rgba(92,255,164,.20),
-    0 0 48px rgba(92,255,164,.30);
-}
-@keyframes badgeGlow{
-  0%, 100%{
-    box-shadow: 
-      0 4px 16px rgba(92,255,164,.25),
-      0 8px 32px rgba(92,255,164,.15),
-      0 0 32px rgba(92,255,164,.20),
-      inset 0 1px 0 rgba(255,255,255,.15);
-  }
-  50%{
-    box-shadow: 
-      0 6px 20px rgba(92,255,164,.35),
-      0 12px 40px rgba(92,255,164,.25),
-      0 0 48px rgba(92,255,164,.35),
-      inset 0 1px 0 rgba(255,255,255,.20);
-  }
+  border-color: rgba(92,255,164,.45);
+  background: linear-gradient(135deg, rgba(92,255,164,.22), rgba(124,178,255,.12));
+  box-shadow: 0 0 18px rgba(92,255,164,.20);
 }
 
 .progressTop{ display:flex; justify-content: space-between; gap:10px; }
 .progressBar{
-  height: 14px;
+  height: 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.15);
-  background: 
-    linear-gradient(135deg, rgba(0,0,0,.30), rgba(0,0,0,.20));
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
   overflow: hidden;
-  margin-top: 10px;
-  box-shadow: 
-    inset 0 2px 8px rgba(0,0,0,.30),
-    0 2px 8px rgba(0,0,0,.10);
-  position: relative;
-}
-.progressBar::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255,255,255,.08) 50%, 
-    transparent 100%);
-  animation: progressShimmer 2s ease-in-out infinite;
-}
-@keyframes progressShimmer{
-  0%{ transform: translateX(-100%); }
-  100%{ transform: translateX(100%); }
+  margin-top: 8px;
 }
 .progressFill{
   height: 100%;
   width: 0%;
   border-radius: 999px;
-  background: 
-    radial-gradient(circle at 30% 50%, rgba(255,255,255,.25), transparent 70%),
-    linear-gradient(90deg, rgba(124,178,255,.90), rgba(92,255,164,.75));
-  box-shadow: 
-    0 0 20px rgba(124,178,255,.45),
-    0 0 40px rgba(92,255,164,.25),
-    inset 0 1px 0 rgba(255,255,255,.20);
-  transition: width .5s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-.progressFill::after{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,.30) 50%,
-    transparent 100%);
-  animation: progressGlide 1.5s ease-in-out infinite;
-}
-@keyframes progressGlide{
-  0%{ transform: translateX(-100%); }
-  100%{ transform: translateX(100%); }
+  background: linear-gradient(90deg, rgba(124,178,255,.80), rgba(92,255,164,.65));
+  box-shadow: 0 0 18px rgba(124,178,255,.35);
+  transition: width .35s ease;
 }
 
 .topList{
@@ -1239,42 +741,12 @@ body::after{
   display:flex;
   justify-content: space-between;
   align-items:center;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: 
-    linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  backdrop-filter: blur(12px) saturate(140%);
-  box-shadow: 
-    0 2px 8px rgba(0,0,0,.10),
-    inset 0 1px 0 rgba(255,255,255,.08);
-  transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.04);
 }
-.topItem::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(124,178,255,.10), transparent 70%);
-  opacity: 0;
-  transition: opacity .25s ease;
-}
-.topItem:hover{
-  transform: translateX(4px);
-  border-color: rgba(124,178,255,.30);
-  box-shadow: 
-    0 4px 12px rgba(0,0,0,.15),
-    0 0 24px rgba(124,178,255,.15),
-    inset 0 1px 0 rgba(255,255,255,.12);
-}
-.topItem:hover::before{
-  opacity: 1;
-}
-.topItem b{ 
-  font-weight: 900;
-  letter-spacing: -0.2px;
-}
+.topItem b{ font-weight: 800; }
 
 /* ===== Light theme (toggle) ===== */
 body.light{
@@ -1290,7 +762,7 @@ body.light{
 body.light header{
   background: linear-gradient(to bottom, rgba(245,247,255,.85), rgba(245,247,255,.55));
 }
-body.light .camWrap{ background:#111; } /* video ostaje citljiv */
+body.light .camWrap{ background:#111; } /* video ostaje čitljiv */
 /* ===== Icon system (CSS only) ===== */
 .ico{ width:18px; height:18px; display:inline-block; vertical-align:-3px; margin-right:8px; }
 .ico svg{ width:100%; height:100%; display:block; }
@@ -1505,33 +977,13 @@ body::before{
   color: var(--muted);
 }
 select{
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.18);
-  background: 
-    linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-  backdrop-filter: blur(12px) saturate(140%);
+  border-radius: 14px;
+  border: 1px solid var(--stroke2);
+  background: rgba(0,0,0,.22);
   color: var(--txt);
-  padding: 12px 14px;
+  padding: 11px 12px;
   font-size: 14px;
-  font-weight: 600;
   outline: none;
-  cursor: pointer;
-  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 2px 8px rgba(0,0,0,.12),
-    inset 0 1px 0 rgba(255,255,255,.08);
-}
-select:hover{
-  border-color: rgba(124,178,255,.35);
-  box-shadow: 
-    0 4px 12px rgba(0,0,0,.18),
-    0 0 20px rgba(124,178,255,.15);
-}
-select:focus{
-  border-color: rgba(124,178,255,.50);
-  box-shadow: 
-    0 4px 12px rgba(124,178,255,.20),
-    0 0 24px rgba(124,178,255,.15);
 }
 
 .ratingWrap{
@@ -1541,60 +993,20 @@ select:focus{
   flex-wrap:wrap;
 }
 .starBtn{
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: 
-    linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  backdrop-filter: blur(10px);
-  color: rgba(255,210,92,.60);
-  font-size: 20px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,210,92,.65);
+  font-size: 18px;
   line-height: 1;
-  cursor: pointer;
-  transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 2px 8px rgba(0,0,0,.10),
-    inset 0 1px 0 rgba(255,255,255,.08);
-}
-.starBtn:hover{
-  transform: scale(1.12) rotate(-5deg);
-  border-color: rgba(255,210,92,.40);
-  box-shadow: 
-    0 4px 12px rgba(255,210,92,.20),
-    0 0 20px rgba(255,210,92,.15);
 }
 .starBtn.on{
-  background: 
-    radial-gradient(circle at 30% 20%, rgba(255,210,92,.35), transparent 70%),
-    linear-gradient(135deg, rgba(255,210,92,.32), rgba(255,210,92,.16));
-  border-color: rgba(255,210,92,.65);
+  background: linear-gradient(135deg, rgba(255,210,92,.28), rgba(255,210,92,.12));
+  border-color: rgba(255,210,92,.55);
   color: rgba(255,210,92,1);
-  box-shadow: 
-    0 4px 16px rgba(255,210,92,.30),
-    0 8px 32px rgba(255,210,92,.20),
-    0 0 32px rgba(255,210,92,.25),
-    inset 0 1px 0 rgba(255,255,255,.15);
-  animation: starGlow 2s ease-in-out infinite;
-}
-.starBtn.on:hover{
-  transform: scale(1.15) rotate(5deg);
-}
-@keyframes starGlow{
-  0%, 100%{
-    box-shadow: 
-      0 4px 16px rgba(255,210,92,.30),
-      0 8px 32px rgba(255,210,92,.20),
-      0 0 32px rgba(255,210,92,.25),
-      inset 0 1px 0 rgba(255,255,255,.15);
-  }
-  50%{
-    box-shadow: 
-      0 6px 20px rgba(255,210,92,.40),
-      0 12px 40px rgba(255,210,92,.30),
-      0 0 48px rgba(255,210,92,.35),
-      inset 0 1px 0 rgba(255,255,255,.20);
-  }
+  box-shadow: 0 0 18px rgba(255,210,92,.22);
 }
 
 /* scan success pulse */
@@ -1607,72 +1019,22 @@ select:focus{
 }
 
 /* Simple bar chart (Top brendovi) */
-.barRow{ 
-  display:flex; 
-  align-items:center; 
-  gap:12px; 
-  padding:10px 0;
-  transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.barRow:hover{
-  transform: translateX(4px);
-}
-.barName{ 
-  flex: 0 0 130px; 
-  color: var(--muted); 
-  font-size: 13px; 
-  font-weight: 700;
-  overflow:hidden; 
-  text-overflow:ellipsis; 
-  white-space:nowrap;
-}
+.barRow{ display:flex; align-items:center; gap:10px; padding:8px 0; }
+.barName{ flex: 0 0 120px; color: var(--muted); font-size: 12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .barTrack{
   flex:1;
-  height: 14px;
+  height: 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: 
-    linear-gradient(135deg, rgba(0,0,0,.28), rgba(0,0,0,.18));
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
   overflow:hidden;
-  box-shadow: 
-    inset 0 2px 6px rgba(0,0,0,.25),
-    0 2px 6px rgba(0,0,0,.08);
 }
 .barFill{
   height:100%;
   width: 0%;
   border-radius: 999px;
-  background: 
-    radial-gradient(circle at 30% 50%, rgba(255,255,255,.20), transparent 70%),
-    linear-gradient(90deg, rgba(124,178,255,.85), rgba(92,255,164,.70));
-  box-shadow: 
-    0 0 16px rgba(124,178,255,.35),
-    inset 0 1px 0 rgba(255,255,255,.15);
-  transition: width .6s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-.barFill::after{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,.25) 50%,
-    transparent 100%);
-  animation: barShine 2s ease-in-out infinite;
-}
-@keyframes barShine{
-  0%{ transform: translateX(-100%); }
-  100%{ transform: translateX(100%); }
-}
-.barValue{ 
-  width: 32px; 
-  text-align:right; 
-  font-weight:900;
-  font-size: 14px;
-  color: var(--txt);
+  background: linear-gradient(90deg, rgba(124,178,255,.80), rgba(92,255,164,.65));
+  transition: width .35s ease;
 }
 /* =======================
    iOS-style Scan FAB
@@ -1681,54 +1043,46 @@ select:focus{
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(14px + 84px);
+  bottom: calc(14px + 84px); /* iznad bottomBar-a */
   z-index: 80;
-  pointer-events: none;
+  pointer-events: none; /* samo dugme hvata klik */
 }
 
 .scanFab{
   pointer-events: auto;
-  width: 88px;
-  height: 88px;
+  width: 74px;
+  height: 74px;
   border-radius: 999px;
 
-  border: 2px solid rgba(255,255,255,.35);
+  border: 1px solid rgba(255,255,255,.22);
   background:
-    radial-gradient(circle at 25% 20%, rgba(255,255,255,.40), transparent 65%),
-    radial-gradient(circle at 75% 80%, rgba(138,43,226,.60), transparent 65%),
-    linear-gradient(135deg, rgba(0,191,255,.75), rgba(50,255,150,.65));
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.28), transparent 55%),
+    linear-gradient(135deg, rgba(124,178,255,.42), rgba(92,255,164,.28));
 
   box-shadow:
-    0 12px 48px rgba(0,0,0,.5),
-    0 24px 96px rgba(0,0,0,.35),
-    0 0 80px rgba(0,191,255,.50),
-    0 0 140px rgba(50,255,150,.30),
-    inset 0 2px 0 rgba(255,255,255,.25),
-    inset 0 0 50px rgba(255,255,255,.10);
+    0 25px 75px rgba(0,0,0,.70),
+    0 0 35px rgba(124,178,255,.45),
+    0 0 70px rgba(92,255,164,.25),
+    inset 0 0 25px rgba(255,255,255,.10);
 
   display: grid;
   place-items: center;
 
-  transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform .2s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow .2s ease, 
+              border-color .2s ease, 
+              background .2s ease;
   
   cursor: pointer;
-  animation: fabFloat 3s ease-in-out infinite;
-}
-
-@keyframes fabFloat{
-  0%, 100%{ transform: translateY(0); }
-  50%{ transform: translateY(-4px); }
 }
 
 .scanFab:hover{
-  transform: scale(1.12) translateY(-4px);
+  transform: scale(1.05);
   box-shadow:
-    0 16px 64px rgba(0,0,0,.6),
-    0 32px 128px rgba(0,0,0,.45),
-    0 0 120px rgba(0,191,255,.70),
-    0 0 200px rgba(50,255,150,.45),
-    inset 0 2px 0 rgba(255,255,255,.30);
-  animation: none;
+    0 28px 85px rgba(0,0,0,.75),
+    0 0 45px rgba(124,178,255,.60),
+    0 0 90px rgba(92,255,164,.35),
+    inset 0 0 30px rgba(255,255,255,.12);
 }
 
 .scanFab:active{
@@ -1738,101 +1092,94 @@ select:focus{
 .scanFab::before{
   content:"";
   position:absolute;
-  width: 110px;
-  height: 110px;
+  width: 92px;
+  height: 92px;
   border-radius: 999px;
-  border: 2px solid rgba(0,191,255,.30);
-  box-shadow: 0 0 50px rgba(0,191,255,.30);
+  border: 2px solid rgba(124,178,255,.22);
+  box-shadow: 0 0 26px rgba(124,178,255,.22);
   opacity: .9;
-  animation: fabRing 2s ease-in-out infinite;
-}
-
-@keyframes fabRing{
-  0%, 100%{ transform: scale(1); opacity: .9; }
-  50%{ transform: scale(1.08); opacity: .6; }
 }
 
 .scanFabInner{
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   border-radius: 999px;
-  border: 1.5px solid rgba(255,255,255,.30);
+  border: 1px solid rgba(255,255,255,.20);
   background:
-    radial-gradient(circle at 25% 15%, rgba(255,255,255,.30), transparent 70%),
-    rgba(0,0,0,.35);
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.20), transparent 60%),
+    rgba(0,0,0,.25);
 
   box-shadow:
-    inset 0 3px 12px rgba(0,0,0,.60),
-    inset 0 0 30px rgba(0,0,0,.40),
-    0 0 25px rgba(50,255,150,.30);
+    inset 0 0 18px rgba(0,0,0,.45),
+    0 0 12px rgba(92,255,164,.20);
 
   display:grid;
   place-items:center;
 }
 
 .scanFabIcon{
-  width: 26px;
-  height: 26px;
-  opacity: .95;
-  filter: drop-shadow(0 0 15px rgba(0,191,255,.50));
+  width: 22px;
+  height: 22px;
+  opacity: .92;
+  filter: drop-shadow(0 0 10px rgba(124,178,255,.35));
 }
 .scanFabIcon svg{ width:100%; height:100%; display:block; }
 
 /* state: scanning */
 .scanFabWrap.scanning .scanFab{
-  border-color: rgba(255,70,100,.55);
+  border-color: rgba(255,92,92,.45);
   background:
-    radial-gradient(circle at 25% 20%, rgba(255,255,255,.22), transparent 60%),
-    linear-gradient(135deg, rgba(255,70,100,.40), rgba(138,43,226,.30));
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.18), transparent 55%),
+    linear-gradient(135deg, rgba(255,92,92,.30), rgba(124,178,255,.22));
 
   box-shadow:
-    0 28px 90px rgba(0,0,0,.75),
-    0 0 50px rgba(255,70,100,.40),
-    inset 0 0 30px rgba(255,255,255,.10);
+    0 22px 70px rgba(0,0,0,.70),
+    0 0 34px rgba(255,92,92,.30),
+    inset 0 0 22px rgba(255,255,255,.08);
   
-  animation: scanningPulse 1.8s ease-in-out infinite;
+  animation: scanningPulse 1.5s ease-in-out infinite;
 }
 
 @keyframes scanningPulse{
   0%, 100%{
     transform: scale(1);
     box-shadow:
-      0 28px 90px rgba(0,0,0,.75),
-      0 0 50px rgba(255,70,100,.40),
-      inset 0 0 30px rgba(255,255,255,.10);
+      0 22px 70px rgba(0,0,0,.70),
+      0 0 34px rgba(255,92,92,.30),
+      inset 0 0 22px rgba(255,255,255,.08);
   }
   50%{
-    transform: scale(1.08);
+    transform: scale(1.03);
     box-shadow:
-      0 32px 100px rgba(0,0,0,.80),
-      0 0 80px rgba(255,70,100,.65),
-      inset 0 0 35px rgba(255,255,255,.15);
+      0 24px 75px rgba(0,0,0,.72),
+      0 0 40px rgba(255,92,92,.40),
+      inset 0 0 24px rgba(255,255,255,.10);
   }
 }
 
 .scanFabWrap.scanning .scanFab::before{
-  border-color: rgba(255,70,100,.28);
-  box-shadow: 0 0 40px rgba(255,70,100,.28);
+  border-color: rgba(255,92,92,.22);
+  box-shadow: 0 0 28px rgba(255,92,92,.22);
 }
 
 /* pulse ring (subtle) */
 .scanFabPulse{
   position:absolute;
-  inset: -22px;
+  inset: -18px;
   border-radius: 999px;
-  border: 2px solid rgba(0,191,255,.22);
+  border: 2px solid rgba(124,178,255,.18);
   opacity: 0;
-  animation: fabPulse 2.5s ease-in-out infinite;
+  animation: fabPulse 2.2s ease-in-out infinite;
 }
 
 .scanFabWrap.scanning .scanFabPulse{
-  border-color: rgba(255,70,100,.22);
+  border-color: rgba(255,92,92,.18);
 }
 
 @keyframes fabPulse{
-  0%{ transform: scale(.90); opacity: 0; }
-  40%{ opacity: .85; }
-  100%{ transform: scale(1.20); opacity: 0; }
+  0%{ transform: scale(.95); opacity: 0; }
+  35%{ opacity: .60; }
+  100%{ transform: scale(1.10); opacity: 0; }
 }
 
 /* mobile safe area */
@@ -1907,10 +1254,9 @@ select:focus{
   z-index: 9999;
 
   background:
-    radial-gradient(ellipse at 25% 15%, rgba(0,191,255,.30), transparent 55%),
-    radial-gradient(ellipse at 75% 85%, rgba(138,43,226,.25), transparent 55%),
-    radial-gradient(ellipse at 50% 50%, rgba(50,255,150,.20), transparent 60%),
-    linear-gradient(135deg, #0A0E1A 0%, #0D1220 50%, #0A0E1A 100%);
+    radial-gradient(circle at 30% 20%, rgba(124,178,255,.25), transparent 60%),
+    radial-gradient(circle at 70% 80%, rgba(92,255,164,.18), transparent 60%),
+    #070A10;
 
   display: flex;
 
@@ -1918,9 +1264,9 @@ select:focus{
 
   justify-content: center;
 
-  animation: splashFadeOut 0.7s ease forwards;
+  animation: splashFadeOut 0.6s ease forwards;
 
-  animation-delay: 1.8s;
+  animation-delay: 1.6s;
 
 }
 
@@ -1928,87 +1274,59 @@ select:focus{
 
   text-align: center;
 
-  animation: splashScale 1.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: splashScale 1.2s ease;
 
 }
 
 .splashLogo{
 
-  width: 96px;
+  width: 84px;
 
-  height: 96px;
+  height: 84px;
 
-  margin: 0 auto 22px;
+  margin: 0 auto 18px;
 
-  border-radius: 28px;
+  border-radius: 22px;
 
   background:
-    radial-gradient(circle at 25% 15%, rgba(0,191,255,.95), transparent 65%),
-    radial-gradient(circle at 75% 85%, rgba(138,43,226,.75), transparent 65%),
-    linear-gradient(135deg, rgba(50,255,150,.50), rgba(255,20,147,.40));
+    radial-gradient(circle at 30% 20%, rgba(124,178,255,.85), rgba(124,178,255,.15) 55%),
+    linear-gradient(135deg, rgba(92,255,164,.35), rgba(255,210,92,.25));
 
-  border: 2px solid rgba(255,255,255,.35);
+  border: 1px solid rgba(255,255,255,.18);
 
   box-shadow:
-    0 0 60px rgba(0,191,255,.80),
-    0 0 120px rgba(50,255,150,.45),
-    0 0 180px rgba(138,43,226,.30),
-    inset 0 2px 0 rgba(255,255,255,.25);
+    0 0 40px rgba(124,178,255,.65),
+    0 0 80px rgba(92,255,164,.35);
 
   animation: splashGlow 2.5s ease-in-out infinite;
-  
-  position: relative;
-  overflow: hidden;
 
-}
-
-.splashLogo::before{
-  content: "";
-  position: absolute;
-  inset: -100%;
-  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,.4) 50%, transparent 70%);
-  animation: splashShine 2s ease-in-out infinite;
-}
-
-@keyframes splashShine{
-  0%{ transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100%{ transform: translateX(200%) translateY(200%) rotate(45deg); }
 }
 
 .splashTitle{
 
-  font-size: 32px;
+  font-size: 26px;
 
-  font-weight: 900;
+  font-weight: 800;
 
-  letter-spacing: .6px;
-  
-  background: linear-gradient(135deg, #fff 0%, rgba(0,191,255,.95) 50%, rgba(50,255,150,.90) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  
-  text-shadow: 0 0 40px rgba(0,191,255,.3);
+  letter-spacing: .4px;
 
 }
 
 .splashSubtitle{
 
-  margin-top: 10px;
+  margin-top: 6px;
 
-  font-size: 15px;
+  font-size: 13px;
 
-  color: rgba(240,244,255,.75);
+  color: rgba(234,241,255,.65);
   
-  font-weight: 600;
-  
-  animation: splashSubtitleFade 1.8s ease;
+  animation: splashSubtitleFade 1.6s ease;
 
 }
 
 @keyframes splashSubtitleFade{
-  0%{ opacity: 0; transform: translateY(12px); }
-  45%{ opacity: 0; }
+  0%{ opacity: 0; transform: translateY(8px); }
+  40%{ opacity: 0; }
   100%{ opacity: 1; transform: translateY(0); }
 }
 
@@ -2017,7 +1335,7 @@ select:focus{
 @keyframes splashScale{
 
   0%{
-    transform: scale(.80);
+    transform: scale(.85);
     opacity: 0;
   }
 
@@ -2032,21 +1350,20 @@ select:focus{
 
   0%{
     box-shadow:
-      0 0 50px rgba(0,191,255,.65),
-      0 0 100px rgba(50,255,150,.35);
+      0 0 30px rgba(124,178,255,.45),
+      0 0 60px rgba(92,255,164,.25);
   }
 
   50%{
     box-shadow:
-      0 0 90px rgba(0,191,255,1),
-      0 0 180px rgba(50,255,150,.65),
-      0 0 270px rgba(138,43,226,.40);
+      0 0 45px rgba(124,178,255,.75),
+      0 0 90px rgba(92,255,164,.40);
   }
 
   100%{
     box-shadow:
-      0 0 50px rgba(0,191,255,.65),
-      0 0 100px rgba(50,255,150,.35);
+      0 0 30px rgba(124,178,255,.45),
+      0 0 60px rgba(92,255,164,.25);
   }
 
 }
@@ -2070,25 +1387,18 @@ select:focus{
   inset: 0;
   z-index: 10000;
   display: none;
+
+  /* KLJUČNO: klik ide na elemente ispod (spotlight je samo vizuelan) */
   pointer-events: none;
-  will-change: opacity;
 }
 
-#tourOverlay.show{ 
-  display:block;
-  animation: tourFadeIn 0.3s ease forwards;
-}
-
-@keyframes tourFadeIn{
-  from{ opacity: 0; }
-  to{ opacity: 1; }
-}
+#tourOverlay.show{ display:block; }
 
 .tourDim{
   position:absolute;
   inset:0;
-  background: rgba(0,0,0,.35);
-  backdrop-filter: none;
+  background: rgba(0,0,0,.35);   /* manje zatamnjenje */
+  backdrop-filter: none;         /* bez blur-a da se vidi UI */
 }
 
 /* RUPA/spotlight */
@@ -2102,13 +1412,26 @@ select:focus{
     0 0 0 4px rgba(124,178,255,.90),
     0 0 70px rgba(124,178,255,.85),
     0 0 140px rgba(92,255,164,.45),
-    inset 0 0 30px rgba(124,178,255,.15);
+    inset 0 0 30px rgba(124,178,255,.15); transition: left .3s ease, top .3s ease, width .3s ease, height .3s ease; }
 
-  transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: left, top, width, height;
+@keyframes holeGlow{
+  0%, 100%{
+    box-shadow:
+      0 0 0 9999px rgba(0,0,0,.45),
+      0 0 0 4px rgba(124,178,255,.80),
+      0 0 60px rgba(124,178,255,.75),
+      0 0 120px rgba(92,255,164,.35),
+      inset 0 0 25px rgba(124,178,255,.12);
+  }
+  50%{
+    box-shadow:
+      0 0 0 9999px rgba(0,0,0,.45),
+      0 0 0 4px rgba(92,255,164,.85),
+      0 0 75px rgba(124,178,255,.85),
+      0 0 150px rgba(92,255,164,.50),
+      inset 0 0 30px rgba(92,255,164,.15);
+  }
 }
-
-/* Uklonjena holeGlow animacija koja je izazivala blinkanje */
 
 /* Tooltip mora da prima klik */
 .tourTooltip{
@@ -2142,7 +1465,7 @@ select:focus{
   }
 }
 
-/* ?Klikni ovde? indikator (mala strelica) */
+/* “Klikni ovde” indikator (mala strelica) */
 .tourTapHint{
   margin-top: 12px;
   display:inline-flex;
@@ -2159,20 +1482,7 @@ select:focus{
   box-shadow: 
     0 0 20px rgba(92,255,164,.25),
     inset 0 1px 0 rgba(255,255,255,.15);
-  animation: tapHintPulse 2s ease-in-out infinite;
-}
-
-@keyframes tapHintPulse{
-  0%, 100%{ 
-    box-shadow: 
-      0 0 20px rgba(92,255,164,.25),
-      inset 0 1px 0 rgba(255,255,255,.15);
-  }
-  50%{ 
-    box-shadow: 
-      0 0 35px rgba(92,255,164,.45),
-      inset 0 1px 0 rgba(255,255,255,.20);
-  }
+  
 }
 
 .tourTitle{ 
@@ -2278,8 +1588,9 @@ select:focus{
 }
 .tourBtn:disabled{ opacity:.55; cursor:not-allowed; }
 
-/* tourPulse animacija uklonjena da ne blinka */
-/* Nikad ne prikazuj ?Kamera je uga?ena? */
+.tourPulse{ animation: tourPulse 1.1s ease-in-out infinite; }
+@keyframes tourPulse{ 0%{ transform: scale(1);} 50%{ transform: scale(1.01);} 100%{ transform: scale(1);} }
+/* Nikad ne prikazuj “Kamera je ugašena” */
 #cameraPlaceholder{ display:none !important; }
   </style>
 </head>
@@ -2295,7 +1606,7 @@ select:focus{
     <div class="splashTitle">BeerScan</div>
 
     <div class="splashSubtitle">
-      Skenirajte. Sacuvajte. Otkrijte.
+      Skenirajte. Sačuvajte. Otkrijte.
     </div>
 
   </div>
@@ -2307,15 +1618,15 @@ select:focus{
       <div class="logo"></div>
       <div>
         <h1>BeerScan</h1>
-        <div class="sub">Skenirajte bar-kod ? istorija (lokalno) + Open Food Facts podaci.</div>
+        <div class="sub">Skenirajte bar-kod → istorija (lokalno) + Open Food Facts podaci.</div>
       </div>
     </div>
     <div class="spacer"></div>
     <button id="btnTheme" class="primary" style="padding: 10px 14px; font-size: 13px; margin-right: 8px;" title="Promeni temu">
-      <span style="font-size: 16px;">??</span>
+      <span style="font-size: 16px;">🌙</span>
     </button>
-    <button id="btnHelp" class="primary" style="padding: 10px 14px; font-size: 13px;" title="Prika?i uputstvo">
-      <span style="font-size: 16px;">?</span> Pomoc
+    <button id="btnHelp" class="primary" style="padding: 10px 14px; font-size: 13px;" title="Prikaži uputstvo">
+      <span style="font-size: 16px;">❓</span> Pomoć
     </button>
   </div>
 </header>
@@ -2356,14 +1667,14 @@ select:focus{
     <div class="scanTopbar">
       <div class="row" style="gap:10px; align-items:center;">
         <span class="pill">Skeniranje</span>
-        <span class="pill mono" id="securePill">?</span>
-        <span class="pill mono" id="detectorPill">?</span>
+        <span class="pill mono" id="securePill">—</span>
+        <span class="pill mono" id="detectorPill">—</span>
         <div class="spacer"></div>
         
-       <button id="btnStart" class="primary hidden">Pokreni</button>
-<button id="btnStop" class="hidden">Stop</button>
-<button id="btnTorch" class="warn" disabled>??</button>
-<button id="btnClear" class="danger">Obri?i</button>
+       <button id="btnStart" class="primary hidden">▶️ Pokreni</button>
+<button id="btnStop" class="hidden">⏹️ Stop</button>
+<button id="btnTorch" class="warn" disabled>🔦 Blic</button>
+<button id="btnClear" class="danger">🗑️ Obriši</button>
       </div>
       
       <div class="statusMini" id="status">Status: spremno.</div>
@@ -2377,7 +1688,7 @@ select:focus{
             <path d="M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
           </svg>
         </div>
-        <div class="cameraTitle">Kamera je uga?ena</div>
+        <div class="cameraTitle">Kamera je ugašena</div>
         <div class="cameraHint">Pritisnite <b>Scan</b> dugme da pokrenete skeniranje.</div>
       </div>
     </div>
@@ -2388,24 +1699,24 @@ select:focus{
       <video id="video" playsinline muted></video>
       
       <div class="scanFrame">
-        <div class="frameBox" title="Dr?ite bar-kod u okviru"></div>
+        <div class="frameBox" title="Držite bar-kod u okviru"></div>
       </div>
       
       <!-- diskretan gradient dole (da se sheet bolje vidi) -->
       <div class="heroFade"></div>
     </div>
     
-    <!-- Bottom sheet rezultat + rucni unos -->
+    <!-- Bottom sheet rezultat + ručni unos -->
     <div class="bottomSheet glass">
       <div class="sheetGrip"></div>
       
       <div class="sheetBlock hidden" id="scanPanel">
         <div class="row">
-          <input id="manualBarcode" class="mono" placeholder="Unesite bar-kod rucno" inputmode="numeric" style="flex:1; min-width: 220px" />
+          <input id="manualBarcode" class="mono" placeholder="Unesite bar-kod ručno" inputmode="numeric" style="flex:1; min-width: 220px" />
           <button id="btnLookup" class="primary">Proveri</button>
         </div>
         <div class="hint" style="margin-top:8px">
-          Savet: dr?ite bar-kod 15?30 cm, u dobrom svetlu. Sjajno pakovanje: blago nagnite proizvod.
+          Savet: držite bar-kod 15–30 cm, u dobrom svetlu. Sjajno pakovanje: blago nagnite proizvod.
         </div>
       </div>
       
@@ -2415,57 +1726,56 @@ select:focus{
             <div class="resultTitle">Trenutno skenirano</div>
             
             <div class="row" style="gap:8px; margin:6px 0 10px;">
-              <span class="pill mono" id="statusPill">?</span>
-              <span class="pill mono" id="currentBarcode" style="font-size:13px;">?</span>
+              <span class="pill mono" id="statusPill">—</span>
+              <span class="pill mono" id="currentBarcode" style="font-size:13px;">—</span>
             </div>
             
-            <div id="currentName" class="sheetTitle">?</div>
-            <div id="currentMeta" class="resultMeta">?</div>
+            <div id="currentName" class="sheetTitle">—</div>
+            <div id="currentMeta" class="resultMeta">—</div>
             
             <div class="row sheetBtns" style="margin-top:10px;">
-              <button id="btnCapture" class="good" disabled"> ? Sacuvaj ?Probao?</button>
-              <button id="btnCapturePhoto" class="primary" disabled>?? Dodaj sliku</button>
-              <button id="btnOpenOff" class="primary" disabled>?? Detalji (OFF)</button>
+              <button id="btnCapture" class="good" disabled>✅ Sačuvaj “Probao” + sliku</button>
+              <button id="btnOpenOff" class="primary" disabled>ℹ️ Detalji (OFF)</button>
             </div>
             <div class="row" style="margin-top:10px; gap:10px; flex-wrap:wrap;">
-  <button id="btnFav" class="primary" disabled>? Favorit</button>
-  <button id="btnShare" class="primary" disabled title="Podeli proizvod">??</button>
-  <button id="btnLocation" class="primary" disabled title="Dodaj GPS lokaciju">?? Lokacija</button>
-  <button id="btnUntappd" class="primary" disabled title="Pove?i sa Untappd">?? Untappd</button>
-  <button id="btnCalendar" class="primary" disabled title="Dodaj u kalendar">?? Kalendar</button>
+  <button id="btnFav" class="primary" disabled>♡ Favorit</button>
+  <button id="btnShare" class="primary" disabled title="Podeli proizvod">📤</button>
+  <button id="btnLocation" class="primary" disabled title="Dodaj GPS lokaciju">📍 Lokacija</button>
+  <button id="btnUntappd" class="primary" disabled title="Poveži sa Untappd">🍺 Untappd</button>
+  <button id="btnCalendar" class="primary" disabled title="Dodaj u kalendar">📅 Kalendar</button>
 
   <div class="ratingWrap" id="ratingWrap">
-    <button class="starBtn" data-star="1">?</button>
-    <button class="starBtn" data-star="2">?</button>
-    <button class="starBtn" data-star="3">?</button>
-    <button class="starBtn" data-star="4">?</button>
-    <button class="starBtn" data-star="5">?</button>
-    <span class="pill mono" id="ratingPill">Ocena: ?</span>
+    <button class="starBtn" data-star="1">★</button>
+    <button class="starBtn" data-star="2">★</button>
+    <button class="starBtn" data-star="3">★</button>
+    <button class="starBtn" data-star="4">★</button>
+    <button class="starBtn" data-star="5">★</button>
+    <span class="pill mono" id="ratingPill">Ocena: —</span>
   </div>
 </div>
 
 <!-- Lokacija info -->
 <div id="locationInfo" style="display:none; margin-top:10px; padding:12px; border-radius:16px; border:1px solid rgba(92,255,164,.35); background:rgba(92,255,164,.12);">
-  <div style="font-size:13px; color:var(--txt); margin-bottom:6px;">?? Lokacija sacuvana:</div>
+  <div style="font-size:13px; color:var(--txt); margin-bottom:6px;">📍 Lokacija sačuvana:</div>
   <div id="locationText" style="font-size:12px; color:var(--muted);"></div>
-  <button id="btnViewMap" class="primary" style="margin-top:8px; font-size:12px; padding:8px 12px;">??? Prika?i na mapi</button>
+  <button id="btnViewMap" class="primary" style="margin-top:8px; font-size:12px; padding:8px 12px;">🗺️ Prikaži na mapi</button>
 </div>
 
 <div style="margin-top:10px;">
-  <textarea id="noteInput" placeholder="Bele?ka (npr. ukus, gde kupljeno...)" rows="2"
-    style="width:100%; border-radius:16px; border:1px solid rgba(255,255,255,.18); background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04)); backdrop-filter:blur(12px) saturate(140%); color:var(--txt); padding:12px; font-size:14px; font-weight:600; outline:none; transition:all .3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow:0 2px 8px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.08); resize:vertical; font-family:inherit;"></textarea>
+  <textarea id="noteInput" placeholder="Beleška (npr. ukus, gde kupljeno...)" rows="2"
+    style="width:100%; border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); color:var(--txt); padding:10px;"></textarea>
   <div class="row" style="margin-top:8px;">
-    <button id="btnSaveNote" class="primary" disabled>?? Sacuvaj bele?ku</button>
+    <button id="btnSaveNote" class="primary" disabled>💾 Sačuvaj belešku</button>
     <span class="spacer"></span>
-    <span class="pill mono" id="onlinePill">?</span>
+    <span class="pill mono" id="onlinePill">—</span>
   </div>
 </div>
           </div>
           
           <div style="display:grid; gap:10px;">
             <img id="offThumb" class="thumb" alt="OFF slika" style="display:none" />
-            <img id="lastPhoto" class="thumb" alt="Va?a fotografija" style="display:none" />
-            <div class="hint" id="photoHint" style="display:none;">Gore: OFF slika ? Dole: Va?a slika</div>
+            <img id="lastPhoto" class="thumb" alt="Vaša fotografija" style="display:none" />
+            <div class="hint" id="photoHint" style="display:none;">Gore: OFF slika · Dole: Vaša slika</div>
           </div>
         </div>
       </div>
@@ -2480,7 +1790,7 @@ select:focus{
   <section class="card">
     <div class="row" style="justify-content: space-between;">
       <div class="row">
-        <span class="pill">?? Istorija</span>
+        <span class="pill">📚 Istorija</span>
         <span class="pill" id="historyCount">0</span>
       </div>
       <div class="hint">Kliknite na stavku da je otvorite.</div>
@@ -2490,20 +1800,20 @@ select:focus{
 
     <div class="card soft">
       <div class="row">
-        <input id="historySearch" placeholder="Pretra?i (barcode / naziv / brend)" style="flex:1; min-width: 220px" />
+        <input id="historySearch" placeholder="Pretraži (barcode / naziv / brend)" style="flex:1; min-width: 220px" />
 
         <select id="historySort" style="min-width: 190px;">
-          <option value="date_desc">Datum ?</option>
-          <option value="date_asc">Datum ?</option>
-          <option value="brand_asc">Brend A?Z</option>
-          <option value="rating_desc">Ocena ?</option>
+          <option value="date_desc">Datum ↓</option>
+          <option value="date_asc">Datum ↑</option>
+          <option value="brand_asc">Brend A→Z</option>
+          <option value="rating_desc">Ocena ↓</option>
           <option value="fav_first">Favoriti prvo</option>
         </select>
 
         <button class="tabBtn active" id="filterAll" style="flex:0 0 auto; padding:10px 12px;">Sve</button>
         <button class="tabBtn" id="filterNew" style="flex:0 0 auto; padding:10px 12px;">Novo</button>
         <button class="tabBtn" id="filterTried" style="flex:0 0 auto; padding:10px 12px;">Probano</button>
-        <button class="tabBtn" id="filterFav" style="flex:0 0 auto; padding:10px 12px;">?? Favoriti</button>
+        <button class="tabBtn" id="filterFav" style="flex:0 0 auto; padding:10px 12px;">❤️ Favoriti</button>
       </div>
     </div>
 
@@ -2512,7 +1822,7 @@ select:focus{
         <thead>
           <tr>
             <th style="width: 40px;">
-              <input type="checkbox" id="selectAll" style="cursor: pointer;" title="Oznaci sve">
+              <input type="checkbox" id="selectAll" style="cursor: pointer;" title="Označi sve">
             </th>
             <th>Datum</th>
             <th>Bar-kod</th>
@@ -2527,9 +1837,9 @@ select:focus{
     </div>
     
     <div id="bulkActions" class="row" style="margin-top: 12px; gap: 10px; display: none;">
-      <span class="pill" id="selectedCount">0 oznaceno</span>
-      <button id="btnDeleteSelected" class="danger">??? Obri?i oznaceno</button>
-      <button id="btnDeselectAll">?? Poni?ti</button>
+      <span class="pill" id="selectedCount">0 označeno</span>
+      <button id="btnDeleteSelected" class="danger">🗑️ Obriši označeno</button>
+      <button id="btnDeselectAll">✖️ Poništi</button>
     </div>
   </section>
 </div>
@@ -2541,13 +1851,13 @@ select:focus{
   <section class="card">
     <div class="row" style="justify-content: space-between;">
       <div class="row">
-        <span class="pill">?? Statistika</span>
-        <span class="pill" id="badgePill">?</span>
+        <span class="pill">📊 Statistika</span>
+        <span class="pill" id="badgePill">—</span>
       </div>
       <div class="row" style="gap:10px; flex-wrap:wrap; justify-content:flex-end;">
-  <button id="btnTutorial" class="primary">? Tutorijal</button>
-  <button id="btnExport" class="primary">?? Export</button>
-  <button id="btnImport" class="primary">?? Import</button>
+  <button id="btnTutorial" class="primary">▶ Tutorijal</button>
+  <button id="btnExport" class="primary">⬇️ Export</button>
+  <button id="btnImport" class="primary">⬆️ Import</button>
   <input id="importFile" type="file" accept="application/json" style="display:none" />
 </div>
     </div>
@@ -2572,36 +1882,36 @@ select:focus{
     </div>
 
     <div style="height:12px"></div>
-        <span class="pill mono" id="levelPill">?</span>
+        <span class="pill mono" id="levelPill">—</span>
       </div>
 
       <div style="height:10px"></div>
 
       <div class="badgeRow">
-        <div class="badge" id="badgeBronze">?? Bronza <span>10</span></div>
-        <div class="badge" id="badgeSilver">?? Srebro <span>25</span></div>
-        <div class="badge" id="badgeGold">?? Zlato <span>50</span></div>
-        <div class="badge" id="badgeLegend">?? Legenda <span>100</span></div>
+        <div class="badge" id="badgeBronze">🥉 Bronza <span>10</span></div>
+        <div class="badge" id="badgeSilver">🥈 Srebro <span>25</span></div>
+        <div class="badge" id="badgeGold">🥇 Zlato <span>50</span></div>
+        <div class="badge" id="badgeLegend">🏆 Legenda <span>100</span></div>
       </div>
       
       <div style="height:12px"></div>
       
-      <!-- Novi bed?evi -->
-      <div class="resultTitle">?? Specijalni bed?evi</div>
-      <div class="hint">Otkljucaj posebna dostignuca!</div>
+      <!-- Novi bedževi -->
+      <div class="resultTitle">🎯 Specijalni bedževi</div>
+      <div class="hint">Otključaj posebna dostignuća!</div>
       <div style="height:10px"></div>
       <div class="badgeRow">
-        <div class="badge" id="badgeExplorer">??? Istra?ivac <span>5 lokacija</span></div>
-        <div class="badge" id="badgeGlobetrotter">?? Putnik <span>10 lokacija</span></div>
-        <div class="badge" id="badgeSocial">?? Dru?tvenjak <span>10 deljenja</span></div>
-        <div class="badge" id="badgeUntappd">?? Untappd Fan <span>5 povezanih</span></div>
+        <div class="badge" id="badgeExplorer">🗺️ Istraživač <span>5 lokacija</span></div>
+        <div class="badge" id="badgeGlobetrotter">🌍 Putnik <span>10 lokacija</span></div>
+        <div class="badge" id="badgeSocial">🤝 Društvenjak <span>10 deljenja</span></div>
+        <div class="badge" id="badgeUntappd">🍺 Untappd Fan <span>5 povezanih</span></div>
       </div>
 
       <div style="height:12px"></div>
 
       <div class="progressWrap">
         <div class="progressTop">
-          <div class="hint">Napredak do sledeceg bed?a</div>
+          <div class="hint">Napredak do sledećeg bedža</div>
           <div class="mono" id="progressText">0/10</div>
         </div>
         <div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
@@ -2612,9 +1922,9 @@ select:focus{
 
     <div class="card soft">
       <div class="resultTitle">Top brendovi</div>
-      <div class="hint">Na osnovu Open Food Facts polja ?brands?.</div>
+      <div class="hint">Na osnovu Open Food Facts polja “brands”.</div>
       <div style="height:10px"></div>
-      <div id="topBrands" class="topList">?</div>
+      <div id="topBrands" class="topList">—</div>
     </div>
     
     <div style="height:12px"></div>
@@ -2622,13 +1932,13 @@ select:focus{
     <!-- Pivski kalendar -->
     <div class="card soft">
       <div class="row" style="justify-content:space-between; align-items:center;">
-        <div class="resultTitle">?? Pivski kalendar</div>
-        <button id="btnAddCalendarEvent" class="primary" style="font-size:12px; padding:8px 12px;">+ Dodaj dogadaj</button>
+        <div class="resultTitle">📅 Pivski kalendar</div>
+        <button id="btnAddCalendarEvent" class="primary" style="font-size:12px; padding:8px 12px;">+ Dodaj događaj</button>
       </div>
-      <div class="hint">Planiraj degustacije, posete pivnicama i pivske dogadaje</div>
+      <div class="hint">Planiraj degustacije, posete pivnicama i pivske događaje</div>
       <div style="height:10px"></div>
       <div id="calendarEvents" class="topList">
-        <div class="hint">Nema planiranih dogadaja. Kliknite + da dodate.</div>
+        <div class="hint">Nema planiranih događaja. Kliknite + da dodate.</div>
       </div>
     </div>
   </section>
@@ -2654,9 +1964,9 @@ select:focus{
   <div class="tourHole" id="tourHole"></div>
 
   <div class="tourTooltip glass" id="tourTooltip" role="dialog" aria-modal="true" aria-label="Uputstvo">
-    <div class="tourTitle" id="tourTitle">?</div>
-    <div class="tourText" id="tourText">?</div>
-    <div class="tourTapHint" id="tourTapHint" style="display:none;">?</div>
+    <div class="tourTitle" id="tourTitle">—</div>
+    <div class="tourText" id="tourText">—</div>
+    <div class="tourTapHint" id="tourTapHint" style="display:none;">—</div>
 
     <div class="tourBottom">
       <div style="flex: 1;">
@@ -2667,8 +1977,8 @@ select:focus{
       </div>
 
       <div class="tourBtns">
-        <button class="tourBtn" id="tourClose" type="button">Preskoci</button>
-        <button class="tourBtn" id="tourBack" type="button">?</button>
+        <button class="tourBtn" id="tourClose" type="button">Preskoči</button>
+        <button class="tourBtn" id="tourBack" type="button">←</button>
         <button class="tourBtn primary" id="tourNext" type="button">Dalje</button>
         <button class="tourBtn good" id="tourDone" type="button">Razumem</button>
       </div>
@@ -2678,7 +1988,7 @@ select:focus{
 </main>
 
 <script>
-console.log('=== BEERSCAN v2.1.1 UCITAN ===');
+console.log('=== BEERSCAN v2.1.1 UČITAN ===');
 console.log('Datum:', new Date().toLocaleString());
 console.log('URL:', window.location.href);
 console.log('HTTPS:', window.location.protocol === 'https:');
@@ -2779,7 +2089,7 @@ async function dbClear(){
 async function fetchOFF(barcode){
   const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`;
   const res = await fetch(url, { cache: "no-store" });
-  if(!res.ok) throw new Error("OFF API gre?ka");
+  if(!res.ok) throw new Error("OFF API greška");
   return await res.json();
 }
 
@@ -2828,7 +2138,7 @@ const btnTutorial = document.getElementById("btnTutorial");
 
 if(btnTutorial){
   btnTutorial.addEventListener("click", () => {
-    // otvorimo Stats tab (da bude logicno gde je dugme)
+    // otvorimo Stats tab (da bude logično gde je dugme)
     setTab("stats");
     openTour();
   });
@@ -2856,22 +2166,22 @@ function setCameraUI(on) {
   // HERO kamera (video) prikazujemo samo kada je ON
   if (heroCamEl) heroCamEl.classList.toggle("hidden", !on);
   
-  // RUCNI UNOS hocemo da bude vidljiv uvek (i kad je kamera OFF)
+  // RUČNI UNOS hoćemo da bude vidljiv uvek (i kad je kamera OFF)
   if (scanPanelEl) scanPanelEl.classList.remove("hidden");
   
-  // Placeholder nikad (vec ga gasimo i CSS-om)
+  // Placeholder nikad (već ga gasimo i CSS-om)
   if (cameraPlaceholderEl) cameraPlaceholderEl.classList.add("hidden");
   
-  // sigurnosno resetovanje kad je kamera uga?ena
+  // sigurnosno resetovanje kad je kamera ugašena
   if (!on) {
     btnCapture.disabled = true;
     btnTorch.disabled = true;
-    btnTorch.textContent = "??";
+    btnTorch.textContent = "🔦";
   }
 }
 
 function setStatus(text, kind = "") {
-  // zadr?avamo statusMini, a dodajemo ok/warn/bad klase
+  // zadržavamo statusMini, a dodajemo ok/warn/bad klase
   statusEl.className = "statusMini " + (kind || "");
   statusEl.textContent = "Status: " + text;
 }
@@ -2896,13 +2206,13 @@ function isSecureForCamera(){
 
 function updateSecurePill(){
   const ok = isSecureForCamera();
-  securePill.textContent = ok ? "? Secure (kamera dozvoljena)" : "? Nije secure (HTTPS/localhost)";
+  securePill.textContent = ok ? "✅ Secure (kamera dozvoljena)" : "⛔ Nije secure (HTTPS/localhost)";
   securePill.style.borderColor = ok ? "rgba(92,255,164,.35)" : "rgba(255,92,92,.35)";
 }
 
 function updateDetectorPill(){
   const ok = ("BarcodeDetector" in window);
-  detectorPill.textContent = ok ? "? BarcodeDetector OK" : "? BarcodeDetector nije dostupan";
+  detectorPill.textContent = ok ? "✅ BarcodeDetector OK" : "⛔ BarcodeDetector nije dostupan";
   detectorPill.style.borderColor = ok ? "rgba(92,255,164,.35)" : "rgba(255,92,92,.35)";
 }
 function isOnline(){
@@ -2912,7 +2222,7 @@ function isOnline(){
 function updateOnlinePill(){
   if(!onlinePill) return;
   const on = isOnline();
-  onlinePill.textContent = on ? "?? Online" : "?? Offline";
+  onlinePill.textContent = on ? "🌐 Online" : "📴 Offline";
   onlinePill.style.borderColor = on ? "rgba(92,255,164,.35)" : "rgba(255,92,92,.35)";
 }
 window.addEventListener("online", updateOnlinePill);
@@ -2942,17 +2252,17 @@ function clearResult(){
   if(resultBlock) resultBlock.style.display = 'none';
   
   // Resetuj sve vrednosti
-  if(currentNameEl) currentNameEl.textContent = '?';
-  if(currentMetaEl) currentMetaEl.textContent = '?';
-  if(currentBarcodeEl) currentBarcodeEl.textContent = '?';
-  if(statusPillEl) statusPillEl.textContent = '?';
+  if(currentNameEl) currentNameEl.textContent = '—';
+  if(currentMetaEl) currentMetaEl.textContent = '—';
+  if(currentBarcodeEl) currentBarcodeEl.textContent = '—';
+  if(statusPillEl) statusPillEl.textContent = '—';
   if(offThumbEl) offThumbEl.style.display = 'none';
   if(lastPhotoEl) lastPhotoEl.style.display = 'none';
   if(photoHintEl) photoHintEl.style.display = 'none';
   if(noteInput) noteInput.value = '';
-  if(ratingPill) ratingPill.textContent = 'Ocena: ?';
+  if(ratingPill) ratingPill.textContent = 'Ocena: —';
   
-  // Onemoguci dugmad
+  // Onemogući dugmad
   if(btnCapture) btnCapture.disabled = true;
   if(btnOpenOff) btnOpenOff.disabled = true;
   if(btnFav) btnFav.disabled = true;
@@ -3023,7 +2333,7 @@ list.sort((a,b) => {
   historyTableEl.innerHTML = list.map(r => {
     const name = (r.off?.productName || "").trim();
     const brands = (r.off?.brands || "").trim();
-    const label = [name, brands].filter(Boolean).join(" ? ");
+    const label = [name, brands].filter(Boolean).join(" — ");
     const status = (r.timesTried || 0) > 0 ? "Probao si" : "Novo";
 
     return `
@@ -3040,16 +2350,16 @@ list.sort((a,b) => {
          onerror="this.style.display='none'">
     <div style="min-width:0">
       ${label ? escapeHtml(label) : `<span class="hint">Nema OFF podataka</span>`}
-      ${r.favorite ? ` <span class="pill mono" style="margin-left:6px">??</span>` : ``}
-      ${r.rating ? ` <span class="pill mono" style="margin-left:6px">? ${r.rating}</span>` : ``}
+      ${r.favorite ? ` <span class="pill mono" style="margin-left:6px">❤️</span>` : ``}
+      ${r.rating ? ` <span class="pill mono" style="margin-left:6px">⭐ ${r.rating}</span>` : ``}
     </div>
   </div>
   <div class="quick-actions">
     <button class="quick-btn quick-fav" data-barcode="${r.barcode}" onclick="event.stopPropagation(); toggleQuickFav('${r.barcode}')" title="Favorit">
-      ${r.favorite ? '??' : '?'}
+      ${r.favorite ? '❤️' : '♡'}
     </button>
-    <button class="quick-btn quick-delete" data-barcode="${r.barcode}" onclick="event.stopPropagation(); quickDelete('${r.barcode}')" title="Obri?i">
-      ???
+    <button class="quick-btn quick-delete" data-barcode="${r.barcode}" onclick="event.stopPropagation(); quickDelete('${r.barcode}')" title="Obriši">
+      🗑️
     </button>
   </div>
 </td>
@@ -3083,7 +2393,7 @@ async function quickDelete(barcode){
   if(!ok) return;
   await dbDelete(barcode);
   buzz(25);
-  showToast('? Proizvod obrisan', 'success');
+  showToast('✅ Proizvod obrisan', 'success');
   await refreshHistory();
 }
 
@@ -3126,7 +2436,7 @@ async function updateStats(all){
   if(badgeLegend) badgeLegend.classList.toggle("unlocked", tried >= 100);
 
   // Current level + progress to next
-  let level = "Pocetnik";
+  let level = "Početnik";
   if(tried >= 100) level = "Legenda";
   else if(tried >= 50) level = "Zlato";
   else if(tried >= 25) level = "Srebro";
@@ -3135,7 +2445,7 @@ async function updateStats(all){
   const levelPill = document.getElementById("levelPill");
   const badgePill = document.getElementById("badgePill");
   if(levelPill) levelPill.textContent = `Nivo: ${level}`;
-  if(badgePill) badgePill.textContent = `?? ${level}`;
+  if(badgePill) badgePill.textContent = `🏅 ${level}`;
 
   // progress
   let nextNeed = 10;
@@ -3166,7 +2476,7 @@ async function updateStats(all){
   const topBrandsEl = document.getElementById("topBrands");
   if(topBrandsEl){
     if(!top.length){
-      topBrandsEl.textContent = "?";
+      topBrandsEl.textContent = "—";
     } else {
       const max = Math.max(...top.map(x => x[1]));
 topBrandsEl.innerHTML = top.map(([name, n]) => {
@@ -3193,7 +2503,7 @@ async function handleBarcode(raw, opts = {}){
   const bc = normalizeBarcode(raw);
   if(!bc) return;
 
-  // Prika?i rezultat blok
+  // Prikaži rezultat blok
   const resultBlock = document.getElementById('resultBlock');
   if(resultBlock) resultBlock.style.display = 'block';
 
@@ -3210,7 +2520,7 @@ async function handleBarcode(raw, opts = {}){
   lastPhotoEl.style.display = "none";
   lastPhotoEl.src = "";
 
-  // ucitaj iz baze ili napravi novi zapis
+  // učitaj iz baze ili napravi novi zapis
   let rec = await dbGet(bc);
   if(!rec){
     rec = {
@@ -3226,9 +2536,9 @@ async function handleBarcode(raw, opts = {}){
   rating: 0,
   note: ""
 };
-    setStatus(`Skenirano ${bc} ? NOVO PIVO`, "warn");
+    setStatus(`Skenirano ${bc} — NOVO PIVO`, "warn");
   } else {
-    setStatus(`Skenirano ${bc} ? postoji u istoriji`, "ok");
+    setStatus(`Skenirano ${bc} — postoji u istoriji`, "ok");
   }
 
   // OFF podaci
@@ -3238,16 +2548,16 @@ async function handleBarcode(raw, opts = {}){
       rec.off = offSummary(offJson);
       rec.updatedAt = Date.now();
       await dbPut(rec);
-      setStatus(`Skenirano ${bc} ? OFF podaci pronadeni`, "ok");
+      setStatus(`Skenirano ${bc} — OFF podaci pronađeni`, "ok");
     } else {
       rec.updatedAt = Date.now();
       await dbPut(rec);
-      setStatus(`Skenirano ${bc} ? nema OFF zapisa`, "warn");
+      setStatus(`Skenirano ${bc} — nema OFF zapisa`, "warn");
     }
   } catch {
     rec.updatedAt = Date.now();
     await dbPut(rec);
-    setStatus(`Skenirano ${bc} ? OFF nedostupan (offline ili gre?ka)`, "warn");
+    setStatus(`Skenirano ${bc} — OFF nedostupan (offline ili greška)`, "warn");
   }
 
   // UI prikaz
@@ -3265,7 +2575,7 @@ const btnOpenOffEl = document.getElementById("btnOpenOff");
 const photoHintEl = document.getElementById("photoHint");
 
 const tried = (rec.timesTried || 0) > 0;
-const triedText = tried ? "? Probao si" : "?? Novo pivo";
+const triedText = tried ? "✅ Probao si" : "🆕 Novo pivo";
 
 if (statusPillEl) {
   statusPillEl.textContent = tried ? "PROBAO" : "NOVO";
@@ -3274,20 +2584,20 @@ if (statusPillEl) {
 }
 
 if (currentNameEl) {
-  currentNameEl.textContent = name ? name : "Naziv nije pronaden";
+  currentNameEl.textContent = name ? name : "Naziv nije pronađen";
 }
 
 if (currentMetaEl) {
   const parts = [];
   parts.push(brands ? `Brend: ${brands}` : "Brend: (nema)");
-  if (qty) parts.push(`Kolicina: ${qty}`);
+  if (qty) parts.push(`Količina: ${qty}`);
   parts.push(`OFF slika: ${img ? "da" : "ne"}`);
-  parts.push(`Probano: ${(rec.timesTried || 0)}?`);
-  currentMetaEl.textContent = parts.join(" ? ");
+  parts.push(`Probano: ${(rec.timesTried || 0)}×`);
+  currentMetaEl.textContent = parts.join(" · ");
 }
 // Favorit UI
 if(btnFav){
-  btnFav.textContent = rec.favorite ? "?? Favorit" : "? Favorit";
+  btnFav.textContent = rec.favorite ? "❤️ Favorit" : "♡ Favorit";
   btnFav.classList.toggle("good", !!rec.favorite);
   btnFav.classList.toggle("primary", !rec.favorite);
 }
@@ -3300,11 +2610,11 @@ function renderStars(val){
     const n = Number(b.getAttribute("data-star")) || 0;
     b.classList.toggle("on", n <= val);
   });
-  if(ratingPill) ratingPill.textContent = val ? `Ocena: ${val}/5` : "Ocena: ?";
+  if(ratingPill) ratingPill.textContent = val ? `Ocena: ${val}/5` : "Ocena: —";
 }
 renderStars(rec.rating || 0);
 
-// Note UI ? ne popunjavaj automatski sacuvanu bele?ku
+// Note UI — ne popunjavaj automatski sačuvanu belešku
 if (noteInput) {
   if (!editingNote) noteInput.value = "";
 }
@@ -3320,13 +2630,13 @@ if (offThumbEl) {
   }
 }
 
-// Dugme ?Detalji (OFF)?
+// Dugme “Detalji (OFF)”
 if (btnOpenOffEl) {
   btnOpenOffEl.disabled = !img;
   btnOpenOffEl.onclick = () => { if (img) window.open(img, "_blank"); };
 }
 
-// Va?a slika (ostaje isto kao ranije, ali dopunimo hint)
+// Vaša slika (ostaje isto kao ranije, ali dopunimo hint)
 if (rec.photo instanceof Blob) {
   const url = URL.createObjectURL(rec.photo);
   lastPhotoEl.src = url;
@@ -3405,7 +2715,7 @@ async function applyAdvancedCameraSettings(track){
   // Torch dostupnost
   const torchSupported = !!caps.torch;
   btnTorch.disabled = !torchSupported;
-  btnTorch.textContent = torchSupported ? "?? Blic" : "?? Blic (nije podr?an)";
+  btnTorch.textContent = torchSupported ? "🔦 Blic" : "🔦 Blic (nije podržan)";
 }
 
 async function scanLoop(){
@@ -3444,16 +2754,16 @@ async function scanLoop(){
           document.getElementById("pageScan")?.classList.add("pulseOk");
           setTimeout(() => document.getElementById("pageScan")?.classList.remove("pulseOk"), 220);
           
-          // ? KLJUCNO: prekini skeniranje da ne hvata nove kodove dok citate
+          // ✅ KLJUČNO: prekini skeniranje da ne hvata nove kodove dok čitate
           stopScanner();
-          setStatus("Skenirano. Skeniranje je pauzirano ? pritisnite Scan za sledeci kod.", "ok");
+          setStatus("Skenirano. Skeniranje je pauzirano — pritisnite Scan za sledeći kod.", "ok");
           
           return; // prekini ovaj loop
         }
       }
     }
   } catch {
-    // ignorisati povremene gre?ke
+    // ignorisati povremene greške
   }
 
   scanReq = requestAnimationFrame(scanLoop);
@@ -3463,7 +2773,7 @@ async function startScanner(){
   if(scanning) return;
 
   if(!navigator.mediaDevices?.getUserMedia){
-    setStatus("Browser ne podr?ava kameru (getUserMedia).", "bad");
+    setStatus("Browser ne podržava kameru (getUserMedia).", "bad");
     return;
   }
   if(!isSecureForCamera()){
@@ -3473,12 +2783,12 @@ async function startScanner(){
 
   detector = await initDetector();
   if(!detector){
-    setStatus("BarcodeDetector nije dostupan. Otvorite u Chrome-u ili a?urirajte browser.", "bad");
+    setStatus("BarcodeDetector nije dostupan. Otvorite u Chrome-u ili ažurirajte browser.", "bad");
     return;
   }
 
   scanning = true;
-  setStatus("Tra?im dozvolu za kameru...", "");
+  setStatus("Tražim dozvolu za kameru...", "");
 
   try{
     mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -3497,7 +2807,7 @@ await videoEl.play();
     currentVideoTrack = mediaStream.getVideoTracks()[0] || null;
     if(currentVideoTrack) await applyAdvancedCameraSettings(currentVideoTrack);
 
-    setStatus("Kamera aktivna. Dr?ite bar-kod u okviru.", "ok");
+    setStatus("Kamera aktivna. Držite bar-kod u okviru.", "ok");
     scanReq = requestAnimationFrame(scanLoop);
     setFabState(true);
 
@@ -3527,7 +2837,7 @@ function stopScanner(){
   currentVideoTrack = null;
   detector = null;
   torchOn = false;
-  btnTorch.textContent = "?? Blic";
+  btnTorch.textContent = "🔦 Blic";
   btnTorch.disabled = true;
 
   setStatus("Pritisnite Scan dugme da pokrenete kameru.", "warn");
@@ -3543,15 +2853,15 @@ async function toggleTorch(){
   torchOn = !torchOn;
   try{
     await currentVideoTrack.applyConstraints({ advanced: [{ torch: torchOn }] });
-    btnTorch.textContent = torchOn ? "?? Blic: ON" : "?? Blic: OFF";
+    btnTorch.textContent = torchOn ? "🔦 Blic: ON" : "🔦 Blic: OFF";
   } catch {
     torchOn = false;
-    btnTorch.textContent = "?? Blic";
+    btnTorch.textContent = "🔦 Blic";
   }
 }
 
 /* =======================
-   Snimanje slike + oznacavanje kao "Probao"
+   Snimanje slike + označavanje kao "Probao"
 ======================= */
 
 async function markAsTried(){
@@ -3573,7 +2883,7 @@ async function markAsTried(){
   rec.updatedAt = Date.now();
   await dbPut(rec);
 
-  setStatus(`Oznaceno kao "Probao" (${currentBarcode}).`, "ok");
+  setStatus(`Označeno kao "Probao" (${currentBarcode}).`, "ok");
   await handleBarcode(currentBarcode, { fromHistoryClick: true });
 }
 
@@ -3596,7 +2906,7 @@ async function markAsTried(){
   rec.updatedAt = Date.now();
   await dbPut(rec);
 
-  setStatus(`Oznaceno kao "Probao" (${currentBarcode}).`, "ok");
+  setStatus(`Označeno kao "Probao" (${currentBarcode}).`, "ok");
   await handleBarcode(currentBarcode, { fromHistoryClick: true });
 }
 async function capturePhotoToCurrent(){
@@ -3619,7 +2929,7 @@ async function capturePhotoToCurrent(){
 
   const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.85));
   if(!blob){
-    setStatus("Ne mogu da sacuvam sliku.", "bad");
+    setStatus("Ne mogu da sačuvam sliku.", "bad");
     return;
   }
 
@@ -3645,7 +2955,7 @@ async function capturePhotoToCurrent(){
   lastPhotoEl.src = url;
   lastPhotoEl.style.display = "block";
 
-  setStatus(`Sacuvano kao ?Probao? + slika (${currentBarcode}).`, "ok");
+  setStatus(`Sačuvano kao “Probao” + slika (${currentBarcode}).`, "ok");
   await handleBarcode(currentBarcode, { fromHistoryClick: true });
 }
 
@@ -3667,7 +2977,7 @@ if(scanFab){
     }
 
     await startScanner();
-    // startScanner mo?e fail-ovati (dozvole/https). Proverimo stanje:
+    // startScanner može fail-ovati (dozvole/https). Proverimo stanje:
     setFabState(!!scanning);
     if(scanning) buzz(35);
   });
@@ -3699,10 +3009,10 @@ btnClear.addEventListener("click", async () => {
 
   await dbClear();
   currentBarcode = null;
-  currentBarcodeEl.textContent = "?";
-  document.getElementById("statusPill").textContent = "?";
-  document.getElementById("currentName").textContent = "?";
-  document.getElementById("currentMeta").textContent = "?";
+  currentBarcodeEl.textContent = "—";
+  document.getElementById("statusPill").textContent = "—";
+  document.getElementById("currentName").textContent = "—";
+  document.getElementById("currentMeta").textContent = "—";
   document.getElementById("offThumb").style.display = "none";
   document.getElementById("btnOpenOff").disabled = true;
   document.getElementById("photoHint").style.display = "none";
@@ -3735,7 +3045,7 @@ function updateBulkActions(){
   
   if(count > 0){
     bulkActions.style.display = 'flex';
-    selectedCountEl.textContent = `${count} oznaceno`;
+    selectedCountEl.textContent = `${count} označeno`;
   } else {
     bulkActions.style.display = 'none';
     if(selectAllCheckbox) selectAllCheckbox.checked = false;
@@ -3759,7 +3069,7 @@ if(btnDeleteSelected){
     
     if(barcodes.length === 0) return;
     
-    const ok = confirm(`Obrisati ${barcodes.length} oznacenih proizvoda?`);
+    const ok = confirm(`Obrisati ${barcodes.length} označenih proizvoda?`);
     if(!ok) return;
     
     for(const bc of barcodes){
@@ -3767,7 +3077,7 @@ if(btnDeleteSelected){
     }
     
     buzz(30);
-    showToast(`? Obrisano ${barcodes.length} proizvoda`, 'success');
+    showToast(`✅ Obrisano ${barcodes.length} proizvoda`, 'success');
     await refreshHistory();
     bulkActions.style.display = 'none';
   });
@@ -3805,10 +3115,10 @@ if(btnShare){
     
     const name = rec.off?.productName || 'Proizvod';
     const brands = rec.off?.brands || '';
-    const rating = rec.rating ? `? ${rec.rating}/5` : '';
-    const note = rec.note ? `\n\nBele?ka: ${rec.note}` : '';
+    const rating = rec.rating ? `⭐ ${rec.rating}/5` : '';
+    const note = rec.note ? `\n\nBeleška: ${rec.note}` : '';
     
-    const text = `?? ${name}${brands ? ` (${brands})` : ''}\nBar-kod: ${currentBarcode}${rating ? `\n${rating}` : ''}${note}\n\nSkenirano sa BeerScan aplikacijom`;
+    const text = `🍺 ${name}${brands ? ` (${brands})` : ''}\nBar-kod: ${currentBarcode}${rating ? `\n${rating}` : ''}${note}\n\nSkenirano sa BeerScan aplikacijom`;
     
     if(navigator.share){
       try{
@@ -3880,12 +3190,12 @@ if(btnSaveNote){
     rec.updatedAt = Date.now();
   await dbPut(rec);
 
-// ? nakon cuvanja: isprazni i ?zakljuca? da se ne vraca automatski
+// ✅ nakon čuvanja: isprazni i “zaključa” da se ne vraća automatski
 editingNote = false;
 if (noteInput) noteInput.value = "";
 
 buzz(25);
-setStatus("Bele?ka sacuvana.", "ok");
+setStatus("Beleška sačuvana.", "ok");
 await refreshHistory();
 
     // Ocisti rezultat i vrati na pocetno stanje
@@ -3898,7 +3208,7 @@ if(btnExport){
     const all = await dbGetAll();
     downloadText(`beerscan-backup-${Date.now()}.json`, JSON.stringify(all, null, 2));
     buzz(20);
-    setStatus("Export zavr?en (JSON).", "ok");
+    setStatus("Export završen (JSON).", "ok");
   });
 }
 
@@ -3931,11 +3241,11 @@ if(btnImport && importFile){
       }
 
       buzz(30);
-      setStatus("Import zavr?en.", "ok");
+      setStatus("Import završen.", "ok");
       await refreshHistory();
       dbGetAll().then(updateStats).catch(()=>{});
     } catch {
-      setStatus("Import nije uspeo (pogre?an JSON).", "bad");
+      setStatus("Import nije uspeo (pogrešan JSON).", "bad");
     } finally {
       importFile.value = "";
     }
@@ -3965,7 +3275,7 @@ function setTab(which) {
   tabHistoryBottom.classList.toggle("active", historyOn);
   tabStatsBottom.classList.toggle("active", statsOn);
   
-  // Ako ?elite da se kamera automatski gasi kad napustite skeniranje:
+  // Ako želite da se kamera automatski gasi kad napustite skeniranje:
   if(!scanOn) stopScanner();
 }
 
@@ -3984,7 +3294,7 @@ function applyTheme(){
   // Update button icon
   if(btnTheme){
     const icon = btnTheme.querySelector('span');
-    if(icon) icon.textContent = t === "light" ? "??" : "??";
+    if(icon) icon.textContent = t === "light" ? "🌙" : "☀️";
   }
 }
 applyTheme();
@@ -4049,40 +3359,40 @@ window.addEventListener("load", () => {
 
   }, 2200);
   
-  // Add click animation to all buttons - UKLONJENO da ne blinka
-  // document.addEventListener('click', (e) => {
-  //   const btn = e.target.closest('button');
-  //   if(btn && !btn.disabled){
-  //     btn.classList.add('clicked');
-  //     setTimeout(() => btn.classList.remove('clicked'), 300);
-  //   }
-  // });
+  // Add click animation to all buttons
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if(btn && !btn.disabled){
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 300);
+    }
+  });
   
-  // Add ripple effect to cards - UKLONJENO da ne blinka
-  // document.querySelectorAll('.card').forEach(card => {
-  //   card.addEventListener('click', function(e){
-  //     const ripple = document.createElement('span');
-  //     const rect = this.getBoundingClientRect();
-  //     const size = Math.max(rect.width, rect.height);
-  //     const x = e.clientX - rect.left - size/2;
-  //     const y = e.clientY - rect.top - size/2;
-  //     
-  //     ripple.style.cssText = `
-  //       position: absolute;
-  //       width: ${size}px;
-  //       height: ${size}px;
-  //       left: ${x}px;
-  //       top: ${y}px;
-  //       border-radius: 50%;
-  //       background: radial-gradient(circle, rgba(124,178,255,.3), transparent);
-  //       pointer-events: none;
-  //       animation: ripple 0.6s ease-out;
-  //     `;
-  //     
-  //     this.appendChild(ripple);
-  //     setTimeout(() => ripple.remove(), 600);
-  //   });
-  // });
+  // Add ripple effect to cards
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', function(e){
+      const ripple = document.createElement('span');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size/2;
+      const y = e.clientY - rect.top - size/2;
+      
+      ripple.style.cssText = `
+        position: absolute;
+        width: ${size}px;
+        height: ${size}px;
+        left: ${x}px;
+        top: ${y}px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(124,178,255,.3), transparent);
+        pointer-events: none;
+        animation: ripple 0.6s ease-out;
+      `;
+      
+      this.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+  });
 });
 /* =======================
    Guide Tour (Spotlight)
@@ -4113,50 +3423,50 @@ function buildTourSteps(){
   return [
     {
       target: "#scanFab",
-      title: "?? Dobrodo?li u BeerScan!",
-      text: "Ovo je va? glavni Scan FAB dugme. Kliknite ovde da pokrenete kameru i zapocnete skeniranje bar-kodova sa piva. Kada je kamera aktivna, dugme postaje crveno i mo?ete ga ponovo kliknuti da zaustavite skeniranje.",
+      title: "🎯 Dobrodošli u BeerScan!",
+      text: "Ovo je vaš glavni Scan FAB dugme. Kliknite ovde da pokrenete kameru i započnete skeniranje bar-kodova sa piva. Kada je kamera aktivna, dugme postaje crveno i možete ga ponovo kliknuti da zaustavite skeniranje.",
       tapHint: "Kliknite da pokrenete kameru"
     },
     {
       target: ".scanFrame",
-      title: "?? Skeniranje bar-koda",
-      text: "Kada pokrenete kameru, pojavice se ovaj animirani okvir. Postavite bar-kod piva unutar ovog okvira i dr?ite telefon stabilno. Aplikacija ce automatski detektovati i skenirati bar-kod bez potrebe da pritiskate bilo ?ta!",
+      title: "📸 Skeniranje bar-koda",
+      text: "Kada pokrenete kameru, pojaviće se ovaj animirani okvir. Postavite bar-kod piva unutar ovog okvira i držite telefon stabilno. Aplikacija će automatski detektovati i skenirati bar-kod bez potrebe da pritiskate bilo šta!",
       tapHint: "Pozicionirajte bar-kod ovde"
     },
     {
       target: "#manualBarcode",
-      title: "?? Rucni unos",
-      text: "Ako kamera ne radi ili ?elite br?e da unesete podatke, mo?ete rucno ukucati bar-kod ovde. Ovo je korisno kada imate lo?e osvetljenje ili bar-kod je o?tecen.",
+      title: "⌨️ Ručni unos",
+      text: "Ako kamera ne radi ili želite brže da unesete podatke, možete ručno ukucati bar-kod ovde. Ovo je korisno kada imate loše osvetljenje ili bar-kod je oštećen.",
       tapHint: "Unesite 13-cifreni broj"
     },
     {
       target: "#btnLookup",
-      title: "?? Pretraga podataka",
-      text: "Nakon ?to unesete bar-kod (automatski ili rucno), kliknite ovo dugme da preuzmete sve dostupne informacije o pivu sa Open Food Facts baze podataka. Dobicete naziv, brendove, nutritivne vrednosti i jo? mnogo toga!",
+      title: "🔍 Pretraga podataka",
+      text: "Nakon što unesete bar-kod (automatski ili ručno), kliknite ovo dugme da preuzmete sve dostupne informacije o pivu sa Open Food Facts baze podataka. Dobićete naziv, brendove, nutritivne vrednosti i još mnogo toga!",
       tapHint: "Kliknite za pretragu"
     },
     {
       target: "#btnClear",
-      title: "??? Brisanje istorije",
-      text: "Ovo dugme bri?e kompletnu istoriju skeniranja sa va?eg uredaja. Koristite ga pa?ljivo jer se podaci ne mogu vratiti! Svi skenirani bar-kodovi, ocene i favoriti ce biti trajno obrisani.",
-      tapHint: "Obri?i sve podatke"
+      title: "🗑️ Brisanje istorije",
+      text: "Ovo dugme briše kompletnu istoriju skeniranja sa vašeg uređaja. Koristite ga pažljivo jer se podaci ne mogu vratiti! Svi skenirani bar-kodovi, ocene i favoriti će biti trajno obrisani.",
+      tapHint: "Obriši sve podatke"
     },
     {
       target: "#tabHistoryBottom",
-      title: "?? Istorija skeniranja",
-      text: "Ovde mo?ete videti sve prethodno skenirane proizvode. Mo?ete ih pretra?iti, filtrirati po ocenama, oznaciti kao favorite, i dodati svoje licne ocene. Svi podaci se cuvaju lokalno na va?em uredaju.",
+      title: "📋 Istorija skeniranja",
+      text: "Ovde možete videti sve prethodno skenirane proizvode. Možete ih pretražiti, filtrirati po ocenama, označiti kao favorite, i dodati svoje lične ocene. Svi podaci se čuvaju lokalno na vašem uređaju.",
       tapHint: "Pogledajte istoriju"
     },
     {
       target: "#tabStatsBottom",
-      title: "?? Statistika i dostignuca",
-      text: "U ovoj sekciji mo?ete pratiti svoju aktivnost - koliko ste piva skenirali, koji su va?i omiljeni brendovi, i koje znacke (badges) ste otkljucali. Skenirajte vi?e proizvoda da otkljucate nove dostignuca!",
+      title: "📊 Statistika i dostignuća",
+      text: "U ovoj sekciji možete pratiti svoju aktivnost - koliko ste piva skenirali, koji su vaši omiljeni brendovi, i koje značke (badges) ste otključali. Skenirajte više proizvoda da otključate nove dostignuća!",
       tapHint: "Vidite statistiku"
     },
     {
       target: ".bottomBar",
-      title: "? Navigacija",
-      text: "Ova donja traka omogucava brzu navigaciju izmedu glavnih sekcija aplikacije. Trenutno aktivna sekcija je oznacena svetlijim tonom i sjajem. Mo?ete lako prelaziti izmedu skeniranja, istorije i statistike.",
+      title: "✨ Navigacija",
+      text: "Ova donja traka omogućava brzu navigaciju između glavnih sekcija aplikacije. Trenutno aktivna sekcija je označena svetlijim tonom i sjajem. Možete lako prelaziti između skeniranja, istorije i statistike.",
       tapHint: "Koristite za navigaciju"
     }
   ];
@@ -4184,7 +3494,7 @@ function placeSpotlightOn(el) {
     tourHole.style.height = h + "px";
     
     const tipW = Math.min(380, window.innerWidth - 28);
-    const tipH = 190; // malo vece zbog tap hint-a
+    const tipH = 190; // malo veće zbog tap hint-a
     let tx = x;
     let ty = y + h + 12;
     
@@ -4195,14 +3505,14 @@ function placeSpotlightOn(el) {
     
     tourTooltip.style.left = tx + "px";
     tourTooltip.style.top = Math.max(14, ty) + "px";
-  }, 140);
+  }, 400);
 }
 
 function renderTour(){
   const step = tourSteps[tourIndex];
   if(!step) return;
 
-  // ako target nije u DOM-u, preskoci
+  // ako target nije u DOM-u, preskoči
   let el = getEl(step.target);
 
   // Ako je cilj na drugom tabu, prebacite tab pre rendera
@@ -4216,7 +3526,7 @@ function renderTour(){
 
   el = getEl(step.target);
   if(!el){
-    // preskoci korak koji ne postoji
+    // preskoči korak koji ne postoji
     tourIndex = Math.min(tourIndex + 1, tourSteps.length - 1);
     el = getEl(tourSteps[tourIndex]?.target);
     if(!el) return;
@@ -4227,14 +3537,14 @@ function renderTour(){
   if(tourTapHintEl){
   if(step.tapHint){
     tourTapHintEl.style.display = "inline-flex";
-    tourTapHintEl.textContent = "?? " + step.tapHint;
+    tourTapHintEl.textContent = "👉 " + step.tapHint;
   } else {
     tourTapHintEl.style.display = "none";
   }
 }
   tourProgress.textContent = `${tourIndex + 1}/${tourSteps.length}`;
   
-  // A?uriraj progress bar
+  // Ažuriraj progress bar
   const progressFill = document.getElementById('tourProgressFill');
   if(progressFill){
     const percentage = ((tourIndex + 1) / tourSteps.length) * 100;
@@ -4243,14 +3553,14 @@ function renderTour(){
 
   tourBack.disabled = (tourIndex === 0);
 
-  // ?Dalje? vs ?Gotovo?
+  // “Dalje” vs “Gotovo”
   const last = tourIndex === tourSteps.length - 1;
   tourNext.style.display = last ? "none" : "inline-block";
   tourDone.style.display = last ? "inline-block" : "none";
 
-  // Pulse efekat uklonjen da ne blinka
-  // tourHole.classList.add("tourPulse");
-  // setTimeout(()=>tourHole.classList.remove("tourPulse"), 350);
+  // malo “pulse” efekat na rupi
+  tourHole.classList.add("tourPulse");
+  setTimeout(()=>tourHole.classList.remove("tourPulse"), 350);
 
   placeSpotlightOn(el);
 }
@@ -4259,7 +3569,7 @@ function openTour(){
   tourSteps = buildTourSteps();
   tourIndex = 0;
 
-  // prika?i overlay
+  // prikaži overlay
   tourOverlay.classList.add("show");
   tourOverlay.setAttribute("aria-hidden", "false");
 
@@ -4269,12 +3579,12 @@ function openTour(){
   // render posle jednog frame-a (da layout bude stabilan)
   requestAnimationFrame(renderTour);
 
-  // zakljucaj scroll (opciono)
+  // zaključaj scroll (opciono)
   document.body.style.overflow = "hidden";
 }
 
 function closeTour(markSeen = true){
-  // Ako je zavr?en tour (na poslednjem koraku), prika?i celebration
+  // Ako je završen tour (na poslednjem koraku), prikaži celebration
   if(markSeen && tourIndex === tourSteps.length - 1){
     showCelebration();
   }
@@ -4351,10 +3661,10 @@ function showCelebration(){
     pointer-events: none;
   `;
   celebDiv.innerHTML = `
-    <div style="font-size: 48px; margin-bottom: 10px; animation: celebRotate 0.8s ease;">??</div>
-    <div style="letter-spacing: 0.5px;">Cestitamo!</div>
+    <div style="font-size: 48px; margin-bottom: 10px; animation: celebRotate 0.8s ease;">🎉</div>
+    <div style="letter-spacing: 0.5px;">Čestitamo!</div>
     <div style="font-size: 14px; font-weight: 600; margin-top: 8px; opacity: 0.90;">
-      Zavr?ili ste uputstvo za BeerScan
+      Završili ste uputstvo za BeerScan
     </div>
   `;
   
@@ -4460,7 +3770,7 @@ document.querySelectorAll('.card').forEach(card => {
   });
 });
 
-// Dinamicki update tooltip teksta za FAB dugme
+// Dinamički update tooltip teksta za FAB dugme
 const fabTooltip = document.getElementById('fabTooltip');
 if(fabTooltip && scanFab){
   const updateFabTooltip = () => {
@@ -4484,7 +3794,7 @@ const locationText = document.getElementById("locationText");
 const btnViewMap = document.getElementById("btnViewMap");
 
 if(btnLocation){
-  console.log('btnLocation pronaden, dodajem event listener');
+  console.log('btnLocation pronađen, dodajem event listener');
   btnLocation.addEventListener("click", async () => {
     console.log('=== GPS DUGME KLIKNUTO ===');
     console.log('currentBarcode:', currentBarcode);
@@ -4492,20 +3802,20 @@ if(btnLocation){
     console.log('btnLocation.disabled:', btnLocation.disabled);
     
     if(!currentBarcode){
-      console.log('GRE?KA: Nema currentBarcode');
+      console.log('GREŠKA: Nema currentBarcode');
       showToast('Prvo skenirajte pivo', 'warn');
       return;
     }
     
     if(!navigator.geolocation){
-      console.log('GRE?KA: Nema navigator.geolocation');
-      showToast('GPS nije dostupan na ovom uredaju', 'error');
+      console.log('GREŠKA: Nema navigator.geolocation');
+      showToast('GPS nije dostupan na ovom uređaju', 'error');
       return;
     }
     
     console.log('Postavljam disabled i menjam tekst...');
     btnLocation.disabled = true;
-    btnLocation.textContent = '?? Ucitavam...';
+    btnLocation.textContent = '📍 Učitavam...';
     
     console.log('Pozivam getCurrentPosition...');
     navigator.geolocation.getCurrentPosition(async (position) => {
@@ -4538,9 +3848,9 @@ if(btnLocation){
         await dbPut(rec);
         
         buzz(30);
-        showToast('?? Lokacija sacuvana!', 'success');
+        showToast('📍 Lokacija sačuvana!', 'success');
         
-        // Prika?i lokaciju
+        // Prikaži lokaciju
         if(locationInfo){
           locationInfo.style.display = 'block';
           const date = new Date(rec.location.timestamp);
@@ -4548,36 +3858,36 @@ if(btnLocation){
         }
         
         btnLocation.disabled = false;
-        btnLocation.textContent = '?? A?uriraj lokaciju';
+        btnLocation.textContent = '📍 Ažuriraj lokaciju';
         
         await refreshHistory();
         
       } catch (e) {
-        console.error('Gre?ka pri cuvanju:', e);
-        showToast('Gre?ka pri cuvanju lokacije', 'error');
+        console.error('Greška pri čuvanju:', e);
+        showToast('Greška pri čuvanju lokacije', 'error');
         btnLocation.disabled = false;
-        btnLocation.textContent = '?? Lokacija';
+        btnLocation.textContent = '📍 Lokacija';
       }
     }, (error) => {
-      console.error('Gre?ka geolokacije:', error);
+      console.error('Greška geolokacije:', error);
       
-      let errorMessage = 'Nije moguce dobiti lokaciju';
+      let errorMessage = 'Nije moguće dobiti lokaciju';
       
       switch(error.code) {
         case error.PERMISSION_DENIED:
-          errorMessage = 'Dozvola za lokaciju je odbijena. Omogucite lokaciju u pode?avanjima pretra?ivaca.';
+          errorMessage = 'Dozvola za lokaciju je odbijena. Omogućite lokaciju u podešavanjima pretraživača.';
           break;
         case error.POSITION_UNAVAILABLE:
           errorMessage = 'Informacije o lokaciji nisu dostupne.';
           break;
         case error.TIMEOUT:
-          errorMessage = 'Zahtev za lokaciju je istekao. Poku?ajte ponovo.';
+          errorMessage = 'Zahtev za lokaciju je istekao. Pokušajte ponovo.';
           break;
       }
       
       showToast(errorMessage, 'error');
       btnLocation.disabled = false;
-      btnLocation.textContent = '?? Lokacija';
+      btnLocation.textContent = '📍 Lokacija';
     }, {
       enableHighAccuracy: true,
       timeout: 15000,
@@ -4603,7 +3913,7 @@ if(btnViewMap){
 const btnUntappd = document.getElementById("btnUntappd");
 
 if(btnUntappd){
-  console.log('btnUntappd pronaden, dodajem event listener');
+  console.log('btnUntappd pronađen, dodajem event listener');
   btnUntappd.addEventListener("click", async () => {
     console.log('=== UNTAPPD DUGME KLIKNUTO ===');
     console.log('currentBarcode:', currentBarcode);
@@ -4620,7 +3930,7 @@ if(btnUntappd){
     
     const untappdUrl = `https://untappd.com/search?q=${searchQuery}`;
     
-    const confirmed = confirm(`Otvoriti Untappd pretragu za:\n"${beerName || currentBarcode}"?\n\nNakon ?to pronadete pivo na Untappd-u, mo?ete dodati check-in tamo.`);
+    const confirmed = confirm(`Otvoriti Untappd pretragu za:\n"${beerName || currentBarcode}"?\n\nNakon što pronađete pivo na Untappd-u, možete dodati check-in tamo.`);
     
     if(confirmed){
       window.open(untappdUrl, '_blank');
@@ -4631,7 +3941,7 @@ if(btnUntappd){
       await dbPut(rec);
       
       buzz(25);
-      showToast('?? Otvoreno na Untappd!', 'success');
+      showToast('🍺 Otvoreno na Untappd!', 'success');
     }
   });
 }
@@ -4644,13 +3954,13 @@ const calendarEvents = document.getElementById("calendarEvents");
 
 let globalCalendarEvents = [];
 
-// Default pivski dogadaji za 2026 (pravi datumi sa interneta)
+// Default pivski događaji za 2026 (pravi datumi sa interneta)
 const defaultBeerEvents = [
   {
     id: 1,
     title: "Prague Beer Fest 2026",
     date: "2026-04-10 16:00",
-    location: "Prag, Ce?ka",
+    location: "Prag, Češka",
     createdAt: Date.now(),
     isDefault: true
   },
@@ -4666,7 +3976,7 @@ const defaultBeerEvents = [
     id: 3,
     title: "International Beer Day 2026",
     date: "2026-08-07 12:00",
-    location: "?irom sveta",
+    location: "Širom sveta",
     createdAt: Date.now(),
     isDefault: true
   },
@@ -4674,15 +3984,15 @@ const defaultBeerEvents = [
     id: 4,
     title: "Belgrade Beer Fest 2026",
     date: "2026-08-27 18:00",
-    location: "U?ce, Beograd, Srbija",
+    location: "Ušće, Beograd, Srbija",
     createdAt: Date.now(),
     isDefault: true
   },
   {
     id: 5,
-    title: "Oktoberfest M?nchen 2026 (191st)",
+    title: "Oktoberfest München 2026 (191st)",
     date: "2026-09-19 10:00",
-    location: "Theresienwiese, M?nchen, Nemacka",
+    location: "Theresienwiese, München, Nemačka",
     createdAt: Date.now(),
     isDefault: true
   },
@@ -4690,7 +4000,7 @@ const defaultBeerEvents = [
     id: 6,
     title: "International Stout Day 2026",
     date: "2026-11-05 12:00",
-    location: "?irom sveta",
+    location: "Širom sveta",
     createdAt: Date.now(),
     isDefault: true
   }
@@ -4706,7 +4016,7 @@ async function loadCalendarEvents(){
     }
   }
   
-  // Dodaj default dogadaje ako je kalendar prazan
+  // Dodaj default događaje ako je kalendar prazan
   if(globalCalendarEvents.length === 0){
     globalCalendarEvents = [...defaultBeerEvents];
     saveCalendarEvents();
@@ -4723,7 +4033,7 @@ function renderCalendarEvents(){
   if(!calendarEvents) return;
   
   if(globalCalendarEvents.length === 0){
-    calendarEvents.innerHTML = '<div class="hint">Nema planiranih dogadaja. Kliknite + da dodate.</div>';
+    calendarEvents.innerHTML = '<div class="hint">Nema planiranih događaja. Kliknite + da dodate.</div>';
     return;
   }
   
@@ -4746,31 +4056,31 @@ function renderCalendarEvents(){
         <div>
           <div style="font-weight:800;">${escapeHtml(evt.title)}</div>
           <div style="font-size:12px; color:var(--muted); margin-top:4px;">
-            ?? ${dateStr}
-            ${evt.location ? `<br>?? ${escapeHtml(evt.location)}` : ''}
-            ${evt.isDefault ? `<br><span style="color:rgba(124,178,255,.8);">?? Popularni dogadaj</span>` : ''}
+            📅 ${dateStr}
+            ${evt.location ? `<br>📍 ${escapeHtml(evt.location)}` : ''}
+            ${evt.isDefault ? `<br><span style="color:rgba(124,178,255,.8);">🌟 Popularni događaj</span>` : ''}
           </div>
         </div>
-        <button class="quick-btn" onclick="deleteCalendarEvent(${idx})" title="Obri?i">???</button>
+        <button class="quick-btn" onclick="deleteCalendarEvent(${idx})" title="Obriši">🗑️</button>
       </div>
     `;
   }).join('');
 }
 
 window.deleteCalendarEvent = function(idx){
-  const ok = confirm('Obrisati ovaj dogadaj?');
+  const ok = confirm('Obrisati ovaj događaj?');
   if(!ok) return;
   
   globalCalendarEvents.splice(idx, 1);
   saveCalendarEvents();
   renderCalendarEvents();
   buzz(20);
-  showToast('Dogadaj obrisan', 'success');
+  showToast('Događaj obrisan', 'success');
 };
 
 if(btnAddCalendarEvent){
   btnAddCalendarEvent.addEventListener("click", () => {
-    const title = prompt('Naziv dogadaja (npr. "Degustacija IPA piva"):');
+    const title = prompt('Naziv događaja (npr. "Degustacija IPA piva"):');
     if(!title || !title.trim()) return;
     
     const dateStr = prompt('Datum i vreme (format: YYYY-MM-DD HH:MM):');
@@ -4792,12 +4102,12 @@ if(btnAddCalendarEvent){
     renderCalendarEvents();
     
     buzz(30);
-    showToast('?? Dogadaj dodat!', 'success');
+    showToast('📅 Događaj dodat!', 'success');
   });
 }
 
 if(btnCalendar){
-  console.log('btnCalendar pronaden, dodajem event listener');
+  console.log('btnCalendar pronađen, dodajem event listener');
   btnCalendar.addEventListener("click", async () => {
     console.log('=== KALENDAR DUGME KLIKNUTO ===');
     console.log('currentBarcode:', currentBarcode);
@@ -4824,7 +4134,7 @@ if(btnCalendar){
     }
     
     const beerName = rec.off?.productName || currentBarcode;
-    const title = prompt(`Dodaj u kalendar - naziv dogadaja:`, `Probaj ${beerName}`);
+    const title = prompt(`Dodaj u kalendar - naziv događaja:`, `Probaj ${beerName}`);
     if(!title || !title.trim()) return;
     
     const dateStr = prompt('Datum i vreme (format: YYYY-MM-DD HH:MM):');
@@ -4846,7 +4156,7 @@ if(btnCalendar){
     saveCalendarEvents();
     
     buzz(30);
-    showToast('?? Dodato u kalendar!', 'success');
+    showToast('📅 Dodato u kalendar!', 'success');
     
     setTab('stats');
     renderCalendarEvents();
@@ -4854,7 +4164,7 @@ if(btnCalendar){
 }
 
 /* =======================
-   PRO?IRENI BED?EVI
+   PROŠIRENI BEDŽEVI
 ======================= */
 async function updateExtendedBadges(all){
   const withLocation = all.filter(r => r.location).length;
@@ -4885,7 +4195,7 @@ if(btnShare){
 }
 
 /* =======================
-   A?URIRAJ handleBarcode za lokaciju
+   AŽURIRAJ handleBarcode za lokaciju
 ======================= */
 let barcodeLoadLock = false;
 const originalHandleBarcode = handleBarcode;
@@ -4913,12 +4223,12 @@ handleBarcode = async function(raw, opts = {}) {
           `Lng: ${rec.location.lng.toFixed(6)} ` +
           `(${date.toLocaleString()})`;
         
-        btnLocation.textContent = '?? A?uriraj lokaciju';
+        btnLocation.textContent = '📍 Ažuriraj lokaciju';
         
       } else {
         
         locationInfo.style.display = 'none';
-        btnLocation.textContent = '?? Lokacija';
+        btnLocation.textContent = '📍 Lokacija';
         
       }
     }
@@ -4931,7 +4241,7 @@ handleBarcode = async function(raw, opts = {}) {
 };
 
 /* =======================
-   A?URIRAJ refreshHistory za bed?eve
+   AŽURIRAJ refreshHistory za bedževe
 ======================= */
 const originalRefreshHistory = refreshHistory;
 refreshHistory = async function(){
@@ -4957,8 +4267,8 @@ function showInstallPrompt(){
   installToast.innerHTML = `
     <div style="display:flex; align-items:center; gap:12px;">
       <div style="flex:1;">
-        <div style="font-weight:800; margin-bottom:4px;">?? Instaliraj BeerScan</div>
-        <div style="font-size:12px; opacity:0.9;">Dodaj aplikaciju na pocetni ekran</div>
+        <div style="font-weight:800; margin-bottom:4px;">📱 Instaliraj BeerScan</div>
+        <div style="font-size:12px; opacity:0.9;">Dodaj aplikaciju na početni ekran</div>
       </div>
       <button onclick="installPWA()" style="padding:8px 16px; border-radius:12px; border:1px solid rgba(92,255,164,.45); background:rgba(92,255,164,.22); color:#fff; font-weight:700; cursor:pointer;">
         Instaliraj
@@ -4997,7 +4307,7 @@ window.installPWA = async function(){
   const { outcome } = await deferredPrompt.userChoice;
   
   if(outcome === 'accepted'){
-    showToast('? Aplikacija instalirana!', 'success');
+    showToast('✅ Aplikacija instalirana!', 'success');
     buzz(40);
   }
   
@@ -5005,7 +4315,7 @@ window.installPWA = async function(){
 };
 
 window.addEventListener('appinstalled', () => {
-  showToast('?? BeerScan je uspe?no instaliran!', 'success');
+  showToast('🎉 BeerScan je uspešno instaliran!', 'success');
   buzz(50);
 });
 
@@ -5028,7 +4338,7 @@ if ('serviceWorker' in navigator) {
           const newWorker = registration.installing;
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              showToast('?? Nova verzija dostupna! Osve?ite stranicu.', 'info');
+              showToast('🔄 Nova verzija dostupna! Osvežite stranicu.', 'info');
             }
           });
         });
