@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BeerScan — skeniraj pivo</title>
+  <title>BeerScan ? skeniraj pivo</title>
   <meta name="version" content="2.1.0" />
   
   <!-- PWA Meta -->
   <meta name="theme-color" content="#070A10" />
-  <meta name="description" content="Skeniraj bar-kodove piva, čuvaj ocene i lokacije, osvajaj bedževe!" />
+  <meta name="description" content="Skeniraj bar-kodove piva, cuvaj ocene i lokacije, osvajaj bed?eve!" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
 
@@ -247,6 +247,7 @@
       pointer-events: none;
       z-index: -1;
       filter: blur(20px);
+      will-change: opacity;
     }
     
     .card:hover{
@@ -436,7 +437,7 @@ button:disabled{
 
 /* Button click animation */
 button.clicked{
-  animation: buttonClick 0.3s ease;
+  animation: none;
 }
 
 @keyframes buttonClick{
@@ -626,10 +627,9 @@ button.clicked{
 
   50%{
     box-shadow:
-      0 0 80px rgba(0,191,255,1),
-      0 0 160px rgba(50,255,150,.65),
-      0 0 240px rgba(138,43,226,.35);
-    border-color: rgba(50,255,150,.95);
+      0 0 65px rgba(0,191,255,.90),
+      0 0 130px rgba(50,255,150,.50);
+    border-color: rgba(50,255,150,.90);
   }
 
   100%{
@@ -967,7 +967,7 @@ button.clicked{
 /* ===== Animated background ===== */
 body{
   background-size: 300% 300%;
-  animation: bgMove 20s ease-in-out infinite;
+  animation: bgMove 30s ease-in-out infinite;
   position: relative;
   overflow-x: hidden;
 }
@@ -990,23 +990,23 @@ body::after{
     radial-gradient(circle at 50% 10%, rgba(138,43,226,.08) 0%, transparent 2.5%);
   background-size: 250px 250px, 180px 180px, 220px 220px, 280px 280px, 200px 200px, 240px 240px;
   background-position: 0 0, 120px 120px, 60px 60px, 180px 0, 0 180px, 100px 50px;
-  animation: floatParticles 25s ease-in-out infinite;
-  opacity: 0.7;
+  animation: floatParticles 30s ease-in-out infinite;
+  opacity: 0.4;
   z-index: 0;
 }
 
 @keyframes floatParticles{
   0%, 100%{ 
     transform: translateY(0) translateX(0) scale(1); 
-    opacity: 0.7;
+    opacity: 0.5;
   }
   33%{ 
-    transform: translateY(-40px) translateX(20px) scale(1.15); 
-    opacity: 0.85;
+    transform: translateY(-25px) translateX(15px) scale(1.08); 
+    opacity: 0.65;
   }
   66%{ 
-    transform: translateY(-20px) translateX(-30px) scale(0.95); 
-    opacity: 0.75;
+    transform: translateY(-15px) translateX(-20px) scale(0.97); 
+    opacity: 0.55;
   }
 }
 
@@ -1290,7 +1290,7 @@ body.light{
 body.light header{
   background: linear-gradient(to bottom, rgba(245,247,255,.85), rgba(245,247,255,.55));
 }
-body.light .camWrap{ background:#111; } /* video ostaje čitljiv */
+body.light .camWrap{ background:#111; } /* video ostaje citljiv */
 /* ===== Icon system (CSS only) ===== */
 .ico{ width:18px; height:18px; display:inline-block; vertical-align:-3px; margin-right:8px; }
 .ico svg{ width:100%; height:100%; display:block; }
@@ -1717,7 +1717,7 @@ select:focus{
 
 @keyframes fabFloat{
   0%, 100%{ transform: translateY(0); }
-  50%{ transform: translateY(-8px); }
+  50%{ transform: translateY(-4px); }
 }
 
 .scanFab:hover{
@@ -2070,18 +2070,25 @@ select:focus{
   inset: 0;
   z-index: 10000;
   display: none;
-
-  /* KLJUČNO: klik ide na elemente ispod (spotlight je samo vizuelan) */
   pointer-events: none;
+  will-change: opacity;
 }
 
-#tourOverlay.show{ display:block; }
+#tourOverlay.show{ 
+  display:block;
+  animation: tourFadeIn 0.3s ease forwards;
+}
+
+@keyframes tourFadeIn{
+  from{ opacity: 0; }
+  to{ opacity: 1; }
+}
 
 .tourDim{
   position:absolute;
   inset:0;
-  background: rgba(0,0,0,.35);   /* manje zatamnjenje */
-  backdrop-filter: none;         /* bez blur-a da se vidi UI */
+  background: rgba(0,0,0,.35);
+  backdrop-filter: none;
 }
 
 /* RUPA/spotlight */
@@ -2098,27 +2105,10 @@ select:focus{
     inset 0 0 30px rgba(124,178,255,.15);
 
   transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: holeGlow 2.5s ease-in-out infinite;
+  will-change: left, top, width, height;
 }
 
-@keyframes holeGlow{
-  0%, 100%{
-    box-shadow:
-      0 0 0 9999px rgba(0,0,0,.45),
-      0 0 0 4px rgba(124,178,255,.80),
-      0 0 60px rgba(124,178,255,.75),
-      0 0 120px rgba(92,255,164,.35),
-      inset 0 0 25px rgba(124,178,255,.12);
-  }
-  50%{
-    box-shadow:
-      0 0 0 9999px rgba(0,0,0,.45),
-      0 0 0 4px rgba(92,255,164,.95),
-      0 0 90px rgba(124,178,255,.95),
-      0 0 180px rgba(92,255,164,.65),
-      inset 0 0 35px rgba(92,255,164,.20);
-  }
-}
+/* Uklonjena holeGlow animacija koja je izazivala blinkanje */
 
 /* Tooltip mora da prima klik */
 .tourTooltip{
@@ -2152,7 +2142,7 @@ select:focus{
   }
 }
 
-/* “Klikni ovde” indikator (mala strelica) */
+/* ?Klikni ovde? indikator (mala strelica) */
 .tourTapHint{
   margin-top: 12px;
   display:inline-flex;
@@ -2288,9 +2278,8 @@ select:focus{
 }
 .tourBtn:disabled{ opacity:.55; cursor:not-allowed; }
 
-.tourPulse{ animation: tourPulse 1.1s ease-in-out infinite; }
-@keyframes tourPulse{ 0%{ transform: scale(1);} 50%{ transform: scale(1.01);} 100%{ transform: scale(1);} }
-/* Nikad ne prikazuj “Kamera je ugašena” */
+/* tourPulse animacija uklonjena da ne blinka */
+/* Nikad ne prikazuj ?Kamera je uga?ena? */
 #cameraPlaceholder{ display:none !important; }
   </style>
 </head>
@@ -2306,7 +2295,7 @@ select:focus{
     <div class="splashTitle">BeerScan</div>
 
     <div class="splashSubtitle">
-      Skenirajte. Sačuvajte. Otkrijte.
+      Skenirajte. Sacuvajte. Otkrijte.
     </div>
 
   </div>
@@ -2318,15 +2307,15 @@ select:focus{
       <div class="logo"></div>
       <div>
         <h1>BeerScan</h1>
-        <div class="sub">Skenirajte bar-kod → istorija (lokalno) + Open Food Facts podaci.</div>
+        <div class="sub">Skenirajte bar-kod ? istorija (lokalno) + Open Food Facts podaci.</div>
       </div>
     </div>
     <div class="spacer"></div>
     <button id="btnTheme" class="primary" style="padding: 10px 14px; font-size: 13px; margin-right: 8px;" title="Promeni temu">
-      <span style="font-size: 16px;">🌙</span>
+      <span style="font-size: 16px;">??</span>
     </button>
-    <button id="btnHelp" class="primary" style="padding: 10px 14px; font-size: 13px;" title="Prikaži uputstvo">
-      <span style="font-size: 16px;">❓</span> Pomoć
+    <button id="btnHelp" class="primary" style="padding: 10px 14px; font-size: 13px;" title="Prika?i uputstvo">
+      <span style="font-size: 16px;">?</span> Pomoc
     </button>
   </div>
 </header>
@@ -2367,14 +2356,14 @@ select:focus{
     <div class="scanTopbar">
       <div class="row" style="gap:10px; align-items:center;">
         <span class="pill">Skeniranje</span>
-        <span class="pill mono" id="securePill">—</span>
-        <span class="pill mono" id="detectorPill">—</span>
+        <span class="pill mono" id="securePill">?</span>
+        <span class="pill mono" id="detectorPill">?</span>
         <div class="spacer"></div>
         
        <button id="btnStart" class="primary hidden">Pokreni</button>
 <button id="btnStop" class="hidden">Stop</button>
-<button id="btnTorch" class="warn" disabled>🔦</button>
-<button id="btnClear" class="danger">Obriši</button>
+<button id="btnTorch" class="warn" disabled>??</button>
+<button id="btnClear" class="danger">Obri?i</button>
       </div>
       
       <div class="statusMini" id="status">Status: spremno.</div>
@@ -2388,7 +2377,7 @@ select:focus{
             <path d="M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
           </svg>
         </div>
-        <div class="cameraTitle">Kamera je ugašena</div>
+        <div class="cameraTitle">Kamera je uga?ena</div>
         <div class="cameraHint">Pritisnite <b>Scan</b> dugme da pokrenete skeniranje.</div>
       </div>
     </div>
@@ -2399,24 +2388,24 @@ select:focus{
       <video id="video" playsinline muted></video>
       
       <div class="scanFrame">
-        <div class="frameBox" title="Držite bar-kod u okviru"></div>
+        <div class="frameBox" title="Dr?ite bar-kod u okviru"></div>
       </div>
       
       <!-- diskretan gradient dole (da se sheet bolje vidi) -->
       <div class="heroFade"></div>
     </div>
     
-    <!-- Bottom sheet rezultat + ručni unos -->
+    <!-- Bottom sheet rezultat + rucni unos -->
     <div class="bottomSheet glass">
       <div class="sheetGrip"></div>
       
       <div class="sheetBlock hidden" id="scanPanel">
         <div class="row">
-          <input id="manualBarcode" class="mono" placeholder="Unesite bar-kod ručno" inputmode="numeric" style="flex:1; min-width: 220px" />
+          <input id="manualBarcode" class="mono" placeholder="Unesite bar-kod rucno" inputmode="numeric" style="flex:1; min-width: 220px" />
           <button id="btnLookup" class="primary">Proveri</button>
         </div>
         <div class="hint" style="margin-top:8px">
-          Savet: držite bar-kod 15–30 cm, u dobrom svetlu. Sjajno pakovanje: blago nagnite proizvod.
+          Savet: dr?ite bar-kod 15?30 cm, u dobrom svetlu. Sjajno pakovanje: blago nagnite proizvod.
         </div>
       </div>
       
@@ -2426,57 +2415,57 @@ select:focus{
             <div class="resultTitle">Trenutno skenirano</div>
             
             <div class="row" style="gap:8px; margin:6px 0 10px;">
-              <span class="pill mono" id="statusPill">—</span>
-              <span class="pill mono" id="currentBarcode" style="font-size:13px;">—</span>
+              <span class="pill mono" id="statusPill">?</span>
+              <span class="pill mono" id="currentBarcode" style="font-size:13px;">?</span>
             </div>
             
-            <div id="currentName" class="sheetTitle">—</div>
-            <div id="currentMeta" class="resultMeta">—</div>
+            <div id="currentName" class="sheetTitle">?</div>
+            <div id="currentMeta" class="resultMeta">?</div>
             
             <div class="row sheetBtns" style="margin-top:10px;">
-              <button id="btnCapture" class="good" disabled"> ✅ Sačuvaj “Probao”</button>
-              <button id="btnCapturePhoto" class="primary" disabled>📸 Dodaj sliku</button>
-              <button id="btnOpenOff" class="primary" disabled>ℹ️ Detalji (OFF)</button>
+              <button id="btnCapture" class="good" disabled"> ? Sacuvaj ?Probao?</button>
+              <button id="btnCapturePhoto" class="primary" disabled>?? Dodaj sliku</button>
+              <button id="btnOpenOff" class="primary" disabled>?? Detalji (OFF)</button>
             </div>
             <div class="row" style="margin-top:10px; gap:10px; flex-wrap:wrap;">
-  <button id="btnFav" class="primary" disabled>♡ Favorit</button>
-  <button id="btnShare" class="primary" disabled title="Podeli proizvod">📤</button>
-  <button id="btnLocation" class="primary" disabled title="Dodaj GPS lokaciju">📍 Lokacija</button>
-  <button id="btnUntappd" class="primary" disabled title="Poveži sa Untappd">🍺 Untappd</button>
-  <button id="btnCalendar" class="primary" disabled title="Dodaj u kalendar">📅 Kalendar</button>
+  <button id="btnFav" class="primary" disabled>? Favorit</button>
+  <button id="btnShare" class="primary" disabled title="Podeli proizvod">??</button>
+  <button id="btnLocation" class="primary" disabled title="Dodaj GPS lokaciju">?? Lokacija</button>
+  <button id="btnUntappd" class="primary" disabled title="Pove?i sa Untappd">?? Untappd</button>
+  <button id="btnCalendar" class="primary" disabled title="Dodaj u kalendar">?? Kalendar</button>
 
   <div class="ratingWrap" id="ratingWrap">
-    <button class="starBtn" data-star="1">★</button>
-    <button class="starBtn" data-star="2">★</button>
-    <button class="starBtn" data-star="3">★</button>
-    <button class="starBtn" data-star="4">★</button>
-    <button class="starBtn" data-star="5">★</button>
-    <span class="pill mono" id="ratingPill">Ocena: —</span>
+    <button class="starBtn" data-star="1">?</button>
+    <button class="starBtn" data-star="2">?</button>
+    <button class="starBtn" data-star="3">?</button>
+    <button class="starBtn" data-star="4">?</button>
+    <button class="starBtn" data-star="5">?</button>
+    <span class="pill mono" id="ratingPill">Ocena: ?</span>
   </div>
 </div>
 
 <!-- Lokacija info -->
 <div id="locationInfo" style="display:none; margin-top:10px; padding:12px; border-radius:16px; border:1px solid rgba(92,255,164,.35); background:rgba(92,255,164,.12);">
-  <div style="font-size:13px; color:var(--txt); margin-bottom:6px;">📍 Lokacija sačuvana:</div>
+  <div style="font-size:13px; color:var(--txt); margin-bottom:6px;">?? Lokacija sacuvana:</div>
   <div id="locationText" style="font-size:12px; color:var(--muted);"></div>
-  <button id="btnViewMap" class="primary" style="margin-top:8px; font-size:12px; padding:8px 12px;">🗺️ Prikaži na mapi</button>
+  <button id="btnViewMap" class="primary" style="margin-top:8px; font-size:12px; padding:8px 12px;">??? Prika?i na mapi</button>
 </div>
 
 <div style="margin-top:10px;">
-  <textarea id="noteInput" placeholder="Beleška (npr. ukus, gde kupljeno...)" rows="2"
+  <textarea id="noteInput" placeholder="Bele?ka (npr. ukus, gde kupljeno...)" rows="2"
     style="width:100%; border-radius:16px; border:1px solid rgba(255,255,255,.18); background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04)); backdrop-filter:blur(12px) saturate(140%); color:var(--txt); padding:12px; font-size:14px; font-weight:600; outline:none; transition:all .3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow:0 2px 8px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.08); resize:vertical; font-family:inherit;"></textarea>
   <div class="row" style="margin-top:8px;">
-    <button id="btnSaveNote" class="primary" disabled>💾 Sačuvaj belešku</button>
+    <button id="btnSaveNote" class="primary" disabled>?? Sacuvaj bele?ku</button>
     <span class="spacer"></span>
-    <span class="pill mono" id="onlinePill">—</span>
+    <span class="pill mono" id="onlinePill">?</span>
   </div>
 </div>
           </div>
           
           <div style="display:grid; gap:10px;">
             <img id="offThumb" class="thumb" alt="OFF slika" style="display:none" />
-            <img id="lastPhoto" class="thumb" alt="Vaša fotografija" style="display:none" />
-            <div class="hint" id="photoHint" style="display:none;">Gore: OFF slika · Dole: Vaša slika</div>
+            <img id="lastPhoto" class="thumb" alt="Va?a fotografija" style="display:none" />
+            <div class="hint" id="photoHint" style="display:none;">Gore: OFF slika ? Dole: Va?a slika</div>
           </div>
         </div>
       </div>
@@ -2491,7 +2480,7 @@ select:focus{
   <section class="card">
     <div class="row" style="justify-content: space-between;">
       <div class="row">
-        <span class="pill">📚 Istorija</span>
+        <span class="pill">?? Istorija</span>
         <span class="pill" id="historyCount">0</span>
       </div>
       <div class="hint">Kliknite na stavku da je otvorite.</div>
@@ -2501,20 +2490,20 @@ select:focus{
 
     <div class="card soft">
       <div class="row">
-        <input id="historySearch" placeholder="Pretraži (barcode / naziv / brend)" style="flex:1; min-width: 220px" />
+        <input id="historySearch" placeholder="Pretra?i (barcode / naziv / brend)" style="flex:1; min-width: 220px" />
 
         <select id="historySort" style="min-width: 190px;">
-          <option value="date_desc">Datum ↓</option>
-          <option value="date_asc">Datum ↑</option>
-          <option value="brand_asc">Brend A→Z</option>
-          <option value="rating_desc">Ocena ↓</option>
+          <option value="date_desc">Datum ?</option>
+          <option value="date_asc">Datum ?</option>
+          <option value="brand_asc">Brend A?Z</option>
+          <option value="rating_desc">Ocena ?</option>
           <option value="fav_first">Favoriti prvo</option>
         </select>
 
         <button class="tabBtn active" id="filterAll" style="flex:0 0 auto; padding:10px 12px;">Sve</button>
         <button class="tabBtn" id="filterNew" style="flex:0 0 auto; padding:10px 12px;">Novo</button>
         <button class="tabBtn" id="filterTried" style="flex:0 0 auto; padding:10px 12px;">Probano</button>
-        <button class="tabBtn" id="filterFav" style="flex:0 0 auto; padding:10px 12px;">❤️ Favoriti</button>
+        <button class="tabBtn" id="filterFav" style="flex:0 0 auto; padding:10px 12px;">?? Favoriti</button>
       </div>
     </div>
 
@@ -2523,7 +2512,7 @@ select:focus{
         <thead>
           <tr>
             <th style="width: 40px;">
-              <input type="checkbox" id="selectAll" style="cursor: pointer;" title="Označi sve">
+              <input type="checkbox" id="selectAll" style="cursor: pointer;" title="Oznaci sve">
             </th>
             <th>Datum</th>
             <th>Bar-kod</th>
@@ -2538,9 +2527,9 @@ select:focus{
     </div>
     
     <div id="bulkActions" class="row" style="margin-top: 12px; gap: 10px; display: none;">
-      <span class="pill" id="selectedCount">0 označeno</span>
-      <button id="btnDeleteSelected" class="danger">🗑️ Obriši označeno</button>
-      <button id="btnDeselectAll">✖️ Poništi</button>
+      <span class="pill" id="selectedCount">0 oznaceno</span>
+      <button id="btnDeleteSelected" class="danger">??? Obri?i oznaceno</button>
+      <button id="btnDeselectAll">?? Poni?ti</button>
     </div>
   </section>
 </div>
@@ -2552,13 +2541,13 @@ select:focus{
   <section class="card">
     <div class="row" style="justify-content: space-between;">
       <div class="row">
-        <span class="pill">📊 Statistika</span>
-        <span class="pill" id="badgePill">—</span>
+        <span class="pill">?? Statistika</span>
+        <span class="pill" id="badgePill">?</span>
       </div>
       <div class="row" style="gap:10px; flex-wrap:wrap; justify-content:flex-end;">
-  <button id="btnTutorial" class="primary">▶ Tutorijal</button>
-  <button id="btnExport" class="primary">⬇️ Export</button>
-  <button id="btnImport" class="primary">⬆️ Import</button>
+  <button id="btnTutorial" class="primary">? Tutorijal</button>
+  <button id="btnExport" class="primary">?? Export</button>
+  <button id="btnImport" class="primary">?? Import</button>
   <input id="importFile" type="file" accept="application/json" style="display:none" />
 </div>
     </div>
@@ -2583,36 +2572,36 @@ select:focus{
     </div>
 
     <div style="height:12px"></div>
-        <span class="pill mono" id="levelPill">—</span>
+        <span class="pill mono" id="levelPill">?</span>
       </div>
 
       <div style="height:10px"></div>
 
       <div class="badgeRow">
-        <div class="badge" id="badgeBronze">🥉 Bronza <span>10</span></div>
-        <div class="badge" id="badgeSilver">🥈 Srebro <span>25</span></div>
-        <div class="badge" id="badgeGold">🥇 Zlato <span>50</span></div>
-        <div class="badge" id="badgeLegend">🏆 Legenda <span>100</span></div>
+        <div class="badge" id="badgeBronze">?? Bronza <span>10</span></div>
+        <div class="badge" id="badgeSilver">?? Srebro <span>25</span></div>
+        <div class="badge" id="badgeGold">?? Zlato <span>50</span></div>
+        <div class="badge" id="badgeLegend">?? Legenda <span>100</span></div>
       </div>
       
       <div style="height:12px"></div>
       
-      <!-- Novi bedževi -->
-      <div class="resultTitle">🎯 Specijalni bedževi</div>
-      <div class="hint">Otključaj posebna dostignuća!</div>
+      <!-- Novi bed?evi -->
+      <div class="resultTitle">?? Specijalni bed?evi</div>
+      <div class="hint">Otkljucaj posebna dostignuca!</div>
       <div style="height:10px"></div>
       <div class="badgeRow">
-        <div class="badge" id="badgeExplorer">🗺️ Istraživač <span>5 lokacija</span></div>
-        <div class="badge" id="badgeGlobetrotter">🌍 Putnik <span>10 lokacija</span></div>
-        <div class="badge" id="badgeSocial">🤝 Društvenjak <span>10 deljenja</span></div>
-        <div class="badge" id="badgeUntappd">🍺 Untappd Fan <span>5 povezanih</span></div>
+        <div class="badge" id="badgeExplorer">??? Istra?ivac <span>5 lokacija</span></div>
+        <div class="badge" id="badgeGlobetrotter">?? Putnik <span>10 lokacija</span></div>
+        <div class="badge" id="badgeSocial">?? Dru?tvenjak <span>10 deljenja</span></div>
+        <div class="badge" id="badgeUntappd">?? Untappd Fan <span>5 povezanih</span></div>
       </div>
 
       <div style="height:12px"></div>
 
       <div class="progressWrap">
         <div class="progressTop">
-          <div class="hint">Napredak do sledećeg bedža</div>
+          <div class="hint">Napredak do sledeceg bed?a</div>
           <div class="mono" id="progressText">0/10</div>
         </div>
         <div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
@@ -2623,9 +2612,9 @@ select:focus{
 
     <div class="card soft">
       <div class="resultTitle">Top brendovi</div>
-      <div class="hint">Na osnovu Open Food Facts polja “brands”.</div>
+      <div class="hint">Na osnovu Open Food Facts polja ?brands?.</div>
       <div style="height:10px"></div>
-      <div id="topBrands" class="topList">—</div>
+      <div id="topBrands" class="topList">?</div>
     </div>
     
     <div style="height:12px"></div>
@@ -2633,13 +2622,13 @@ select:focus{
     <!-- Pivski kalendar -->
     <div class="card soft">
       <div class="row" style="justify-content:space-between; align-items:center;">
-        <div class="resultTitle">📅 Pivski kalendar</div>
-        <button id="btnAddCalendarEvent" class="primary" style="font-size:12px; padding:8px 12px;">+ Dodaj događaj</button>
+        <div class="resultTitle">?? Pivski kalendar</div>
+        <button id="btnAddCalendarEvent" class="primary" style="font-size:12px; padding:8px 12px;">+ Dodaj dogadaj</button>
       </div>
-      <div class="hint">Planiraj degustacije, posete pivnicama i pivske događaje</div>
+      <div class="hint">Planiraj degustacije, posete pivnicama i pivske dogadaje</div>
       <div style="height:10px"></div>
       <div id="calendarEvents" class="topList">
-        <div class="hint">Nema planiranih događaja. Kliknite + da dodate.</div>
+        <div class="hint">Nema planiranih dogadaja. Kliknite + da dodate.</div>
       </div>
     </div>
   </section>
@@ -2665,9 +2654,9 @@ select:focus{
   <div class="tourHole" id="tourHole"></div>
 
   <div class="tourTooltip glass" id="tourTooltip" role="dialog" aria-modal="true" aria-label="Uputstvo">
-    <div class="tourTitle" id="tourTitle">—</div>
-    <div class="tourText" id="tourText">—</div>
-    <div class="tourTapHint" id="tourTapHint" style="display:none;">—</div>
+    <div class="tourTitle" id="tourTitle">?</div>
+    <div class="tourText" id="tourText">?</div>
+    <div class="tourTapHint" id="tourTapHint" style="display:none;">?</div>
 
     <div class="tourBottom">
       <div style="flex: 1;">
@@ -2678,8 +2667,8 @@ select:focus{
       </div>
 
       <div class="tourBtns">
-        <button class="tourBtn" id="tourClose" type="button">Preskoči</button>
-        <button class="tourBtn" id="tourBack" type="button">←</button>
+        <button class="tourBtn" id="tourClose" type="button">Preskoci</button>
+        <button class="tourBtn" id="tourBack" type="button">?</button>
         <button class="tourBtn primary" id="tourNext" type="button">Dalje</button>
         <button class="tourBtn good" id="tourDone" type="button">Razumem</button>
       </div>
@@ -2689,7 +2678,7 @@ select:focus{
 </main>
 
 <script>
-console.log('=== BEERSCAN v2.1.1 UČITAN ===');
+console.log('=== BEERSCAN v2.1.1 UCITAN ===');
 console.log('Datum:', new Date().toLocaleString());
 console.log('URL:', window.location.href);
 console.log('HTTPS:', window.location.protocol === 'https:');
@@ -2790,7 +2779,7 @@ async function dbClear(){
 async function fetchOFF(barcode){
   const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`;
   const res = await fetch(url, { cache: "no-store" });
-  if(!res.ok) throw new Error("OFF API greška");
+  if(!res.ok) throw new Error("OFF API gre?ka");
   return await res.json();
 }
 
@@ -2839,7 +2828,7 @@ const btnTutorial = document.getElementById("btnTutorial");
 
 if(btnTutorial){
   btnTutorial.addEventListener("click", () => {
-    // otvorimo Stats tab (da bude logično gde je dugme)
+    // otvorimo Stats tab (da bude logicno gde je dugme)
     setTab("stats");
     openTour();
   });
@@ -2867,22 +2856,22 @@ function setCameraUI(on) {
   // HERO kamera (video) prikazujemo samo kada je ON
   if (heroCamEl) heroCamEl.classList.toggle("hidden", !on);
   
-  // RUČNI UNOS hoćemo da bude vidljiv uvek (i kad je kamera OFF)
+  // RUCNI UNOS hocemo da bude vidljiv uvek (i kad je kamera OFF)
   if (scanPanelEl) scanPanelEl.classList.remove("hidden");
   
-  // Placeholder nikad (već ga gasimo i CSS-om)
+  // Placeholder nikad (vec ga gasimo i CSS-om)
   if (cameraPlaceholderEl) cameraPlaceholderEl.classList.add("hidden");
   
-  // sigurnosno resetovanje kad je kamera ugašena
+  // sigurnosno resetovanje kad je kamera uga?ena
   if (!on) {
     btnCapture.disabled = true;
     btnTorch.disabled = true;
-    btnTorch.textContent = "🔦";
+    btnTorch.textContent = "??";
   }
 }
 
 function setStatus(text, kind = "") {
-  // zadržavamo statusMini, a dodajemo ok/warn/bad klase
+  // zadr?avamo statusMini, a dodajemo ok/warn/bad klase
   statusEl.className = "statusMini " + (kind || "");
   statusEl.textContent = "Status: " + text;
 }
@@ -2907,13 +2896,13 @@ function isSecureForCamera(){
 
 function updateSecurePill(){
   const ok = isSecureForCamera();
-  securePill.textContent = ok ? "✅ Secure (kamera dozvoljena)" : "⛔ Nije secure (HTTPS/localhost)";
+  securePill.textContent = ok ? "? Secure (kamera dozvoljena)" : "? Nije secure (HTTPS/localhost)";
   securePill.style.borderColor = ok ? "rgba(92,255,164,.35)" : "rgba(255,92,92,.35)";
 }
 
 function updateDetectorPill(){
   const ok = ("BarcodeDetector" in window);
-  detectorPill.textContent = ok ? "✅ BarcodeDetector OK" : "⛔ BarcodeDetector nije dostupan";
+  detectorPill.textContent = ok ? "? BarcodeDetector OK" : "? BarcodeDetector nije dostupan";
   detectorPill.style.borderColor = ok ? "rgba(92,255,164,.35)" : "rgba(255,92,92,.35)";
 }
 function isOnline(){
@@ -2923,7 +2912,7 @@ function isOnline(){
 function updateOnlinePill(){
   if(!onlinePill) return;
   const on = isOnline();
-  onlinePill.textContent = on ? "🌐 Online" : "📴 Offline";
+  onlinePill.textContent = on ? "?? Online" : "?? Offline";
   onlinePill.style.borderColor = on ? "rgba(92,255,164,.35)" : "rgba(255,92,92,.35)";
 }
 window.addEventListener("online", updateOnlinePill);
@@ -2953,17 +2942,17 @@ function clearResult(){
   if(resultBlock) resultBlock.style.display = 'none';
   
   // Resetuj sve vrednosti
-  if(currentNameEl) currentNameEl.textContent = '—';
-  if(currentMetaEl) currentMetaEl.textContent = '—';
-  if(currentBarcodeEl) currentBarcodeEl.textContent = '—';
-  if(statusPillEl) statusPillEl.textContent = '—';
+  if(currentNameEl) currentNameEl.textContent = '?';
+  if(currentMetaEl) currentMetaEl.textContent = '?';
+  if(currentBarcodeEl) currentBarcodeEl.textContent = '?';
+  if(statusPillEl) statusPillEl.textContent = '?';
   if(offThumbEl) offThumbEl.style.display = 'none';
   if(lastPhotoEl) lastPhotoEl.style.display = 'none';
   if(photoHintEl) photoHintEl.style.display = 'none';
   if(noteInput) noteInput.value = '';
-  if(ratingPill) ratingPill.textContent = 'Ocena: —';
+  if(ratingPill) ratingPill.textContent = 'Ocena: ?';
   
-  // Onemogući dugmad
+  // Onemoguci dugmad
   if(btnCapture) btnCapture.disabled = true;
   if(btnOpenOff) btnOpenOff.disabled = true;
   if(btnFav) btnFav.disabled = true;
@@ -3034,7 +3023,7 @@ list.sort((a,b) => {
   historyTableEl.innerHTML = list.map(r => {
     const name = (r.off?.productName || "").trim();
     const brands = (r.off?.brands || "").trim();
-    const label = [name, brands].filter(Boolean).join(" — ");
+    const label = [name, brands].filter(Boolean).join(" ? ");
     const status = (r.timesTried || 0) > 0 ? "Probao si" : "Novo";
 
     return `
@@ -3051,16 +3040,16 @@ list.sort((a,b) => {
          onerror="this.style.display='none'">
     <div style="min-width:0">
       ${label ? escapeHtml(label) : `<span class="hint">Nema OFF podataka</span>`}
-      ${r.favorite ? ` <span class="pill mono" style="margin-left:6px">❤️</span>` : ``}
-      ${r.rating ? ` <span class="pill mono" style="margin-left:6px">⭐ ${r.rating}</span>` : ``}
+      ${r.favorite ? ` <span class="pill mono" style="margin-left:6px">??</span>` : ``}
+      ${r.rating ? ` <span class="pill mono" style="margin-left:6px">? ${r.rating}</span>` : ``}
     </div>
   </div>
   <div class="quick-actions">
     <button class="quick-btn quick-fav" data-barcode="${r.barcode}" onclick="event.stopPropagation(); toggleQuickFav('${r.barcode}')" title="Favorit">
-      ${r.favorite ? '❤️' : '♡'}
+      ${r.favorite ? '??' : '?'}
     </button>
-    <button class="quick-btn quick-delete" data-barcode="${r.barcode}" onclick="event.stopPropagation(); quickDelete('${r.barcode}')" title="Obriši">
-      🗑️
+    <button class="quick-btn quick-delete" data-barcode="${r.barcode}" onclick="event.stopPropagation(); quickDelete('${r.barcode}')" title="Obri?i">
+      ???
     </button>
   </div>
 </td>
@@ -3094,7 +3083,7 @@ async function quickDelete(barcode){
   if(!ok) return;
   await dbDelete(barcode);
   buzz(25);
-  showToast('✅ Proizvod obrisan', 'success');
+  showToast('? Proizvod obrisan', 'success');
   await refreshHistory();
 }
 
@@ -3137,7 +3126,7 @@ async function updateStats(all){
   if(badgeLegend) badgeLegend.classList.toggle("unlocked", tried >= 100);
 
   // Current level + progress to next
-  let level = "Početnik";
+  let level = "Pocetnik";
   if(tried >= 100) level = "Legenda";
   else if(tried >= 50) level = "Zlato";
   else if(tried >= 25) level = "Srebro";
@@ -3146,7 +3135,7 @@ async function updateStats(all){
   const levelPill = document.getElementById("levelPill");
   const badgePill = document.getElementById("badgePill");
   if(levelPill) levelPill.textContent = `Nivo: ${level}`;
-  if(badgePill) badgePill.textContent = `🏅 ${level}`;
+  if(badgePill) badgePill.textContent = `?? ${level}`;
 
   // progress
   let nextNeed = 10;
@@ -3177,7 +3166,7 @@ async function updateStats(all){
   const topBrandsEl = document.getElementById("topBrands");
   if(topBrandsEl){
     if(!top.length){
-      topBrandsEl.textContent = "—";
+      topBrandsEl.textContent = "?";
     } else {
       const max = Math.max(...top.map(x => x[1]));
 topBrandsEl.innerHTML = top.map(([name, n]) => {
@@ -3204,7 +3193,7 @@ async function handleBarcode(raw, opts = {}){
   const bc = normalizeBarcode(raw);
   if(!bc) return;
 
-  // Prikaži rezultat blok
+  // Prika?i rezultat blok
   const resultBlock = document.getElementById('resultBlock');
   if(resultBlock) resultBlock.style.display = 'block';
 
@@ -3221,7 +3210,7 @@ async function handleBarcode(raw, opts = {}){
   lastPhotoEl.style.display = "none";
   lastPhotoEl.src = "";
 
-  // učitaj iz baze ili napravi novi zapis
+  // ucitaj iz baze ili napravi novi zapis
   let rec = await dbGet(bc);
   if(!rec){
     rec = {
@@ -3237,9 +3226,9 @@ async function handleBarcode(raw, opts = {}){
   rating: 0,
   note: ""
 };
-    setStatus(`Skenirano ${bc} — NOVO PIVO`, "warn");
+    setStatus(`Skenirano ${bc} ? NOVO PIVO`, "warn");
   } else {
-    setStatus(`Skenirano ${bc} — postoji u istoriji`, "ok");
+    setStatus(`Skenirano ${bc} ? postoji u istoriji`, "ok");
   }
 
   // OFF podaci
@@ -3249,16 +3238,16 @@ async function handleBarcode(raw, opts = {}){
       rec.off = offSummary(offJson);
       rec.updatedAt = Date.now();
       await dbPut(rec);
-      setStatus(`Skenirano ${bc} — OFF podaci pronađeni`, "ok");
+      setStatus(`Skenirano ${bc} ? OFF podaci pronadeni`, "ok");
     } else {
       rec.updatedAt = Date.now();
       await dbPut(rec);
-      setStatus(`Skenirano ${bc} — nema OFF zapisa`, "warn");
+      setStatus(`Skenirano ${bc} ? nema OFF zapisa`, "warn");
     }
   } catch {
     rec.updatedAt = Date.now();
     await dbPut(rec);
-    setStatus(`Skenirano ${bc} — OFF nedostupan (offline ili greška)`, "warn");
+    setStatus(`Skenirano ${bc} ? OFF nedostupan (offline ili gre?ka)`, "warn");
   }
 
   // UI prikaz
@@ -3276,7 +3265,7 @@ const btnOpenOffEl = document.getElementById("btnOpenOff");
 const photoHintEl = document.getElementById("photoHint");
 
 const tried = (rec.timesTried || 0) > 0;
-const triedText = tried ? "✅ Probao si" : "🆕 Novo pivo";
+const triedText = tried ? "? Probao si" : "?? Novo pivo";
 
 if (statusPillEl) {
   statusPillEl.textContent = tried ? "PROBAO" : "NOVO";
@@ -3285,20 +3274,20 @@ if (statusPillEl) {
 }
 
 if (currentNameEl) {
-  currentNameEl.textContent = name ? name : "Naziv nije pronađen";
+  currentNameEl.textContent = name ? name : "Naziv nije pronaden";
 }
 
 if (currentMetaEl) {
   const parts = [];
   parts.push(brands ? `Brend: ${brands}` : "Brend: (nema)");
-  if (qty) parts.push(`Količina: ${qty}`);
+  if (qty) parts.push(`Kolicina: ${qty}`);
   parts.push(`OFF slika: ${img ? "da" : "ne"}`);
-  parts.push(`Probano: ${(rec.timesTried || 0)}×`);
-  currentMetaEl.textContent = parts.join(" · ");
+  parts.push(`Probano: ${(rec.timesTried || 0)}?`);
+  currentMetaEl.textContent = parts.join(" ? ");
 }
 // Favorit UI
 if(btnFav){
-  btnFav.textContent = rec.favorite ? "❤️ Favorit" : "♡ Favorit";
+  btnFav.textContent = rec.favorite ? "?? Favorit" : "? Favorit";
   btnFav.classList.toggle("good", !!rec.favorite);
   btnFav.classList.toggle("primary", !rec.favorite);
 }
@@ -3311,11 +3300,11 @@ function renderStars(val){
     const n = Number(b.getAttribute("data-star")) || 0;
     b.classList.toggle("on", n <= val);
   });
-  if(ratingPill) ratingPill.textContent = val ? `Ocena: ${val}/5` : "Ocena: —";
+  if(ratingPill) ratingPill.textContent = val ? `Ocena: ${val}/5` : "Ocena: ?";
 }
 renderStars(rec.rating || 0);
 
-// Note UI — ne popunjavaj automatski sačuvanu belešku
+// Note UI ? ne popunjavaj automatski sacuvanu bele?ku
 if (noteInput) {
   if (!editingNote) noteInput.value = "";
 }
@@ -3331,13 +3320,13 @@ if (offThumbEl) {
   }
 }
 
-// Dugme “Detalji (OFF)”
+// Dugme ?Detalji (OFF)?
 if (btnOpenOffEl) {
   btnOpenOffEl.disabled = !img;
   btnOpenOffEl.onclick = () => { if (img) window.open(img, "_blank"); };
 }
 
-// Vaša slika (ostaje isto kao ranije, ali dopunimo hint)
+// Va?a slika (ostaje isto kao ranije, ali dopunimo hint)
 if (rec.photo instanceof Blob) {
   const url = URL.createObjectURL(rec.photo);
   lastPhotoEl.src = url;
@@ -3416,7 +3405,7 @@ async function applyAdvancedCameraSettings(track){
   // Torch dostupnost
   const torchSupported = !!caps.torch;
   btnTorch.disabled = !torchSupported;
-  btnTorch.textContent = torchSupported ? "🔦 Blic" : "🔦 Blic (nije podržan)";
+  btnTorch.textContent = torchSupported ? "?? Blic" : "?? Blic (nije podr?an)";
 }
 
 async function scanLoop(){
@@ -3455,16 +3444,16 @@ async function scanLoop(){
           document.getElementById("pageScan")?.classList.add("pulseOk");
           setTimeout(() => document.getElementById("pageScan")?.classList.remove("pulseOk"), 220);
           
-          // ✅ KLJUČNO: prekini skeniranje da ne hvata nove kodove dok čitate
+          // ? KLJUCNO: prekini skeniranje da ne hvata nove kodove dok citate
           stopScanner();
-          setStatus("Skenirano. Skeniranje je pauzirano — pritisnite Scan za sledeći kod.", "ok");
+          setStatus("Skenirano. Skeniranje je pauzirano ? pritisnite Scan za sledeci kod.", "ok");
           
           return; // prekini ovaj loop
         }
       }
     }
   } catch {
-    // ignorisati povremene greške
+    // ignorisati povremene gre?ke
   }
 
   scanReq = requestAnimationFrame(scanLoop);
@@ -3474,7 +3463,7 @@ async function startScanner(){
   if(scanning) return;
 
   if(!navigator.mediaDevices?.getUserMedia){
-    setStatus("Browser ne podržava kameru (getUserMedia).", "bad");
+    setStatus("Browser ne podr?ava kameru (getUserMedia).", "bad");
     return;
   }
   if(!isSecureForCamera()){
@@ -3484,12 +3473,12 @@ async function startScanner(){
 
   detector = await initDetector();
   if(!detector){
-    setStatus("BarcodeDetector nije dostupan. Otvorite u Chrome-u ili ažurirajte browser.", "bad");
+    setStatus("BarcodeDetector nije dostupan. Otvorite u Chrome-u ili a?urirajte browser.", "bad");
     return;
   }
 
   scanning = true;
-  setStatus("Tražim dozvolu za kameru...", "");
+  setStatus("Tra?im dozvolu za kameru...", "");
 
   try{
     mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -3508,7 +3497,7 @@ await videoEl.play();
     currentVideoTrack = mediaStream.getVideoTracks()[0] || null;
     if(currentVideoTrack) await applyAdvancedCameraSettings(currentVideoTrack);
 
-    setStatus("Kamera aktivna. Držite bar-kod u okviru.", "ok");
+    setStatus("Kamera aktivna. Dr?ite bar-kod u okviru.", "ok");
     scanReq = requestAnimationFrame(scanLoop);
     setFabState(true);
 
@@ -3538,7 +3527,7 @@ function stopScanner(){
   currentVideoTrack = null;
   detector = null;
   torchOn = false;
-  btnTorch.textContent = "🔦 Blic";
+  btnTorch.textContent = "?? Blic";
   btnTorch.disabled = true;
 
   setStatus("Pritisnite Scan dugme da pokrenete kameru.", "warn");
@@ -3554,15 +3543,15 @@ async function toggleTorch(){
   torchOn = !torchOn;
   try{
     await currentVideoTrack.applyConstraints({ advanced: [{ torch: torchOn }] });
-    btnTorch.textContent = torchOn ? "🔦 Blic: ON" : "🔦 Blic: OFF";
+    btnTorch.textContent = torchOn ? "?? Blic: ON" : "?? Blic: OFF";
   } catch {
     torchOn = false;
-    btnTorch.textContent = "🔦 Blic";
+    btnTorch.textContent = "?? Blic";
   }
 }
 
 /* =======================
-   Snimanje slike + označavanje kao "Probao"
+   Snimanje slike + oznacavanje kao "Probao"
 ======================= */
 
 async function markAsTried(){
@@ -3584,7 +3573,7 @@ async function markAsTried(){
   rec.updatedAt = Date.now();
   await dbPut(rec);
 
-  setStatus(`Označeno kao "Probao" (${currentBarcode}).`, "ok");
+  setStatus(`Oznaceno kao "Probao" (${currentBarcode}).`, "ok");
   await handleBarcode(currentBarcode, { fromHistoryClick: true });
 }
 
@@ -3607,7 +3596,7 @@ async function markAsTried(){
   rec.updatedAt = Date.now();
   await dbPut(rec);
 
-  setStatus(`Označeno kao "Probao" (${currentBarcode}).`, "ok");
+  setStatus(`Oznaceno kao "Probao" (${currentBarcode}).`, "ok");
   await handleBarcode(currentBarcode, { fromHistoryClick: true });
 }
 async function capturePhotoToCurrent(){
@@ -3630,7 +3619,7 @@ async function capturePhotoToCurrent(){
 
   const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.85));
   if(!blob){
-    setStatus("Ne mogu da sačuvam sliku.", "bad");
+    setStatus("Ne mogu da sacuvam sliku.", "bad");
     return;
   }
 
@@ -3656,7 +3645,7 @@ async function capturePhotoToCurrent(){
   lastPhotoEl.src = url;
   lastPhotoEl.style.display = "block";
 
-  setStatus(`Sačuvano kao “Probao” + slika (${currentBarcode}).`, "ok");
+  setStatus(`Sacuvano kao ?Probao? + slika (${currentBarcode}).`, "ok");
   await handleBarcode(currentBarcode, { fromHistoryClick: true });
 }
 
@@ -3678,7 +3667,7 @@ if(scanFab){
     }
 
     await startScanner();
-    // startScanner može fail-ovati (dozvole/https). Proverimo stanje:
+    // startScanner mo?e fail-ovati (dozvole/https). Proverimo stanje:
     setFabState(!!scanning);
     if(scanning) buzz(35);
   });
@@ -3710,10 +3699,10 @@ btnClear.addEventListener("click", async () => {
 
   await dbClear();
   currentBarcode = null;
-  currentBarcodeEl.textContent = "—";
-  document.getElementById("statusPill").textContent = "—";
-  document.getElementById("currentName").textContent = "—";
-  document.getElementById("currentMeta").textContent = "—";
+  currentBarcodeEl.textContent = "?";
+  document.getElementById("statusPill").textContent = "?";
+  document.getElementById("currentName").textContent = "?";
+  document.getElementById("currentMeta").textContent = "?";
   document.getElementById("offThumb").style.display = "none";
   document.getElementById("btnOpenOff").disabled = true;
   document.getElementById("photoHint").style.display = "none";
@@ -3746,7 +3735,7 @@ function updateBulkActions(){
   
   if(count > 0){
     bulkActions.style.display = 'flex';
-    selectedCountEl.textContent = `${count} označeno`;
+    selectedCountEl.textContent = `${count} oznaceno`;
   } else {
     bulkActions.style.display = 'none';
     if(selectAllCheckbox) selectAllCheckbox.checked = false;
@@ -3770,7 +3759,7 @@ if(btnDeleteSelected){
     
     if(barcodes.length === 0) return;
     
-    const ok = confirm(`Obrisati ${barcodes.length} označenih proizvoda?`);
+    const ok = confirm(`Obrisati ${barcodes.length} oznacenih proizvoda?`);
     if(!ok) return;
     
     for(const bc of barcodes){
@@ -3778,7 +3767,7 @@ if(btnDeleteSelected){
     }
     
     buzz(30);
-    showToast(`✅ Obrisano ${barcodes.length} proizvoda`, 'success');
+    showToast(`? Obrisano ${barcodes.length} proizvoda`, 'success');
     await refreshHistory();
     bulkActions.style.display = 'none';
   });
@@ -3816,10 +3805,10 @@ if(btnShare){
     
     const name = rec.off?.productName || 'Proizvod';
     const brands = rec.off?.brands || '';
-    const rating = rec.rating ? `⭐ ${rec.rating}/5` : '';
-    const note = rec.note ? `\n\nBeleška: ${rec.note}` : '';
+    const rating = rec.rating ? `? ${rec.rating}/5` : '';
+    const note = rec.note ? `\n\nBele?ka: ${rec.note}` : '';
     
-    const text = `🍺 ${name}${brands ? ` (${brands})` : ''}\nBar-kod: ${currentBarcode}${rating ? `\n${rating}` : ''}${note}\n\nSkenirano sa BeerScan aplikacijom`;
+    const text = `?? ${name}${brands ? ` (${brands})` : ''}\nBar-kod: ${currentBarcode}${rating ? `\n${rating}` : ''}${note}\n\nSkenirano sa BeerScan aplikacijom`;
     
     if(navigator.share){
       try{
@@ -3891,12 +3880,12 @@ if(btnSaveNote){
     rec.updatedAt = Date.now();
   await dbPut(rec);
 
-// ✅ nakon čuvanja: isprazni i “zaključa” da se ne vraća automatski
+// ? nakon cuvanja: isprazni i ?zakljuca? da se ne vraca automatski
 editingNote = false;
 if (noteInput) noteInput.value = "";
 
 buzz(25);
-setStatus("Beleška sačuvana.", "ok");
+setStatus("Bele?ka sacuvana.", "ok");
 await refreshHistory();
 
     // Ocisti rezultat i vrati na pocetno stanje
@@ -3909,7 +3898,7 @@ if(btnExport){
     const all = await dbGetAll();
     downloadText(`beerscan-backup-${Date.now()}.json`, JSON.stringify(all, null, 2));
     buzz(20);
-    setStatus("Export završen (JSON).", "ok");
+    setStatus("Export zavr?en (JSON).", "ok");
   });
 }
 
@@ -3942,11 +3931,11 @@ if(btnImport && importFile){
       }
 
       buzz(30);
-      setStatus("Import završen.", "ok");
+      setStatus("Import zavr?en.", "ok");
       await refreshHistory();
       dbGetAll().then(updateStats).catch(()=>{});
     } catch {
-      setStatus("Import nije uspeo (pogrešan JSON).", "bad");
+      setStatus("Import nije uspeo (pogre?an JSON).", "bad");
     } finally {
       importFile.value = "";
     }
@@ -3976,7 +3965,7 @@ function setTab(which) {
   tabHistoryBottom.classList.toggle("active", historyOn);
   tabStatsBottom.classList.toggle("active", statsOn);
   
-  // Ako želite da se kamera automatski gasi kad napustite skeniranje:
+  // Ako ?elite da se kamera automatski gasi kad napustite skeniranje:
   if(!scanOn) stopScanner();
 }
 
@@ -3995,7 +3984,7 @@ function applyTheme(){
   // Update button icon
   if(btnTheme){
     const icon = btnTheme.querySelector('span');
-    if(icon) icon.textContent = t === "light" ? "🌙" : "☀️";
+    if(icon) icon.textContent = t === "light" ? "??" : "??";
   }
 }
 applyTheme();
@@ -4060,40 +4049,40 @@ window.addEventListener("load", () => {
 
   }, 2200);
   
-  // Add click animation to all buttons
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if(btn && !btn.disabled){
-      btn.classList.add('clicked');
-      setTimeout(() => btn.classList.remove('clicked'), 300);
-    }
-  });
+  // Add click animation to all buttons - UKLONJENO da ne blinka
+  // document.addEventListener('click', (e) => {
+  //   const btn = e.target.closest('button');
+  //   if(btn && !btn.disabled){
+  //     btn.classList.add('clicked');
+  //     setTimeout(() => btn.classList.remove('clicked'), 300);
+  //   }
+  // });
   
-  // Add ripple effect to cards
-  document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', function(e){
-      const ripple = document.createElement('span');
-      const rect = this.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      const x = e.clientX - rect.left - size/2;
-      const y = e.clientY - rect.top - size/2;
-      
-      ripple.style.cssText = `
-        position: absolute;
-        width: ${size}px;
-        height: ${size}px;
-        left: ${x}px;
-        top: ${y}px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(124,178,255,.3), transparent);
-        pointer-events: none;
-        animation: ripple 0.6s ease-out;
-      `;
-      
-      this.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 600);
-    });
-  });
+  // Add ripple effect to cards - UKLONJENO da ne blinka
+  // document.querySelectorAll('.card').forEach(card => {
+  //   card.addEventListener('click', function(e){
+  //     const ripple = document.createElement('span');
+  //     const rect = this.getBoundingClientRect();
+  //     const size = Math.max(rect.width, rect.height);
+  //     const x = e.clientX - rect.left - size/2;
+  //     const y = e.clientY - rect.top - size/2;
+  //     
+  //     ripple.style.cssText = `
+  //       position: absolute;
+  //       width: ${size}px;
+  //       height: ${size}px;
+  //       left: ${x}px;
+  //       top: ${y}px;
+  //       border-radius: 50%;
+  //       background: radial-gradient(circle, rgba(124,178,255,.3), transparent);
+  //       pointer-events: none;
+  //       animation: ripple 0.6s ease-out;
+  //     `;
+  //     
+  //     this.appendChild(ripple);
+  //     setTimeout(() => ripple.remove(), 600);
+  //   });
+  // });
 });
 /* =======================
    Guide Tour (Spotlight)
@@ -4124,50 +4113,50 @@ function buildTourSteps(){
   return [
     {
       target: "#scanFab",
-      title: "🎯 Dobrodošli u BeerScan!",
-      text: "Ovo je vaš glavni Scan FAB dugme. Kliknite ovde da pokrenete kameru i započnete skeniranje bar-kodova sa piva. Kada je kamera aktivna, dugme postaje crveno i možete ga ponovo kliknuti da zaustavite skeniranje.",
+      title: "?? Dobrodo?li u BeerScan!",
+      text: "Ovo je va? glavni Scan FAB dugme. Kliknite ovde da pokrenete kameru i zapocnete skeniranje bar-kodova sa piva. Kada je kamera aktivna, dugme postaje crveno i mo?ete ga ponovo kliknuti da zaustavite skeniranje.",
       tapHint: "Kliknite da pokrenete kameru"
     },
     {
       target: ".scanFrame",
-      title: "📸 Skeniranje bar-koda",
-      text: "Kada pokrenete kameru, pojaviće se ovaj animirani okvir. Postavite bar-kod piva unutar ovog okvira i držite telefon stabilno. Aplikacija će automatski detektovati i skenirati bar-kod bez potrebe da pritiskate bilo šta!",
+      title: "?? Skeniranje bar-koda",
+      text: "Kada pokrenete kameru, pojavice se ovaj animirani okvir. Postavite bar-kod piva unutar ovog okvira i dr?ite telefon stabilno. Aplikacija ce automatski detektovati i skenirati bar-kod bez potrebe da pritiskate bilo ?ta!",
       tapHint: "Pozicionirajte bar-kod ovde"
     },
     {
       target: "#manualBarcode",
-      title: "⌨️ Ručni unos",
-      text: "Ako kamera ne radi ili želite brže da unesete podatke, možete ručno ukucati bar-kod ovde. Ovo je korisno kada imate loše osvetljenje ili bar-kod je oštećen.",
+      title: "?? Rucni unos",
+      text: "Ako kamera ne radi ili ?elite br?e da unesete podatke, mo?ete rucno ukucati bar-kod ovde. Ovo je korisno kada imate lo?e osvetljenje ili bar-kod je o?tecen.",
       tapHint: "Unesite 13-cifreni broj"
     },
     {
       target: "#btnLookup",
-      title: "🔍 Pretraga podataka",
-      text: "Nakon što unesete bar-kod (automatski ili ručno), kliknite ovo dugme da preuzmete sve dostupne informacije o pivu sa Open Food Facts baze podataka. Dobićete naziv, brendove, nutritivne vrednosti i još mnogo toga!",
+      title: "?? Pretraga podataka",
+      text: "Nakon ?to unesete bar-kod (automatski ili rucno), kliknite ovo dugme da preuzmete sve dostupne informacije o pivu sa Open Food Facts baze podataka. Dobicete naziv, brendove, nutritivne vrednosti i jo? mnogo toga!",
       tapHint: "Kliknite za pretragu"
     },
     {
       target: "#btnClear",
-      title: "🗑️ Brisanje istorije",
-      text: "Ovo dugme briše kompletnu istoriju skeniranja sa vašeg uređaja. Koristite ga pažljivo jer se podaci ne mogu vratiti! Svi skenirani bar-kodovi, ocene i favoriti će biti trajno obrisani.",
-      tapHint: "Obriši sve podatke"
+      title: "??? Brisanje istorije",
+      text: "Ovo dugme bri?e kompletnu istoriju skeniranja sa va?eg uredaja. Koristite ga pa?ljivo jer se podaci ne mogu vratiti! Svi skenirani bar-kodovi, ocene i favoriti ce biti trajno obrisani.",
+      tapHint: "Obri?i sve podatke"
     },
     {
       target: "#tabHistoryBottom",
-      title: "📋 Istorija skeniranja",
-      text: "Ovde možete videti sve prethodno skenirane proizvode. Možete ih pretražiti, filtrirati po ocenama, označiti kao favorite, i dodati svoje lične ocene. Svi podaci se čuvaju lokalno na vašem uređaju.",
+      title: "?? Istorija skeniranja",
+      text: "Ovde mo?ete videti sve prethodno skenirane proizvode. Mo?ete ih pretra?iti, filtrirati po ocenama, oznaciti kao favorite, i dodati svoje licne ocene. Svi podaci se cuvaju lokalno na va?em uredaju.",
       tapHint: "Pogledajte istoriju"
     },
     {
       target: "#tabStatsBottom",
-      title: "📊 Statistika i dostignuća",
-      text: "U ovoj sekciji možete pratiti svoju aktivnost - koliko ste piva skenirali, koji su vaši omiljeni brendovi, i koje značke (badges) ste otključali. Skenirajte više proizvoda da otključate nove dostignuća!",
+      title: "?? Statistika i dostignuca",
+      text: "U ovoj sekciji mo?ete pratiti svoju aktivnost - koliko ste piva skenirali, koji su va?i omiljeni brendovi, i koje znacke (badges) ste otkljucali. Skenirajte vi?e proizvoda da otkljucate nove dostignuca!",
       tapHint: "Vidite statistiku"
     },
     {
       target: ".bottomBar",
-      title: "✨ Navigacija",
-      text: "Ova donja traka omogućava brzu navigaciju između glavnih sekcija aplikacije. Trenutno aktivna sekcija je označena svetlijim tonom i sjajem. Možete lako prelaziti između skeniranja, istorije i statistike.",
+      title: "? Navigacija",
+      text: "Ova donja traka omogucava brzu navigaciju izmedu glavnih sekcija aplikacije. Trenutno aktivna sekcija je oznacena svetlijim tonom i sjajem. Mo?ete lako prelaziti izmedu skeniranja, istorije i statistike.",
       tapHint: "Koristite za navigaciju"
     }
   ];
@@ -4195,7 +4184,7 @@ function placeSpotlightOn(el) {
     tourHole.style.height = h + "px";
     
     const tipW = Math.min(380, window.innerWidth - 28);
-    const tipH = 190; // malo veće zbog tap hint-a
+    const tipH = 190; // malo vece zbog tap hint-a
     let tx = x;
     let ty = y + h + 12;
     
@@ -4213,7 +4202,7 @@ function renderTour(){
   const step = tourSteps[tourIndex];
   if(!step) return;
 
-  // ako target nije u DOM-u, preskoči
+  // ako target nije u DOM-u, preskoci
   let el = getEl(step.target);
 
   // Ako je cilj na drugom tabu, prebacite tab pre rendera
@@ -4227,7 +4216,7 @@ function renderTour(){
 
   el = getEl(step.target);
   if(!el){
-    // preskoči korak koji ne postoji
+    // preskoci korak koji ne postoji
     tourIndex = Math.min(tourIndex + 1, tourSteps.length - 1);
     el = getEl(tourSteps[tourIndex]?.target);
     if(!el) return;
@@ -4238,14 +4227,14 @@ function renderTour(){
   if(tourTapHintEl){
   if(step.tapHint){
     tourTapHintEl.style.display = "inline-flex";
-    tourTapHintEl.textContent = "👉 " + step.tapHint;
+    tourTapHintEl.textContent = "?? " + step.tapHint;
   } else {
     tourTapHintEl.style.display = "none";
   }
 }
   tourProgress.textContent = `${tourIndex + 1}/${tourSteps.length}`;
   
-  // Ažuriraj progress bar
+  // A?uriraj progress bar
   const progressFill = document.getElementById('tourProgressFill');
   if(progressFill){
     const percentage = ((tourIndex + 1) / tourSteps.length) * 100;
@@ -4254,14 +4243,14 @@ function renderTour(){
 
   tourBack.disabled = (tourIndex === 0);
 
-  // “Dalje” vs “Gotovo”
+  // ?Dalje? vs ?Gotovo?
   const last = tourIndex === tourSteps.length - 1;
   tourNext.style.display = last ? "none" : "inline-block";
   tourDone.style.display = last ? "inline-block" : "none";
 
-  // malo “pulse” efekat na rupi
-  tourHole.classList.add("tourPulse");
-  setTimeout(()=>tourHole.classList.remove("tourPulse"), 350);
+  // Pulse efekat uklonjen da ne blinka
+  // tourHole.classList.add("tourPulse");
+  // setTimeout(()=>tourHole.classList.remove("tourPulse"), 350);
 
   placeSpotlightOn(el);
 }
@@ -4270,7 +4259,7 @@ function openTour(){
   tourSteps = buildTourSteps();
   tourIndex = 0;
 
-  // prikaži overlay
+  // prika?i overlay
   tourOverlay.classList.add("show");
   tourOverlay.setAttribute("aria-hidden", "false");
 
@@ -4280,12 +4269,12 @@ function openTour(){
   // render posle jednog frame-a (da layout bude stabilan)
   requestAnimationFrame(renderTour);
 
-  // zaključaj scroll (opciono)
+  // zakljucaj scroll (opciono)
   document.body.style.overflow = "hidden";
 }
 
 function closeTour(markSeen = true){
-  // Ako je završen tour (na poslednjem koraku), prikaži celebration
+  // Ako je zavr?en tour (na poslednjem koraku), prika?i celebration
   if(markSeen && tourIndex === tourSteps.length - 1){
     showCelebration();
   }
@@ -4362,10 +4351,10 @@ function showCelebration(){
     pointer-events: none;
   `;
   celebDiv.innerHTML = `
-    <div style="font-size: 48px; margin-bottom: 10px; animation: celebRotate 0.8s ease;">🎉</div>
-    <div style="letter-spacing: 0.5px;">Čestitamo!</div>
+    <div style="font-size: 48px; margin-bottom: 10px; animation: celebRotate 0.8s ease;">??</div>
+    <div style="letter-spacing: 0.5px;">Cestitamo!</div>
     <div style="font-size: 14px; font-weight: 600; margin-top: 8px; opacity: 0.90;">
-      Završili ste uputstvo za BeerScan
+      Zavr?ili ste uputstvo za BeerScan
     </div>
   `;
   
@@ -4471,7 +4460,7 @@ document.querySelectorAll('.card').forEach(card => {
   });
 });
 
-// Dinamički update tooltip teksta za FAB dugme
+// Dinamicki update tooltip teksta za FAB dugme
 const fabTooltip = document.getElementById('fabTooltip');
 if(fabTooltip && scanFab){
   const updateFabTooltip = () => {
@@ -4495,7 +4484,7 @@ const locationText = document.getElementById("locationText");
 const btnViewMap = document.getElementById("btnViewMap");
 
 if(btnLocation){
-  console.log('btnLocation pronađen, dodajem event listener');
+  console.log('btnLocation pronaden, dodajem event listener');
   btnLocation.addEventListener("click", async () => {
     console.log('=== GPS DUGME KLIKNUTO ===');
     console.log('currentBarcode:', currentBarcode);
@@ -4503,20 +4492,20 @@ if(btnLocation){
     console.log('btnLocation.disabled:', btnLocation.disabled);
     
     if(!currentBarcode){
-      console.log('GREŠKA: Nema currentBarcode');
+      console.log('GRE?KA: Nema currentBarcode');
       showToast('Prvo skenirajte pivo', 'warn');
       return;
     }
     
     if(!navigator.geolocation){
-      console.log('GREŠKA: Nema navigator.geolocation');
-      showToast('GPS nije dostupan na ovom uređaju', 'error');
+      console.log('GRE?KA: Nema navigator.geolocation');
+      showToast('GPS nije dostupan na ovom uredaju', 'error');
       return;
     }
     
     console.log('Postavljam disabled i menjam tekst...');
     btnLocation.disabled = true;
-    btnLocation.textContent = '📍 Učitavam...';
+    btnLocation.textContent = '?? Ucitavam...';
     
     console.log('Pozivam getCurrentPosition...');
     navigator.geolocation.getCurrentPosition(async (position) => {
@@ -4549,9 +4538,9 @@ if(btnLocation){
         await dbPut(rec);
         
         buzz(30);
-        showToast('📍 Lokacija sačuvana!', 'success');
+        showToast('?? Lokacija sacuvana!', 'success');
         
-        // Prikaži lokaciju
+        // Prika?i lokaciju
         if(locationInfo){
           locationInfo.style.display = 'block';
           const date = new Date(rec.location.timestamp);
@@ -4559,36 +4548,36 @@ if(btnLocation){
         }
         
         btnLocation.disabled = false;
-        btnLocation.textContent = '📍 Ažuriraj lokaciju';
+        btnLocation.textContent = '?? A?uriraj lokaciju';
         
         await refreshHistory();
         
       } catch (e) {
-        console.error('Greška pri čuvanju:', e);
-        showToast('Greška pri čuvanju lokacije', 'error');
+        console.error('Gre?ka pri cuvanju:', e);
+        showToast('Gre?ka pri cuvanju lokacije', 'error');
         btnLocation.disabled = false;
-        btnLocation.textContent = '📍 Lokacija';
+        btnLocation.textContent = '?? Lokacija';
       }
     }, (error) => {
-      console.error('Greška geolokacije:', error);
+      console.error('Gre?ka geolokacije:', error);
       
-      let errorMessage = 'Nije moguće dobiti lokaciju';
+      let errorMessage = 'Nije moguce dobiti lokaciju';
       
       switch(error.code) {
         case error.PERMISSION_DENIED:
-          errorMessage = 'Dozvola za lokaciju je odbijena. Omogućite lokaciju u podešavanjima pretraživača.';
+          errorMessage = 'Dozvola za lokaciju je odbijena. Omogucite lokaciju u pode?avanjima pretra?ivaca.';
           break;
         case error.POSITION_UNAVAILABLE:
           errorMessage = 'Informacije o lokaciji nisu dostupne.';
           break;
         case error.TIMEOUT:
-          errorMessage = 'Zahtev za lokaciju je istekao. Pokušajte ponovo.';
+          errorMessage = 'Zahtev za lokaciju je istekao. Poku?ajte ponovo.';
           break;
       }
       
       showToast(errorMessage, 'error');
       btnLocation.disabled = false;
-      btnLocation.textContent = '📍 Lokacija';
+      btnLocation.textContent = '?? Lokacija';
     }, {
       enableHighAccuracy: true,
       timeout: 15000,
@@ -4614,7 +4603,7 @@ if(btnViewMap){
 const btnUntappd = document.getElementById("btnUntappd");
 
 if(btnUntappd){
-  console.log('btnUntappd pronađen, dodajem event listener');
+  console.log('btnUntappd pronaden, dodajem event listener');
   btnUntappd.addEventListener("click", async () => {
     console.log('=== UNTAPPD DUGME KLIKNUTO ===');
     console.log('currentBarcode:', currentBarcode);
@@ -4631,7 +4620,7 @@ if(btnUntappd){
     
     const untappdUrl = `https://untappd.com/search?q=${searchQuery}`;
     
-    const confirmed = confirm(`Otvoriti Untappd pretragu za:\n"${beerName || currentBarcode}"?\n\nNakon što pronađete pivo na Untappd-u, možete dodati check-in tamo.`);
+    const confirmed = confirm(`Otvoriti Untappd pretragu za:\n"${beerName || currentBarcode}"?\n\nNakon ?to pronadete pivo na Untappd-u, mo?ete dodati check-in tamo.`);
     
     if(confirmed){
       window.open(untappdUrl, '_blank');
@@ -4642,7 +4631,7 @@ if(btnUntappd){
       await dbPut(rec);
       
       buzz(25);
-      showToast('🍺 Otvoreno na Untappd!', 'success');
+      showToast('?? Otvoreno na Untappd!', 'success');
     }
   });
 }
@@ -4655,13 +4644,13 @@ const calendarEvents = document.getElementById("calendarEvents");
 
 let globalCalendarEvents = [];
 
-// Default pivski događaji za 2026 (pravi datumi sa interneta)
+// Default pivski dogadaji za 2026 (pravi datumi sa interneta)
 const defaultBeerEvents = [
   {
     id: 1,
     title: "Prague Beer Fest 2026",
     date: "2026-04-10 16:00",
-    location: "Prag, Češka",
+    location: "Prag, Ce?ka",
     createdAt: Date.now(),
     isDefault: true
   },
@@ -4677,7 +4666,7 @@ const defaultBeerEvents = [
     id: 3,
     title: "International Beer Day 2026",
     date: "2026-08-07 12:00",
-    location: "Širom sveta",
+    location: "?irom sveta",
     createdAt: Date.now(),
     isDefault: true
   },
@@ -4685,15 +4674,15 @@ const defaultBeerEvents = [
     id: 4,
     title: "Belgrade Beer Fest 2026",
     date: "2026-08-27 18:00",
-    location: "Ušće, Beograd, Srbija",
+    location: "U?ce, Beograd, Srbija",
     createdAt: Date.now(),
     isDefault: true
   },
   {
     id: 5,
-    title: "Oktoberfest München 2026 (191st)",
+    title: "Oktoberfest M?nchen 2026 (191st)",
     date: "2026-09-19 10:00",
-    location: "Theresienwiese, München, Nemačka",
+    location: "Theresienwiese, M?nchen, Nemacka",
     createdAt: Date.now(),
     isDefault: true
   },
@@ -4701,7 +4690,7 @@ const defaultBeerEvents = [
     id: 6,
     title: "International Stout Day 2026",
     date: "2026-11-05 12:00",
-    location: "Širom sveta",
+    location: "?irom sveta",
     createdAt: Date.now(),
     isDefault: true
   }
@@ -4717,7 +4706,7 @@ async function loadCalendarEvents(){
     }
   }
   
-  // Dodaj default događaje ako je kalendar prazan
+  // Dodaj default dogadaje ako je kalendar prazan
   if(globalCalendarEvents.length === 0){
     globalCalendarEvents = [...defaultBeerEvents];
     saveCalendarEvents();
@@ -4734,7 +4723,7 @@ function renderCalendarEvents(){
   if(!calendarEvents) return;
   
   if(globalCalendarEvents.length === 0){
-    calendarEvents.innerHTML = '<div class="hint">Nema planiranih događaja. Kliknite + da dodate.</div>';
+    calendarEvents.innerHTML = '<div class="hint">Nema planiranih dogadaja. Kliknite + da dodate.</div>';
     return;
   }
   
@@ -4757,31 +4746,31 @@ function renderCalendarEvents(){
         <div>
           <div style="font-weight:800;">${escapeHtml(evt.title)}</div>
           <div style="font-size:12px; color:var(--muted); margin-top:4px;">
-            📅 ${dateStr}
-            ${evt.location ? `<br>📍 ${escapeHtml(evt.location)}` : ''}
-            ${evt.isDefault ? `<br><span style="color:rgba(124,178,255,.8);">🌟 Popularni događaj</span>` : ''}
+            ?? ${dateStr}
+            ${evt.location ? `<br>?? ${escapeHtml(evt.location)}` : ''}
+            ${evt.isDefault ? `<br><span style="color:rgba(124,178,255,.8);">?? Popularni dogadaj</span>` : ''}
           </div>
         </div>
-        <button class="quick-btn" onclick="deleteCalendarEvent(${idx})" title="Obriši">🗑️</button>
+        <button class="quick-btn" onclick="deleteCalendarEvent(${idx})" title="Obri?i">???</button>
       </div>
     `;
   }).join('');
 }
 
 window.deleteCalendarEvent = function(idx){
-  const ok = confirm('Obrisati ovaj događaj?');
+  const ok = confirm('Obrisati ovaj dogadaj?');
   if(!ok) return;
   
   globalCalendarEvents.splice(idx, 1);
   saveCalendarEvents();
   renderCalendarEvents();
   buzz(20);
-  showToast('Događaj obrisan', 'success');
+  showToast('Dogadaj obrisan', 'success');
 };
 
 if(btnAddCalendarEvent){
   btnAddCalendarEvent.addEventListener("click", () => {
-    const title = prompt('Naziv događaja (npr. "Degustacija IPA piva"):');
+    const title = prompt('Naziv dogadaja (npr. "Degustacija IPA piva"):');
     if(!title || !title.trim()) return;
     
     const dateStr = prompt('Datum i vreme (format: YYYY-MM-DD HH:MM):');
@@ -4803,12 +4792,12 @@ if(btnAddCalendarEvent){
     renderCalendarEvents();
     
     buzz(30);
-    showToast('📅 Događaj dodat!', 'success');
+    showToast('?? Dogadaj dodat!', 'success');
   });
 }
 
 if(btnCalendar){
-  console.log('btnCalendar pronađen, dodajem event listener');
+  console.log('btnCalendar pronaden, dodajem event listener');
   btnCalendar.addEventListener("click", async () => {
     console.log('=== KALENDAR DUGME KLIKNUTO ===');
     console.log('currentBarcode:', currentBarcode);
@@ -4835,7 +4824,7 @@ if(btnCalendar){
     }
     
     const beerName = rec.off?.productName || currentBarcode;
-    const title = prompt(`Dodaj u kalendar - naziv događaja:`, `Probaj ${beerName}`);
+    const title = prompt(`Dodaj u kalendar - naziv dogadaja:`, `Probaj ${beerName}`);
     if(!title || !title.trim()) return;
     
     const dateStr = prompt('Datum i vreme (format: YYYY-MM-DD HH:MM):');
@@ -4857,7 +4846,7 @@ if(btnCalendar){
     saveCalendarEvents();
     
     buzz(30);
-    showToast('📅 Dodato u kalendar!', 'success');
+    showToast('?? Dodato u kalendar!', 'success');
     
     setTab('stats');
     renderCalendarEvents();
@@ -4865,7 +4854,7 @@ if(btnCalendar){
 }
 
 /* =======================
-   PROŠIRENI BEDŽEVI
+   PRO?IRENI BED?EVI
 ======================= */
 async function updateExtendedBadges(all){
   const withLocation = all.filter(r => r.location).length;
@@ -4896,7 +4885,7 @@ if(btnShare){
 }
 
 /* =======================
-   AŽURIRAJ handleBarcode za lokaciju
+   A?URIRAJ handleBarcode za lokaciju
 ======================= */
 let barcodeLoadLock = false;
 const originalHandleBarcode = handleBarcode;
@@ -4924,12 +4913,12 @@ handleBarcode = async function(raw, opts = {}) {
           `Lng: ${rec.location.lng.toFixed(6)} ` +
           `(${date.toLocaleString()})`;
         
-        btnLocation.textContent = '📍 Ažuriraj lokaciju';
+        btnLocation.textContent = '?? A?uriraj lokaciju';
         
       } else {
         
         locationInfo.style.display = 'none';
-        btnLocation.textContent = '📍 Lokacija';
+        btnLocation.textContent = '?? Lokacija';
         
       }
     }
@@ -4942,7 +4931,7 @@ handleBarcode = async function(raw, opts = {}) {
 };
 
 /* =======================
-   AŽURIRAJ refreshHistory za bedževe
+   A?URIRAJ refreshHistory za bed?eve
 ======================= */
 const originalRefreshHistory = refreshHistory;
 refreshHistory = async function(){
@@ -4968,8 +4957,8 @@ function showInstallPrompt(){
   installToast.innerHTML = `
     <div style="display:flex; align-items:center; gap:12px;">
       <div style="flex:1;">
-        <div style="font-weight:800; margin-bottom:4px;">📱 Instaliraj BeerScan</div>
-        <div style="font-size:12px; opacity:0.9;">Dodaj aplikaciju na početni ekran</div>
+        <div style="font-weight:800; margin-bottom:4px;">?? Instaliraj BeerScan</div>
+        <div style="font-size:12px; opacity:0.9;">Dodaj aplikaciju na pocetni ekran</div>
       </div>
       <button onclick="installPWA()" style="padding:8px 16px; border-radius:12px; border:1px solid rgba(92,255,164,.45); background:rgba(92,255,164,.22); color:#fff; font-weight:700; cursor:pointer;">
         Instaliraj
@@ -5008,7 +4997,7 @@ window.installPWA = async function(){
   const { outcome } = await deferredPrompt.userChoice;
   
   if(outcome === 'accepted'){
-    showToast('✅ Aplikacija instalirana!', 'success');
+    showToast('? Aplikacija instalirana!', 'success');
     buzz(40);
   }
   
@@ -5016,7 +5005,7 @@ window.installPWA = async function(){
 };
 
 window.addEventListener('appinstalled', () => {
-  showToast('🎉 BeerScan je uspešno instaliran!', 'success');
+  showToast('?? BeerScan je uspe?no instaliran!', 'success');
   buzz(50);
 });
 
@@ -5039,7 +5028,7 @@ if ('serviceWorker' in navigator) {
           const newWorker = registration.installing;
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              showToast('🔄 Nova verzija dostupna! Osvežite stranicu.', 'info');
+              showToast('?? Nova verzija dostupna! Osve?ite stranicu.', 'info');
             }
           });
         });
