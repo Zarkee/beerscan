@@ -48,11 +48,57 @@
       margin:0;
       color:var(--txt);
       background:
-        radial-gradient(1200px 700px at 20% -10%, rgba(124,178,255,.18), transparent 60%),
-        radial-gradient(900px 600px at 110% 10%, rgba(92,255,164,.10), transparent 55%),
-        radial-gradient(900px 700px at 50% 120%, rgba(255,210,92,.12), transparent 60%),
-        var(--bg);
+        radial-gradient(ellipse 1400px 800px at 25% -5%, rgba(124,178,255,.22), transparent 65%),
+        radial-gradient(ellipse 1000px 700px at 105% 15%, rgba(92,255,164,.14), transparent 60%),
+        radial-gradient(ellipse 1100px 800px at 50% 115%, rgba(255,210,92,.16), transparent 65%),
+        radial-gradient(ellipse 800px 600px at -5% 50%, rgba(255,92,164,.08), transparent 55%),
+        radial-gradient(ellipse 900px 650px at 80% 85%, rgba(124,178,255,.10), transparent 58%),
+        linear-gradient(135deg, 
+          rgba(7,10,16,1) 0%, 
+          rgba(10,14,22,1) 25%,
+          rgba(12,16,26,1) 50%,
+          rgba(10,14,22,1) 75%,
+          rgba(7,10,16,1) 100%
+        );
       min-height: 100vh;
+      position: relative;
+    }
+    
+    /* Dodatni sloj sa mesh gradientom */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      opacity: .15;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle at 15% 25%, rgba(124,178,255,.4), transparent 35%),
+        radial-gradient(circle at 85% 15%, rgba(92,255,164,.3), transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(255,210,92,.25), transparent 40%),
+        radial-gradient(circle at 20% 75%, rgba(255,92,164,.2), transparent 28%),
+        radial-gradient(circle at 75% 80%, rgba(124,178,255,.3), transparent 32%);
+      animation: meshMove 30s ease-in-out infinite;
+      z-index: 0;
+    }
+    
+    @keyframes meshMove{
+      0%, 100%{ 
+        transform: translate(0, 0) scale(1);
+        opacity: .15;
+      }
+      25%{ 
+        transform: translate(20px, -15px) scale(1.05);
+        opacity: .20;
+      }
+      50%{ 
+        transform: translate(-15px, 20px) scale(0.98);
+        opacity: .18;
+      }
+      75%{ 
+        transform: translate(15px, 15px) scale(1.02);
+        opacity: .16;
+      }
     }
     header{
       position: sticky;
@@ -81,6 +127,8 @@
       margin: 0 auto;
       display:grid;
       gap: 14px;
+      position: relative;
+      z-index: 2;
     }
     .grid{
       display:grid;
@@ -625,15 +673,9 @@ button.clicked{
   to{ opacity:1; transform: translateY(0); }
 }
 /* ===== Animated background ===== */
-body{
-  background-size: 200% 200%;
-  animation: bgMove 20s ease-in-out infinite;
-  position: relative;
-  overflow-x: hidden;
-}
 
-/* Floating beer bubbles */
-body::after{
+/* Floating beer bubbles - sada preko mesh gradienta */
+main::before{
   content: "";
   position: fixed;
   width: 100%;
@@ -642,31 +684,30 @@ body::after{
   left: 0;
   pointer-events: none;
   background-image: 
-    radial-gradient(circle at 20% 80%, rgba(255,210,92,.05) 0%, transparent 2%),
-    radial-gradient(circle at 80% 20%, rgba(124,178,255,.05) 0%, transparent 2%),
-    radial-gradient(circle at 40% 40%, rgba(92,255,164,.05) 0%, transparent 2%);
-  background-size: 200px 200px, 150px 150px, 180px 180px;
-  background-position: 0 0, 100px 100px, 50px 50px;
-  animation: floatBubbles 25s ease-in-out infinite;
-  opacity: 0.4;
+    radial-gradient(circle at 20% 80%, rgba(255,210,92,.06) 0%, transparent 2%),
+    radial-gradient(circle at 80% 20%, rgba(124,178,255,.06) 0%, transparent 2%),
+    radial-gradient(circle at 40% 40%, rgba(92,255,164,.06) 0%, transparent 2%),
+    radial-gradient(circle at 65% 65%, rgba(255,92,164,.05) 0%, transparent 2%);
+  background-size: 220px 220px, 180px 180px, 200px 200px, 160px 160px;
+  background-position: 0 0, 120px 80px, 60px 40px, 180px 140px;
+  animation: floatBubbles 28s ease-in-out infinite;
+  opacity: 0.5;
   z-index: 0;
 }
 
 @keyframes floatBubbles{
   0%, 100%{ 
     transform: translateY(0) scale(1); 
-    opacity: 0.4;
-  }
-  50%{ 
-    transform: translateY(-20px) scale(1.05); 
     opacity: 0.5;
   }
-}
-
-@keyframes bgMove{
-  0%{ background-position: 0% 0%, 100% 0%, 50% 100%; }
-  50%{ background-position: 70% 10%, 40% 40%, 60% 60%; }
-  100%{ background-position: 0% 0%, 100% 0%, 50% 100%; }
+  33%{ 
+    transform: translateY(-18px) scale(1.03); 
+    opacity: 0.6;
+  }
+  66%{ 
+    transform: translateY(-8px) scale(0.98); 
+    opacity: 0.55;
+  }
 }
 
 /* ===== Stats UI ===== */
@@ -758,11 +799,30 @@ body.light{
   --txt: #0D1220;
   --muted: rgba(13,18,32,.70);
   --muted2: rgba(13,18,32,.55);
+  
+  background:
+    radial-gradient(ellipse 1400px 800px at 25% -5%, rgba(124,178,255,.12), transparent 65%),
+    radial-gradient(ellipse 1000px 700px at 105% 15%, rgba(92,255,164,.08), transparent 60%),
+    radial-gradient(ellipse 1100px 800px at 50% 115%, rgba(255,210,92,.10), transparent 65%),
+    radial-gradient(ellipse 800px 600px at -5% 50%, rgba(255,92,164,.06), transparent 55%),
+    linear-gradient(135deg, 
+      rgba(245,247,255,1) 0%, 
+      rgba(240,244,252,1) 25%,
+      rgba(235,240,250,1) 50%,
+      rgba(240,244,252,1) 75%,
+      rgba(245,247,255,1) 100%
+    );
 }
 body.light header{
   background: linear-gradient(to bottom, rgba(245,247,255,.85), rgba(245,247,255,.55));
 }
 body.light .camWrap{ background:#111; } /* video ostaje čitljiv */
+body.light::before{
+  opacity: .08;
+}
+body.light main::before{
+  opacity: .3;
+}
 /* ===== Icon system (CSS only) ===== */
 .ico{ width:18px; height:18px; display:inline-block; vertical-align:-3px; margin-right:8px; }
 .ico svg{ width:100%; height:100%; display:block; }
@@ -887,15 +947,17 @@ body.light .camWrap{ background:#111; } /* video ostaje čitljiv */
   min-width: 180px;
 }
 /* ===== Subtle noise overlay (premium feel) ===== */
-body::before{
+header::before,
+main::after{
   content:"";
   position: fixed;
   inset: 0;
   pointer-events:none;
-  opacity: .06;
+  opacity: .05;
   mix-blend-mode: overlay;
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  z-index: 1;
 }
 /* ===== History: table -> cards on mobile ===== */
 @media (max-width: 720px){
