@@ -2349,40 +2349,79 @@ document.getElementById('btnGoogleLogin').addEventListener('click', async () => 
   });
   
   try {
-    const result = await auth.signInWithPopup(provider);
-    const user = result.user;
+    // Detektuj da li je Android WebView
+    const isAndroidWebView = /wv/.test(navigator.userAgent) || /Android.*AppleWebKit(?!.*Chrome)/.test(navigator.userAgent);
     
-    // Check if user exists, if not create profile
-    const userDoc = await usersCollection.doc(user.uid).get();
-    if (!userDoc.exists) {
-      const nickname = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
-      
-      await usersCollection.doc(user.uid).set({
-        uid: user.uid,
-        email: user.email,
-        name: user.displayName || user.email,
-        nickname: nickname,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        totalScans: 0,
-        triedBeers: 0,
-        rank: 'početnik',
-        rankPoints: 0,
-        avatar: user.photoURL
-      });
+    if (isAndroidWebView) {
+      // Za Android WebView koristi redirect umesto popup
+      console.log('Android WebView detektovan, koristim signInWithRedirect');
+      await auth.signInWithRedirect(provider);
+      // Rezultat će biti obrađen u getRedirectResult() ispod
+    } else {
+      // Za normalne browsere koristi popup
+      console.log('Normalni browser, koristim signInWithPopup');
+      const result = await auth.signInWithPopup(provider);
+      await handleGoogleLoginResult(result);
     }
-    
-    currentUser = user;
-    await checkUserRank();
-    showToast('✅ Google prijava uspešna!', 'success');
   } catch (error) {
     console.error('Google login error:', error);
     if (error.code === 'auth/popup-blocked') {
-      showToast('Popup je blokiran. Omogućite popup prozore za ovaj sajt.', 'error');
+      showToast('Popup je blokiran. Pokušavam sa redirect metodom...', 'warn');
+      // Fallback na redirect ako popup ne radi
+      try {
+        await auth.signInWithRedirect(provider);
+      } catch (redirectError) {
+        console.error('Redirect error:', redirectError);
+        showToast('Greška: ' + redirectError.message, 'error');
+      }
     } else if (error.code === 'auth/unauthorized-domain') {
       showToast('Domen nije autorizovan. Dodajte domen u Firebase Console → Authentication → Settings → Authorized domains', 'error');
     } else {
       showToast('Greška: ' + error.message, 'error');
     }
+  }
+});
+
+// Funkcija za obradu Google login rezultata
+async function handleGoogleLoginResult(result) {
+  if (!result || !result.user) return;
+  
+  const user = result.user;
+  
+  // Check if user exists, if not create profile
+  const userDoc = await usersCollection.doc(user.uid).get();
+  if (!userDoc.exists) {
+    const nickname = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+    
+    await usersCollection.doc(user.uid).set({
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName || user.email,
+      nickname: nickname,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      totalScans: 0,
+      triedBeers: 0,
+      rank: 'početnik',
+      rankPoints: 0,
+      avatar: user.photoURL
+    });
+  }
+  
+  currentUser = user;
+  await checkUserRank();
+  showToast('✅ Google prijava uspešna!', 'success');
+}
+
+// Proveri redirect rezultat nakon povratka sa Google login-a
+auth.getRedirectResult().then(async (result) => {
+  if (result && result.user) {
+    console.log('Redirect rezultat primljen:', result.user.email);
+    await handleGoogleLoginResult(result);
+  }
+}).catch((error) => {
+  console.error('Redirect result error:', error);
+  if (error.code !== 'auth/popup-closed-by-user') {
+    showToast('Greška pri Google prijavi: ' + error.message, 'error');
   }
 });
 
@@ -2427,15 +2466,32 @@ async function updateUserCounts() {
     document.getElementById('totalUsersCount').textContent = totalUsers;
     
     // Count active users (online in last 5 minutes)
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const fiveMinutesAgo = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - 5 * 60 * 1000));
+    
     const activeSnapshot = await activeUsersRef
       .where('isOnline', '==', true)
       .where('lastActive', '>', fiveMinutesAgo)
       .get();
+    
     const activeUsers = activeSnapshot.size;
     document.getElementById('activeUsersCount').textContent = activeUsers;
+    
+    console.log('User counts updated:', { total: totalUsers, active: activeUsers });
   } catch (error) {
     console.error('Update counts error:', error);
+    
+    // Fallback: broji sve isOnline=true bez provere vremena
+    try {
+      const activeSnapshot = await activeUsersRef
+        .where('isOnline', '==', true)
+        .get();
+      
+      const activeUsers = activeSnapshot.size;
+      document.getElementById('activeUsersCount').textContent = activeUsers;
+      console.log('Fallback active users count:', activeUsers);
+    } catch (fallbackError) {
+      console.error('Fallback count error:', fallbackError);
+    }
   }
 }
 
