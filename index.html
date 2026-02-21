@@ -2502,21 +2502,31 @@ async function updateOnlineStatus(isOnline) {
   if (!currentUser) return;
   
   try {
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+    
     if (isOnline) {
+      // Postavi korisnika kao online sa trenutnim timestamp-om
       await activeUsersRef.doc(currentUser.uid).set({
         uid: currentUser.uid,
         nickname: currentUserData?.nickname || 'Korisnik',
-        lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+        lastActive: now,
         isOnline: true
-      });
+      }, { merge: true });
+      
+      console.log('✅ Online status updated: ONLINE');
     } else {
-      await activeUsersRef.doc(currentUser.uid).update({
-        isOnline: false,
-        lastActive: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      // Postavi korisnika kao offline
+      await activeUsersRef.doc(currentUser.uid).set({
+        uid: currentUser.uid,
+        nickname: currentUserData?.nickname || 'Korisnik',
+        lastActive: now,
+        isOnline: false
+      }, { merge: true });
+      
+      console.log('✅ Online status updated: OFFLINE');
     }
   } catch (error) {
-    console.error('Online status error:', error);
+    console.error('❌ Online status error:', error);
   }
 }
 
@@ -2529,35 +2539,78 @@ async function updateUserCounts() {
     const totalUsersEl = document.getElementById('totalUsersCount');
     if (totalUsersEl) totalUsersEl.textContent = totalUsers;
     
-    // Count active users (online in last 30 seconds for real-time feel)
-    const thirtySecondsAgo = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - 30 * 1000));
+    // KLJUČNO: Broji samo korisnike koji su EKSPLICITNO online
+    // i čiji je lastActive u poslednjih 30 sekundi
+    const thirtySecondsAgo = firebase.firestore.Timestamp.fromDate(
+      new Date(Date.now() - 30 * 1000)
+    );
     
-    const activeSnapshot = await activeUsersRef
-      .where('isOnline', '==', true)
-      .where('lastActive', '>', thirtySecondsAgo)
-      .get();
-    
-    const activeUsers = activeSnapshot.size;
-    const activeUsersEl = document.getElementById('activeUsersCount');
-    if (activeUsersEl) activeUsersEl.textContent = activeUsers;
-    
-    console.log('User counts updated:', { total: totalUsers, active: activeUsers, threshold: '30s' });
-  } catch (error) {
-    console.error('Update counts error:', error);
-    
-    // Fallback: broji sve isOnline=true bez provere vremena
+    // Prvo pokušaj sa composite query (zahteva index)
     try {
       const activeSnapshot = await activeUsersRef
         .where('isOnline', '==', true)
+        .where('lastActive', '>', thirtySecondsAgo)
         .get();
       
       const activeUsers = activeSnapshot.size;
       const activeUsersEl = document.getElementById('activeUsersCount');
       if (activeUsersEl) activeUsersEl.textContent = activeUsers;
-      console.log('Fallback active users count:', activeUsers);
-    } catch (fallbackError) {
-      console.error('Fallback count error:', fallbackError);
+      
+      console.log('✅ User counts:', { 
+        total: totalUsers, 
+        active: activeUsers,
+        threshold: '30s',
+        method: 'composite-query'
+      });
+      
+      // Debug: prikaži sve online korisnike
+      if (activeUsers > 0) {
+        console.log('📊 Active users:');
+        activeSnapshot.forEach(doc => {
+          const data = doc.data();
+          const lastActive = data.lastActive?.toDate();
+          const secondsAgo = lastActive ? Math.floor((Date.now() - lastActive.getTime()) / 1000) : 'unknown';
+          console.log(`  - ${data.nickname}: ${secondsAgo}s ago`);
+        });
+      }
+      
+    } catch (indexError) {
+      console.warn('⚠️ Composite query failed (index missing?), using fallback:', indexError.message);
+      
+      // Fallback: učitaj sve online korisnike i filtriraj na klijentu
+      const allOnlineSnapshot = await activeUsersRef
+        .where('isOnline', '==', true)
+        .get();
+      
+      const now = Date.now();
+      let activeCount = 0;
+      
+      allOnlineSnapshot.forEach(doc => {
+        const data = doc.data();
+        const lastActive = data.lastActive?.toDate();
+        
+        if (lastActive) {
+          const secondsAgo = (now - lastActive.getTime()) / 1000;
+          if (secondsAgo <= 30) {
+            activeCount++;
+          }
+        }
+      });
+      
+      const activeUsersEl = document.getElementById('activeUsersCount');
+      if (activeUsersEl) activeUsersEl.textContent = activeCount;
+      
+      console.log('✅ User counts (fallback):', { 
+        total: totalUsers, 
+        active: activeCount,
+        allOnline: allOnlineSnapshot.size,
+        threshold: '30s',
+        method: 'client-side-filter'
+      });
     }
+    
+  } catch (error) {
+    console.error('❌ Update counts error:', error);
   }
 }
 
@@ -2688,10 +2741,37 @@ document.getElementById('regPassword')?.addEventListener('keypress', (e) => {
 // Update online status on page visibility change
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && currentUser) {
+    console.log('📱 Page visible - setting online');
     updateOnlineStatus(true);
     updateUserCounts();
   } else if (document.visibilityState === 'hidden' && currentUser) {
+    console.log('📱 Page hidden - setting offline');
     updateOnlineStatus(false);
+  }
+});
+
+// Cleanup on page unload (zatvori tab/browser)
+window.addEventListener('beforeunload', () => {
+  if (currentUser) {
+    console.log('👋 Page unloading - setting offline');
+    // Koristi navigator.sendBeacon za garantovano slanje
+    const data = JSON.stringify({
+      isOnline: false,
+      lastActive: Date.now()
+    });
+    
+    // Pokušaj sa sendBeacon (ne blokira unload)
+    const beaconUrl = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/activeUsers/${currentUser.uid}`;
+    
+    // Fallback: sinhron update (može biti blokiran)
+    try {
+      activeUsersRef.doc(currentUser.uid).set({
+        isOnline: false,
+        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.error('Cleanup error:', e);
+    }
   }
 });
 
