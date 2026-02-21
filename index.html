@@ -11,6 +11,13 @@
   <meta name="description" content="Skeniraj bar-kodove piva, čuvaj ocene i lokacije, osvajaj bedževe!" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
 
   <style>
     :root{
@@ -1658,6 +1665,111 @@ select{
 </head>
 
 <body>
+  <!-- Login/Register Overlay -->
+  <div id="loginOverlay" class="loginOverlay">
+    <div class="loginContainer">
+      <div class="loginHeader">
+        <h2>🍺 BeerScan</h2>
+        <p>Prijavite se da biste pristupili aplikaciji</p>
+      </div>
+      
+      <div id="loginForm">
+        <div class="formGroup">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="ime@primer.com" required />
+        </div>
+        
+        <div class="formGroup">
+          <label for="loginPassword">Lozinka</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required />
+        </div>
+        
+        <button id="btnLogin" class="loginBtn btnPrimary">Prijava</button>
+        
+        <div class="formToggle">
+          Nemaš nalog? <a href="#" id="showRegister">Registruj se</a>
+        </div>
+      </div>
+      
+      <div id="registerForm" class="hidden">
+        <div class="formGroup">
+          <label for="regNickname">Nadimak</label>
+          <input type="text" id="regNickname" placeholder="Tvoj nadimak" required />
+        </div>
+        
+        <div class="formGroup">
+          <label for="regName">Ime i prezime</label>
+          <input type="text" id="regName" placeholder="Tvoje ime" required />
+        </div>
+        
+        <div class="formGroup">
+          <label for="regEmail">Email</label>
+          <input type="email" id="regEmail" placeholder="ime@primer.com" required />
+        </div>
+        
+        <div class="formGroup">
+          <label for="regPassword">Lozinka</label>
+          <input type="password" id="regPassword" placeholder="••••••••" required />
+        </div>
+        
+        <button id="btnRegister" class="loginBtn btnPrimary">Registruj se</button>
+        
+        <div class="formToggle">
+          Već imaš nalog? <a href="#" id="showLogin">Prijavi se</a>
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,.10); padding-top: 16px;">
+        <button id="btnGoogleLogin" class="loginBtn btnGoogle">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Nastavi sa Google
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Toggle Button -->
+  <div class="chatToggle hidden" id="chatToggle" title="Čet soba za pivo">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Chat Window -->
+  <div class="chatWindow" id="chatWindow">
+    <div class="chatHeader">
+      <h3>🍺 Pivska Čet</h3>
+      <button class="closeBtn" id="closeChat">✕</button>
+    </div>
+    <div class="chatMessages" id="chatMessages">
+      <div class="chatEmpty">
+        <span class="emoji">👋</span>
+        Dobrodošli u pivsku čet!
+        <br>
+        Prijavite se za razgovor o pivima, preporuke i više...
+      </div>
+    </div>
+    <div class="chatInputArea">
+      <input type="text" id="chatInput" placeholder="Napiši poruku..." />
+      <button id="btnSendChat">Pošalji</button>
+    </div>
+  </div>
+
+  <!-- User Profile in Header -->
+  <div id="userProfile" class="hidden" style="position: fixed; top: 16px; right: 16px; z-index: 60;">
+    <div class="rankBadge" id="userRankBadge">
+      <span id="userRankIcon">🥉</span>
+      <span id="userRankName">Početnik</span>
+    </div>
+  </div>
+
   <!-- Splash Intro -->
 <div id="splash">
 
@@ -1684,11 +1796,32 @@ select{
       </div>
     </div>
     <div class="spacer"></div>
+    
+    <!-- User Stats (visible when logged in) -->
+    <div id="userStatsBar" class="hidden" style="display: flex; align-items: center; gap: 12px; margin-right: 12px;">
+      <div class="rankBadge" id="userRankBadge" style="cursor: pointer;" title="Tvoj rang">
+        <span id="userRankIcon">🥉</span>
+        <span id="userRankName">Početnik</span>
+      </div>
+      
+      <div class="pill" id="activeUsersPill" title="Aktivni korisnici">
+        <span class="onlineDot"></span>
+        <span id="activeUsersCount">0</span> online
+      </div>
+      
+      <div class="pill" id="totalUsersPill" title="Ukupno registrovanih">
+        👥 <span id="totalUsersCount">0</span>
+      </div>
+    </div>
+    
     <button id="btnTheme" class="primary" style="padding: 10px 14px; font-size: 13px; margin-right: 8px;" title="Promeni temu">
       <span style="font-size: 16px;">🌙</span>
     </button>
     <button id="btnHelp" class="primary" style="padding: 10px 14px; font-size: 13px;" title="Prikaži uputstvo">
       <span style="font-size: 16px;">❓</span> Pomoć
+    </button>
+    <button id="btnLogout" class="danger hidden" style="padding: 10px 14px; font-size: 13px;" title="Odjavi se">
+      <span style="font-size: 16px;">🚪</span> Odjava
     </button>
   </div>
 </header>
@@ -2052,10 +2185,483 @@ select{
 <script>
 console.log('=== BEERSCAN v2.1.1 UČITAN ===');
 console.log('Datum:', new Date().toLocaleString());
-console.log('URL:', window.location.href);
-console.log('HTTPS:', window.location.protocol === 'https:');
-console.log('Secure Context:', window.isSecureContext);
-console.log('Geolocation dostupan:', 'geolocation' in navigator);
+
+/* =======================
+   Firebase Konfiguracija
+======================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBYWCJt4t5zv633Ggegv58pZBed7oOVzBA",
+  authDomain: "beer-scan.firebaseapp.com",
+  projectId: "beer-scan",
+  storageBucket: "beer-scan.firebasestorage.app",
+  messagingSenderId: "86777402358",
+  appId: "1:86777402358:web:975c5f91096ac48b24edd7",
+  measurementId: "G-YBYQ4JYQEV"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const analytics = firebase.analytics();
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// Firebase references
+const usersCollection = db.collection('users');
+const messagesCollection = db.collection('chatMessages');
+const activeUsersRef = db.collection('activeUsers');
+
+console.log('Firebase inicijalizovan:', firebaseConfig.projectId);
+
+/* =======================
+   Firebase Auth & User Management
+======================= */
+let currentUser = null;
+let currentUserData = null;
+let currentRank = 'početnik';
+let currentRankPoints = 0;
+
+// Check auth state on load
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    currentUser = user;
+    console.log('Korisnik prijavljen:', user.email);
+    
+    // Load user data
+    const userDoc = await usersCollection.doc(user.uid).get();
+    if (userDoc.exists) {
+      currentUserData = userDoc.data();
+    }
+    
+    // Hide login overlay
+    document.getElementById('loginOverlay').classList.add('hidden');
+    
+    // Show user stats
+    document.getElementById('userStatsBar').classList.remove('hidden');
+    document.getElementById('btnLogout').classList.remove('hidden');
+    
+    // Update UI
+    await checkUserRank();
+    await updateOnlineStatus(true);
+    await updateUserCounts();
+    showChat();
+    updateChatList();
+  } else {
+    currentUser = null;
+    currentUserData = null;
+    console.log('Nema prijavljenog korisnika');
+    
+    // Show login overlay
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    
+    // Hide user stats
+    document.getElementById('userStatsBar').classList.add('hidden');
+    document.getElementById('btnLogout').classList.add('hidden');
+    
+    updateOnlineStatus(false);
+    hideChat();
+  }
+});
+
+// Show login form
+function showLogin() {
+  document.getElementById('loginForm').classList.remove('hidden');
+  document.getElementById('registerForm').classList.add('hidden');
+}
+
+// Show register form
+function showRegister() {
+  document.getElementById('loginForm').classList.add('hidden');
+  document.getElementById('registerForm').classList.remove('hidden');
+}
+
+// Login with email/password
+document.getElementById('btnLogin').addEventListener('click', async () => {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  
+  if (!email || !password) {
+    showToast('Unesite email i lozinku', 'warn');
+    return;
+  }
+  
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    showToast('✅ Uspešna prijava!', 'success');
+  } catch (error) {
+    console.error('Login error:', error);
+    showToast('Greška: ' + error.message, 'error');
+  }
+});
+
+// Register new user
+document.getElementById('btnRegister').addEventListener('click', async () => {
+  const nickname = document.getElementById('regNickname').value.trim();
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  
+  if (!nickname || !name || !email || !password) {
+    showToast('Popunite sva polja', 'warn');
+    return;
+  }
+  
+  if (nickname.length < 3) {
+    showToast('Nadimak mora imati najmanje 3 karaktera', 'warn');
+    return;
+  }
+  
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+    
+    // Save user profile
+    await usersCollection.doc(user.uid).set({
+      uid: user.uid,
+      email: email,
+      name: name,
+      nickname: nickname,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      totalScans: 0,
+      triedBeers: 0,
+      rank: 'početnik',
+      rankPoints: 0,
+      avatar: null
+    });
+    
+    currentUser = user;
+    currentRank = 'početnik';
+    currentRankPoints = 0;
+    
+    showToast('✅ Registracija uspešna!', 'success');
+  } catch (error) {
+    console.error('Register error:', error);
+    showToast('Greška: ' + error.message, 'error');
+  }
+});
+
+// Google login
+document.getElementById('btnGoogleLogin').addEventListener('click', async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  
+  try {
+    const result = await auth.signInWithPopup(provider);
+    const user = result.user;
+    
+    // Check if user exists, if not create profile
+    const userDoc = await usersCollection.doc(user.uid).get();
+    if (!userDoc.exists) {
+      const nickname = user.displayName.split(' ')[0] || user.email.split('@')[0];
+      
+      await usersCollection.doc(user.uid).set({
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName,
+        nickname: nickname,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        totalScans: 0,
+        triedBeers: 0,
+        rank: 'početnik',
+        rankPoints: 0,
+        avatar: user.photoURL
+      });
+    }
+    
+    currentUser = user;
+    await checkUserRank();
+    showToast('✅ Google prijava uspešna!', 'success');
+  } catch (error) {
+    console.error('Google login error:', error);
+    showToast('Greška: ' + error.message, 'error');
+  }
+});
+
+// Logout
+function logout() {
+  auth.signOut();
+  showToast('👋 Uspešno odjavljivanje', 'info');
+}
+
+// Logout button
+document.getElementById('btnLogout').addEventListener('click', logout);
+
+// Update online status
+async function updateOnlineStatus(isOnline) {
+  if (!currentUser) return;
+  
+  try {
+    if (isOnline) {
+      await activeUsersRef.doc(currentUser.uid).set({
+        uid: currentUser.uid,
+        nickname: currentUserData?.nickname || 'Korisnik',
+        lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+        isOnline: true
+      });
+    } else {
+      await activeUsersRef.doc(currentUser.uid).update({
+        isOnline: false,
+        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  } catch (error) {
+    console.error('Online status error:', error);
+  }
+}
+
+// Update user counts
+async function updateUserCounts() {
+  try {
+    // Count total users
+    const usersSnapshot = await usersCollection.get();
+    const totalUsers = usersSnapshot.size;
+    document.getElementById('totalUsersCount').textContent = totalUsers;
+    
+    // Count active users (online in last 5 minutes)
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const activeSnapshot = await activeUsersRef
+      .where('isOnline', '==', true)
+      .where('lastActive', '>', fiveMinutesAgo)
+      .get();
+    const activeUsers = activeSnapshot.size;
+    document.getElementById('activeUsersCount').textContent = activeUsers;
+  } catch (error) {
+    console.error('Update counts error:', error);
+  }
+}
+
+// Update counts every 30 seconds
+setInterval(() => {
+  if (currentUser) {
+    updateUserCounts();
+    updateOnlineStatus(true);
+  }
+}, 30000);
+
+// Check and update user rank
+async function checkUserRank() {
+  if (!currentUser) return;
+  
+  try {
+    const userDoc = await usersCollection.doc(currentUser.uid).get();
+    const userData = userDoc.data();
+    
+    if (userData) {
+      currentUserData = userData;
+      currentRankPoints = userData.triedBeers || 0;
+      updateRank(currentRankPoints);
+      updateRankUI();
+    }
+  } catch (error) {
+    console.error('Rank check error:', error);
+  }
+}
+
+// Update rank based on points
+function updateRank(points) {
+  if (points >= 100) {
+    currentRank = 'legenda';
+  } else if (points >= 50) {
+    currentRank = 'zlato';
+  } else if (points >= 25) {
+    currentRank = 'srebro';
+  } else if (points >= 10) {
+    currentRank = 'bronza';
+  } else {
+    currentRank = 'početnik';
+  }
+}
+
+// Update rank UI
+function updateRankUI() {
+  const rankBadge = document.getElementById('userRankBadge');
+  const rankIcon = document.getElementById('userRankIcon');
+  const rankName = document.getElementById('userRankName');
+  
+  if (!rankBadge || !rankIcon || !rankName) return;
+  
+  rankBadge.className = 'rankBadge ' + currentRank;
+  
+  const icons = {
+    'početnik': '🌱',
+    'bronza': '🥉',
+    'srebro': '🥈',
+    'zlato': '🥇',
+    'legenda': '🏆'
+  };
+  
+  const names = {
+    'početnik': 'Početnik',
+    'bronza': 'Bronza',
+    'srebro': 'Srebro',
+    'zlato': 'Zlato',
+    'legenda': 'Legenda'
+  };
+  
+  rankIcon.textContent = icons[currentRank] || '🌱';
+  rankName.textContent = names[currentRank] || 'Početnik';
+}
+
+// Update user stats in Firebase
+async function updateUserStats() {
+  if (!currentUser) return;
+  
+  try {
+    const all = await dbGetAll();
+    const tried = all.filter(r => (r.timesTried || 0) > 0).length;
+    
+    await usersCollection.doc(currentUser.uid).update({
+      triedBeers: tried,
+      totalScans: all.length
+    });
+    
+    currentRankPoints = tried;
+    updateRank(tried);
+    updateRankUI();
+  } catch (error) {
+    console.error('Update stats error:', error);
+  }
+}
+
+// Add event listeners for login/register toggles
+document.getElementById('showRegister').addEventListener('click', (e) => {
+  e.preventDefault();
+  showRegister();
+});
+
+document.getElementById('showLogin').addEventListener('click', (e) => {
+  e.preventDefault();
+  showLogin();
+});
+
+// Update online status on page visibility change
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && currentUser) {
+    updateOnlineStatus(true);
+    updateUserCounts();
+  } else if (document.visibilityState === 'hidden' && currentUser) {
+    updateOnlineStatus(false);
+  }
+});
+
+/* =======================
+   Chat funkcionalnost
+======================= */
+const chatToggle = document.getElementById('chatToggle');
+const chatWindow = document.getElementById('chatWindow');
+const closeChat = document.getElementById('closeChat');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const btnSendChat = document.getElementById('btnSendChat');
+
+let chatMessagesRef = null;
+let chatListener = null;
+
+// Toggle chat window
+chatToggle.addEventListener('click', () => {
+  chatWindow.classList.toggle('active');
+  if (chatWindow.classList.contains('active')) {
+    updateChatList();
+  }
+});
+
+closeChat.addEventListener('click', () => {
+  chatWindow.classList.remove('active');
+});
+
+// Send message
+btnSendChat.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+async function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text || !currentUser || !currentUserData) return;
+  
+  try {
+    await messagesCollection.add({
+      text: text,
+      uid: currentUser.uid,
+      nickname: currentUserData.nickname || currentUser.email.split('@')[0],
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      avatar: currentUserData.avatar || null
+    });
+    
+    chatInput.value = '';
+  } catch (error) {
+    console.error('Send message error:', error);
+    showToast('Greška pri slanju poruke', 'error');
+  }
+}
+
+// Listen to chat messages
+function updateChatList() {
+  if (chatListener) {
+    chatListener();
+    chatListener = null;
+  }
+  
+  chatMessagesRef = messagesCollection.orderBy('timestamp', 'asc').limit(50);
+  
+  chatListener = chatMessagesRef.onSnapshot(snapshot => {
+    chatMessages.innerHTML = '';
+    
+    if (snapshot.empty) {
+      chatMessages.innerHTML = `
+        <div class="chatEmpty">
+          <span class="emoji">👋</span>
+          Dobrodošli u pivsku čet!
+          <br>
+          Budite prvi koji će poslati poruku...
+        </div>
+      `;
+      return;
+    }
+    
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const messageEl = createMessageElement(data);
+      chatMessages.appendChild(messageEl);
+    });
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+}
+
+function createMessageElement(data) {
+  const isMyMessage = currentUser && data.uid === currentUser.uid;
+  
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'chatMessage ' + (isMyMessage ? 'my' : 'other');
+  
+  const time = data.timestamp ? data.timestamp.toDate().toLocaleTimeString('sr-RS', { hour: '2-digit', minute: '2-digit' }) : '';
+  
+  const textDiv = document.createElement('div');
+  textDiv.innerHTML = `
+    <strong style="color: ${isMyMessage ? '#7cb2ff' : '#5cffa4'}">${escapeHtml(data.nickname)}</strong>
+    <div style="margin-top: 4px;">${escapeHtml(data.text)}</div>
+  `;
+  messageDiv.appendChild(textDiv);
+  
+  const metaDiv = document.createElement('div');
+  metaDiv.className = 'meta';
+  metaDiv.innerHTML = `<span>${time}</span>`;
+  messageDiv.appendChild(metaDiv);
+  
+  return messageDiv;
+}
+
+function showChat() {
+  if (currentUser) {
+    chatToggle.classList.remove('hidden');
+  }
+}
+
+function hideChat() {
+  chatToggle.classList.add('hidden');
+  chatWindow.classList.remove('active');
+}
 
 /* =======================
    IndexedDB (lokalna baza)
