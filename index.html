@@ -1688,6 +1688,7 @@ select{
         <button id="btnLogin" class="loginBtn btnPrimary">Prijava</button>
         
         <div class="formToggle">
+          <a href="#" id="btnForgotPassword" style="display: block; margin-bottom: 10px; text-align: center;">Zaboravljena lozinka?</a>
           Nemaš nalog? <a href="#" id="showRegister">Registruj se</a>
         </div>
       </div>
@@ -2315,6 +2316,12 @@ document.getElementById('btnLogin')?.addEventListener('click', async () => {
       case 'auth/user-disabled':
         errorMessage = 'Nalog je onemogućen';
         break;
+      case 'auth/too-many-requests':
+        errorMessage = 'Previše pokušaja prijave. Nalog je privremeno blokiran. Pokušaj ponovo za 15-30 minuta ili resetuj lozinku.';
+        break;
+      case 'auth/network-request-failed':
+        errorMessage = 'Greška u mreži. Proveri internet konekciju.';
+        break;
       default:
         errorMessage = error.message;
     }
@@ -2716,6 +2723,46 @@ document.getElementById('showRegister')?.addEventListener('click', (e) => {
 document.getElementById('showLogin')?.addEventListener('click', (e) => {
   e.preventDefault();
   showLogin();
+});
+
+// Forgot password
+document.getElementById('btnForgotPassword')?.addEventListener('click', async (e) => {
+  e.preventDefault();
+  
+  const emailEl = document.getElementById('loginEmail');
+  if (!emailEl) return;
+  
+  const email = emailEl.value.trim();
+  
+  if (!email) {
+    showToast('Unesite email adresu', 'warn');
+    return;
+  }
+  
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showToast('✅ Email za resetovanje lozinke je poslat! Proveri inbox.', 'success');
+  } catch (error) {
+    console.error('Password reset error:', error);
+    
+    let errorMessage = 'Greška pri slanju email-a';
+    
+    switch(error.code) {
+      case 'auth/user-not-found':
+        errorMessage = 'Korisnik sa ovim email-om ne postoji';
+        break;
+      case 'auth/invalid-email':
+        errorMessage = 'Neispravan email';
+        break;
+      case 'auth/too-many-requests':
+        errorMessage = 'Previše pokušaja. Pokušaj ponovo za 15 minuta.';
+        break;
+      default:
+        errorMessage = error.message;
+    }
+    
+    showToast('❌ ' + errorMessage, 'error');
+  }
 });
 
 // Enter key support for login form
