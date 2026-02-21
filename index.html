@@ -1674,6 +1674,9 @@ select{
         <p>Prijavite se da biste pristupili aplikaciji</p>
       </div>
       
+      <!-- Error/Success message -->
+      <div id="loginMessage" style="display: none; padding: 12px; border-radius: 12px; margin-bottom: 16px; font-size: 14px; font-weight: 600;"></div>
+      
       <div id="loginForm">
         <div class="formGroup">
           <label for="loginEmail">Email</label>
@@ -2223,6 +2226,43 @@ let currentUserData = null;
 let currentRank = 'početnik';
 let currentRankPoints = 0;
 
+// Show message in login overlay
+function showLoginMessage(message, type = 'error') {
+  const messageEl = document.getElementById('loginMessage');
+  if (!messageEl) return;
+  
+  messageEl.textContent = message;
+  messageEl.style.display = 'block';
+  
+  // Colors based on type
+  if (type === 'error') {
+    messageEl.style.background = 'rgba(255,92,92,.20)';
+    messageEl.style.border = '1px solid rgba(255,92,92,.40)';
+    messageEl.style.color = '#fff';
+  } else if (type === 'success') {
+    messageEl.style.background = 'rgba(92,255,164,.20)';
+    messageEl.style.border = '1px solid rgba(92,255,164,.40)';
+    messageEl.style.color = '#fff';
+  } else if (type === 'warn') {
+    messageEl.style.background = 'rgba(255,210,92,.20)';
+    messageEl.style.border = '1px solid rgba(255,210,92,.40)';
+    messageEl.style.color = '#fff';
+  }
+  
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    messageEl.style.display = 'none';
+  }, 5000);
+}
+
+// Hide login message
+function hideLoginMessage() {
+  const messageEl = document.getElementById('loginMessage');
+  if (messageEl) {
+    messageEl.style.display = 'none';
+  }
+}
+
 // Check auth state on load
 auth.onAuthStateChanged(async (user) => {
   if (user) {
@@ -2269,12 +2309,14 @@ auth.onAuthStateChanged(async (user) => {
 function showLogin() {
   document.getElementById('loginForm').classList.remove('hidden');
   document.getElementById('registerForm').classList.add('hidden');
+  hideLoginMessage();
 }
 
 // Show register form
 function showRegister() {
   document.getElementById('loginForm').classList.add('hidden');
   document.getElementById('registerForm').classList.remove('hidden');
+  hideLoginMessage();
 }
 
 // Login with email/password
@@ -2291,42 +2333,59 @@ document.getElementById('btnLogin')?.addEventListener('click', async () => {
   const password = passwordEl.value;
   
   if (!email || !password) {
-    showToast('Unesite email i lozinku', 'warn');
+    showLoginMessage('⚠️ Unesite email i lozinku', 'warn');
     return;
+  }
+  
+  // Disable button during login
+  const btnLogin = document.getElementById('btnLogin');
+  if (btnLogin) {
+    btnLogin.disabled = true;
+    btnLogin.textContent = 'Prijavljujem...';
   }
   
   try {
     console.log('Attempting login with email:', email);
     await auth.signInWithEmailAndPassword(email, password);
-    showToast('✅ Uspešna prijava!', 'success');
+    showLoginMessage('✅ Uspešna prijava! Učitavam aplikaciju...', 'success');
+    hideLoginMessage();
   } catch (error) {
     console.error('Login error:', error);
-    let errorMessage = 'Greška pri prijavi';
+    let errorMessage = '❌ Greška pri prijavi';
     
     switch(error.code) {
       case 'auth/user-not-found':
-        errorMessage = 'Korisnik ne postoji';
+        errorMessage = '❌ Korisnik sa ovim email-om ne postoji. Registruj se prvo.';
         break;
       case 'auth/wrong-password':
-        errorMessage = 'Pogrešna lozinka';
+        errorMessage = '❌ Pogrešna lozinka. Pokušaj ponovo ili klikni "Zaboravljena lozinka?"';
         break;
       case 'auth/invalid-email':
-        errorMessage = 'Neispravan email';
+        errorMessage = '❌ Neispravan email format';
         break;
       case 'auth/user-disabled':
-        errorMessage = 'Nalog je onemogućen';
+        errorMessage = '❌ Ovaj nalog je onemogućen';
         break;
       case 'auth/too-many-requests':
-        errorMessage = 'Previše pokušaja prijave. Nalog je privremeno blokiran. Pokušaj ponovo za 15-30 minuta ili resetuj lozinku.';
+        errorMessage = '❌ Previše pokušaja prijave. Nalog je privremeno blokiran. Sačekaj 15 minuta ili resetuj lozinku.';
         break;
       case 'auth/network-request-failed':
-        errorMessage = 'Greška u mreži. Proveri internet konekciju.';
+        errorMessage = '❌ Greška u mreži. Proveri internet konekciju.';
+        break;
+      case 'auth/invalid-credential':
+        errorMessage = '❌ Pogrešan email ili lozinka. Proveri da li si uneo ispravne podatke.';
         break;
       default:
-        errorMessage = error.message;
+        errorMessage = '❌ ' + error.message;
     }
     
-    showToast('❌ ' + errorMessage, 'error');
+    showLoginMessage(errorMessage, 'error');
+  } finally {
+    // Re-enable button
+    if (btnLogin) {
+      btnLogin.disabled = false;
+      btnLogin.textContent = 'Prijava';
+    }
   }
 });
 
@@ -2348,18 +2407,25 @@ document.getElementById('btnRegister')?.addEventListener('click', async () => {
   const password = passwordEl.value;
   
   if (!nickname || !name || !email || !password) {
-    showToast('Popunite sva polja', 'warn');
+    showLoginMessage('⚠️ Popunite sva polja', 'warn');
     return;
   }
   
   if (nickname.length < 3) {
-    showToast('Nadimak mora imati najmanje 3 karaktera', 'warn');
+    showLoginMessage('⚠️ Nadimak mora imati najmanje 3 karaktera', 'warn');
     return;
   }
   
   if (password.length < 6) {
-    showToast('Lozinka mora imati najmanje 6 karaktera', 'warn');
+    showLoginMessage('⚠️ Lozinka mora imati najmanje 6 karaktera', 'warn');
     return;
+  }
+  
+  // Disable button during registration
+  const btnRegister = document.getElementById('btnRegister');
+  if (btnRegister) {
+    btnRegister.disabled = true;
+    btnRegister.textContent = 'Registrujem...';
   }
   
   try {
@@ -2385,26 +2451,41 @@ document.getElementById('btnRegister')?.addEventListener('click', async () => {
     currentRank = 'početnik';
     currentRankPoints = 0;
     
-    showToast('✅ Registracija uspešna!', 'success');
+    showLoginMessage('✅ Registracija uspešna! Dobrodošao ' + nickname + '!', 'success');
+    
+    // Auto-hide message and close overlay after 2 seconds
+    setTimeout(() => {
+      hideLoginMessage();
+    }, 2000);
+    
   } catch (error) {
     console.error('Register error:', error);
-    let errorMessage = 'Greška pri registraciji';
+    let errorMessage = '❌ Greška pri registraciji';
     
     switch(error.code) {
       case 'auth/email-already-in-use':
-        errorMessage = 'Email je već registrovan';
+        errorMessage = '❌ Email je već registrovan. Prijavi se ili koristi drugi email.';
         break;
       case 'auth/invalid-email':
-        errorMessage = 'Neispravan email';
+        errorMessage = '❌ Neispravan email format';
         break;
       case 'auth/weak-password':
-        errorMessage = 'Lozinka je previše slaba';
+        errorMessage = '❌ Lozinka je previše slaba. Koristi najmanje 6 karaktera.';
+        break;
+      case 'auth/operation-not-allowed':
+        errorMessage = '❌ Email/password registracija nije omogućena. Kontaktiraj administratora.';
         break;
       default:
-        errorMessage = error.message;
+        errorMessage = '❌ ' + error.message;
     }
     
-    showToast('❌ ' + errorMessage, 'error');
+    showLoginMessage(errorMessage, 'error');
+  } finally {
+    // Re-enable button
+    if (btnRegister) {
+      btnRegister.disabled = false;
+      btnRegister.textContent = 'Registruj se';
+    }
   }
 });
 
@@ -2735,33 +2816,33 @@ document.getElementById('btnForgotPassword')?.addEventListener('click', async (e
   const email = emailEl.value.trim();
   
   if (!email) {
-    showToast('Unesite email adresu', 'warn');
+    showLoginMessage('⚠️ Unesite email adresu', 'warn');
     return;
   }
   
   try {
     await auth.sendPasswordResetEmail(email);
-    showToast('✅ Email za resetovanje lozinke je poslat! Proveri inbox.', 'success');
+    showLoginMessage('✅ Email za resetovanje lozinke je poslat na ' + email + '! Proveri inbox (i spam folder).', 'success');
   } catch (error) {
     console.error('Password reset error:', error);
     
-    let errorMessage = 'Greška pri slanju email-a';
+    let errorMessage = '❌ Greška pri slanju email-a';
     
     switch(error.code) {
       case 'auth/user-not-found':
-        errorMessage = 'Korisnik sa ovim email-om ne postoji';
+        errorMessage = '❌ Korisnik sa ovim email-om ne postoji';
         break;
       case 'auth/invalid-email':
-        errorMessage = 'Neispravan email';
+        errorMessage = '❌ Neispravan email format';
         break;
       case 'auth/too-many-requests':
-        errorMessage = 'Previše pokušaja. Pokušaj ponovo za 15 minuta.';
+        errorMessage = '❌ Previše pokušaja. Pokušaj ponovo za 15 minuta.';
         break;
       default:
-        errorMessage = error.message;
+        errorMessage = '❌ ' + error.message;
     }
     
-    showToast('❌ ' + errorMessage, 'error');
+    showLoginMessage(errorMessage, 'error');
   }
 });
 
