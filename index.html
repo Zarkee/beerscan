@@ -11,6 +11,7 @@
   <meta name="description" content="Skeniraj bar-kodove piva, čuvaj ocene i lokacije, osvajaj bedževe!" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="firebase-styles.css" />
   
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -1559,9 +1560,9 @@ select{
   font-size: 16px; 
   letter-spacing: .3px;
   background: linear-gradient(135deg, #fff, rgba(234,241,255,.85));
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 .tourText{ 
   margin-top: 8px; 
@@ -2343,6 +2344,9 @@ document.getElementById('btnRegister').addEventListener('click', async () => {
 // Google login
 document.getElementById('btnGoogleLogin').addEventListener('click', async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({
+    prompt: 'select_account'
+  });
   
   try {
     const result = await auth.signInWithPopup(provider);
@@ -2351,12 +2355,12 @@ document.getElementById('btnGoogleLogin').addEventListener('click', async () => 
     // Check if user exists, if not create profile
     const userDoc = await usersCollection.doc(user.uid).get();
     if (!userDoc.exists) {
-      const nickname = user.displayName.split(' ')[0] || user.email.split('@')[0];
+      const nickname = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
       
       await usersCollection.doc(user.uid).set({
         uid: user.uid,
         email: user.email,
-        name: user.displayName,
+        name: user.displayName || user.email,
         nickname: nickname,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         totalScans: 0,
@@ -2372,7 +2376,13 @@ document.getElementById('btnGoogleLogin').addEventListener('click', async () => 
     showToast('✅ Google prijava uspešna!', 'success');
   } catch (error) {
     console.error('Google login error:', error);
-    showToast('Greška: ' + error.message, 'error');
+    if (error.code === 'auth/popup-blocked') {
+      showToast('Popup je blokiran. Omogućite popup prozore za ovaj sajt.', 'error');
+    } else if (error.code === 'auth/unauthorized-domain') {
+      showToast('Domen nije autorizovan. Dodajte domen u Firebase Console → Authentication → Settings → Authorized domains', 'error');
+    } else {
+      showToast('Greška: ' + error.message, 'error');
+    }
   }
 });
 
