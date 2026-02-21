@@ -2277,9 +2277,17 @@ function showRegister() {
 }
 
 // Login with email/password
-document.getElementById('btnLogin').addEventListener('click', async () => {
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
+document.getElementById('btnLogin')?.addEventListener('click', async () => {
+  const emailEl = document.getElementById('loginEmail');
+  const passwordEl = document.getElementById('loginPassword');
+  
+  if (!emailEl || !passwordEl) {
+    console.error('Login form elements not found');
+    return;
+  }
+  
+  const email = emailEl.value.trim();
+  const password = passwordEl.value;
   
   if (!email || !password) {
     showToast('Unesite email i lozinku', 'warn');
@@ -2287,20 +2295,50 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
   }
   
   try {
+    console.log('Attempting login with email:', email);
     await auth.signInWithEmailAndPassword(email, password);
     showToast('✅ Uspešna prijava!', 'success');
   } catch (error) {
     console.error('Login error:', error);
-    showToast('Greška: ' + error.message, 'error');
+    let errorMessage = 'Greška pri prijavi';
+    
+    switch(error.code) {
+      case 'auth/user-not-found':
+        errorMessage = 'Korisnik ne postoji';
+        break;
+      case 'auth/wrong-password':
+        errorMessage = 'Pogrešna lozinka';
+        break;
+      case 'auth/invalid-email':
+        errorMessage = 'Neispravan email';
+        break;
+      case 'auth/user-disabled':
+        errorMessage = 'Nalog je onemogućen';
+        break;
+      default:
+        errorMessage = error.message;
+    }
+    
+    showToast('❌ ' + errorMessage, 'error');
   }
 });
 
 // Register new user
-document.getElementById('btnRegister').addEventListener('click', async () => {
-  const nickname = document.getElementById('regNickname').value.trim();
-  const name = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const password = document.getElementById('regPassword').value;
+document.getElementById('btnRegister')?.addEventListener('click', async () => {
+  const nicknameEl = document.getElementById('regNickname');
+  const nameEl = document.getElementById('regName');
+  const emailEl = document.getElementById('regEmail');
+  const passwordEl = document.getElementById('regPassword');
+  
+  if (!nicknameEl || !nameEl || !emailEl || !passwordEl) {
+    console.error('Register form elements not found');
+    return;
+  }
+  
+  const nickname = nicknameEl.value.trim();
+  const name = nameEl.value.trim();
+  const email = emailEl.value.trim();
+  const password = passwordEl.value;
   
   if (!nickname || !name || !email || !password) {
     showToast('Popunite sva polja', 'warn');
@@ -2312,7 +2350,13 @@ document.getElementById('btnRegister').addEventListener('click', async () => {
     return;
   }
   
+  if (password.length < 6) {
+    showToast('Lozinka mora imati najmanje 6 karaktera', 'warn');
+    return;
+  }
+  
   try {
+    console.log('Attempting registration with email:', email);
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
     const user = userCredential.user;
     
@@ -2337,12 +2381,28 @@ document.getElementById('btnRegister').addEventListener('click', async () => {
     showToast('✅ Registracija uspešna!', 'success');
   } catch (error) {
     console.error('Register error:', error);
-    showToast('Greška: ' + error.message, 'error');
+    let errorMessage = 'Greška pri registraciji';
+    
+    switch(error.code) {
+      case 'auth/email-already-in-use':
+        errorMessage = 'Email je već registrovan';
+        break;
+      case 'auth/invalid-email':
+        errorMessage = 'Neispravan email';
+        break;
+      case 'auth/weak-password':
+        errorMessage = 'Lozinka je previše slaba';
+        break;
+      default:
+        errorMessage = error.message;
+    }
+    
+    showToast('❌ ' + errorMessage, 'error');
   }
 });
 
 // Google login
-document.getElementById('btnGoogleLogin').addEventListener('click', async () => {
+document.getElementById('btnGoogleLogin')?.addEventListener('click', async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({
     prompt: 'select_account'
@@ -2376,6 +2436,9 @@ document.getElementById('btnGoogleLogin').addEventListener('click', async () => 
       }
     } else if (error.code === 'auth/unauthorized-domain') {
       showToast('Domen nije autorizovan. Dodajte domen u Firebase Console → Authentication → Settings → Authorized domains', 'error');
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      // Korisnik je zatvorio popup, ne prikazuj grešku
+      console.log('Popup zatvoren od strane korisnika');
     } else {
       showToast('Greška: ' + error.message, 'error');
     }
@@ -2463,20 +2526,22 @@ async function updateUserCounts() {
     // Count total users
     const usersSnapshot = await usersCollection.get();
     const totalUsers = usersSnapshot.size;
-    document.getElementById('totalUsersCount').textContent = totalUsers;
+    const totalUsersEl = document.getElementById('totalUsersCount');
+    if (totalUsersEl) totalUsersEl.textContent = totalUsers;
     
-    // Count active users (online in last 5 minutes)
-    const fiveMinutesAgo = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - 5 * 60 * 1000));
+    // Count active users (online in last 30 seconds for real-time feel)
+    const thirtySecondsAgo = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - 30 * 1000));
     
     const activeSnapshot = await activeUsersRef
       .where('isOnline', '==', true)
-      .where('lastActive', '>', fiveMinutesAgo)
+      .where('lastActive', '>', thirtySecondsAgo)
       .get();
     
     const activeUsers = activeSnapshot.size;
-    document.getElementById('activeUsersCount').textContent = activeUsers;
+    const activeUsersEl = document.getElementById('activeUsersCount');
+    if (activeUsersEl) activeUsersEl.textContent = activeUsers;
     
-    console.log('User counts updated:', { total: totalUsers, active: activeUsers });
+    console.log('User counts updated:', { total: totalUsers, active: activeUsers, threshold: '30s' });
   } catch (error) {
     console.error('Update counts error:', error);
     
@@ -2487,7 +2552,8 @@ async function updateUserCounts() {
         .get();
       
       const activeUsers = activeSnapshot.size;
-      document.getElementById('activeUsersCount').textContent = activeUsers;
+      const activeUsersEl = document.getElementById('activeUsersCount');
+      if (activeUsersEl) activeUsersEl.textContent = activeUsers;
       console.log('Fallback active users count:', activeUsers);
     } catch (fallbackError) {
       console.error('Fallback count error:', fallbackError);
@@ -2495,13 +2561,13 @@ async function updateUserCounts() {
   }
 }
 
-// Update counts every 30 seconds
+// Update counts every 10 seconds
 setInterval(() => {
   if (currentUser) {
     updateUserCounts();
     updateOnlineStatus(true);
   }
-}, 30000);
+}, 10000);
 
 // Check and update user rank
 async function checkUserRank() {
@@ -2589,14 +2655,34 @@ async function updateUserStats() {
 }
 
 // Add event listeners for login/register toggles
-document.getElementById('showRegister').addEventListener('click', (e) => {
+document.getElementById('showRegister')?.addEventListener('click', (e) => {
   e.preventDefault();
   showRegister();
 });
 
-document.getElementById('showLogin').addEventListener('click', (e) => {
+document.getElementById('showLogin')?.addEventListener('click', (e) => {
   e.preventDefault();
   showLogin();
+});
+
+// Enter key support for login form
+document.getElementById('loginEmail')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('btnLogin')?.click();
+  }
+});
+
+document.getElementById('loginPassword')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('btnLogin')?.click();
+  }
+});
+
+// Enter key support for register form
+document.getElementById('regPassword')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('btnRegister')?.click();
+  }
 });
 
 // Update online status on page visibility change
