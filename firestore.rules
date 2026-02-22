@@ -3,8 +3,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // User history - samo vlasnik može pristupiti svojoj istoriji
-    match /userHistory/{userId}/beers/{barcode} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    match /userHistory/{userId} {
+      // Dozvoli čitanje parent dokumenta
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Beers subcollection
+      match /beers/{barcode} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
     
     // Chat messages - svi prijavljeni mogu čitati i pisati
