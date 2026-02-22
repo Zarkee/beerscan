@@ -3522,7 +3522,48 @@ function escapeHtml(s){
 }
 
 function formatDate(ts){
-  try { return new Date(ts).toLocaleString(); } catch { return ""; }
+  if (!ts) return "";
+  
+  try {
+    // Check if it's a Firestore Timestamp
+    if (ts && typeof ts === 'object' && ts.toDate) {
+      return ts.toDate().toLocaleString('sr-RS', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    // Check if it's a number (Unix timestamp)
+    if (typeof ts === 'number') {
+      return new Date(ts).toLocaleString('sr-RS', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    // Try to parse as Date
+    const date = new Date(ts);
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleString('sr-RS', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    return "";
+  } catch (error) {
+    console.error('Greška pri formatiranju datuma:', error, ts);
+    return "";
+  }
 }
 
 function isSecureForCamera(){
