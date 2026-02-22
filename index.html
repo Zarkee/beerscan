@@ -2964,6 +2964,25 @@ async function sendMessage() {
   }
 }
 
+// Funkcija za automatsko brisanje poruka starijih od 24h
+async function cleanupOldMessages() {
+  try {
+    const oneDayAgo = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
+    const oldMessages = await messagesCollection.where('timestamp', '<', oneDayAgo).get();
+    
+    if (!oldMessages.empty) {
+      const batch = db.batch();
+      oldMessages.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      console.log(`Obrisano ${oldMessages.size} starih poruka`);
+    }
+  } catch (error) {
+    console.error('Greška pri brisanju starih poruka:', error);
+  }
+}
+
 // Listen to chat messages
 function updateChatList() {
   if (chatListener) {
@@ -3004,25 +3023,6 @@ function updateChatList() {
 
 function createMessageElement(data) {
   const isMyMessage = currentUser && data.uid === currentUser.uid;
-
-// Funkcija za automatsko brisanje poruka starijih od 24h
-async function cleanupOldMessages() {
-  try {
-    const oneDayAgo = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
-    const oldMessages = await messagesCollection.where('timestamp', '<', oneDayAgo).get();
-    
-    if (!oldMessages.empty) {
-      const batch = db.batch();
-      oldMessages.forEach(doc => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-      console.log(`Obrisano ${oldMessages.size} starih poruka`);
-    }
-  } catch (error) {
-    console.error('Greška pri brisanju starih poruka:', error);
-  }
-}
   
   const messageDiv = document.createElement('div');
   messageDiv.className = 'chatMessage ' + (isMyMessage ? 'my' : 'other');
@@ -3070,15 +3070,23 @@ async function cloudSaveHistory(record) {
   }
   
   try {
+    // Dodaj timestamp ako ne postoji
+    if (!record.createdAt) {
+      record.createdAt = Date.now();
+    }
+    
     const docRef = historyCollection.doc(currentUser.uid).collection('beers').doc(record.barcode);
     await docRef.set({
       ...record,
       userId: currentUser.uid,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: record.createdAt
     }, { merge: true });
+    
+    console.log('✅ Sačuvano u cloud:', record.barcode);
     return true;
   } catch (error) {
-    console.error('Greška pri čuvanju u cloud:', error);
+    console.error('❌ Greška pri čuvanju u cloud:', error);
     return false;
   }
 }
@@ -3091,15 +3099,29 @@ async function cloudGetAll() {
   
   try {
     const snapshot = await historyCollection.doc(currentUser.uid).collection('beers')
-      .orderBy('updatedAt', 'desc')
+      .orderBy('createdAt', 'desc')
       .get();
     
-    return snapshot.docs.map(doc => ({
+    const data = snapshot.docs.map(doc => ({
       ...doc.data(),
       barcode: doc.id
     }));
+    
+    console.log(`✅ Učitano ${data.length} zapisa iz cloud-a`);
+    return data;
   } catch (error) {
-    console.error('Greška pri učitavanju iz cloud-a:', error);
+    console.error('❌ Greška pri učitavanju iz cloud-a:', error);
+    
+    // Ako je greška zbog missing index, pokušaj bez sortiranja
+    if (error.code === 'failed-precondition') {
+      console.log('⚠️ Index ne postoji, učitavam bez sortiranja...');
+      const snapshot = await historyCollection.doc(currentUser.uid).collection('beers').get();
+      return snapshot.docs.map(doc => ({
+        ...doc.data(),
+        barcode: doc.id
+      }));
+    }
+    
     return [];
   }
 }
@@ -3200,9 +3222,16 @@ async function dbPut(record){
   if(!record.location) record.location = null;
   if(!record.untappdId) record.untappdId = null;
   if(!record.calendarEvents) record.calendarEvents = [];
+  if(!record.createdAt) record.createdAt = Date.now();
   
   // Prvo sačuvaj u cloud
-  await cloudSaveHistory(record);
+  const cloudSaved = await cloudSaveHistory(record);
+  
+  if (cloudSaved) {
+    console.log('✅ Sačuvano u cloud i lokalno:', record.barcode);
+  } else {
+    console.log('⚠️ Sačuvano samo lokalno:', record.barcode);
+  }
   
   // Zatim u lokalnu bazu kao backup
   const db = await openDB();
@@ -3233,10 +3262,16 @@ async function dbDelete(barcode){
 async function dbGetAll(){
   // Prvo pokušaj iz cloud-a
   if (currentUser) {
+    console.log('📥 Učitavam istoriju iz cloud-a...');
     const cloudData = await cloudGetAll();
     if (cloudData && cloudData.length > 0) {
+      console.log(`✅ Učitano ${cloudData.length} zapisa iz cloud-a`);
       return cloudData;
+    } else {
+      console.log('⚠️ Nema podataka u cloud-u, proveravam lokalnu bazu...');
     }
+  } else {
+    console.log('⚠️ Korisnik nije prijavljen, koristim lokalnu bazu');
   }
   
   // Fallback na lokalnu bazu
@@ -3250,7 +3285,10 @@ async function dbGetAll(){
     req.onsuccess = (e) => {
       const cursor = e.target.result;
       if(cursor){ out.push(cursor.value); cursor.continue(); }
-      else resolve(out);
+      else {
+        console.log(`✅ Učitano ${out.length} zapisa iz lokalne baze`);
+        resolve(out);
+      }
     };
     req.onerror = () => reject(req.error);
   });
