@@ -1,7 +1,17 @@
 {
   "indexes": [
     {
-      "collectionGroup": "messages",
+      "collectionGroup": "beers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "chatMessages",
       "queryScope": "COLLECTION",
       "fields": [
         {
@@ -11,7 +21,7 @@
       ]
     },
     {
-      "collectionGroup": "online",
+      "collectionGroup": "activeUsers",
       "queryScope": "COLLECTION",
       "fields": [
         {
