@@ -2215,6 +2215,7 @@ const storage = firebase.storage();
 const usersCollection = db.collection('users');
 const messagesCollection = db.collection('chatMessages');
 const activeUsersRef = db.collection('activeUsers');
+const historyCollection = db.collection('userHistory');
 
 console.log('Firebase inicijalizovan:', firebaseConfig.projectId);
 
@@ -2274,6 +2275,9 @@ auth.onAuthStateChanged(async (user) => {
     if (userDoc.exists) {
       currentUserData = userDoc.data();
     }
+    
+    // Migriraj lokalnu istoriju na cloud
+    await migrateLocalToCloud();
     
     // Hide login overlay
     document.getElementById('loginOverlay').classList.add('hidden');
@@ -2821,7 +2825,13 @@ document.getElementById('btnForgotPassword')?.addEventListener('click', async (e
   }
   
   try {
-    await auth.sendPasswordResetEmail(email);
+    // Konfiguracija za action code settings
+    const actionCodeSettings = {
+      url: window.location.origin + '/index.html',
+      handleCodeInApp: false
+    };
+    
+    await auth.sendPasswordResetEmail(email, actionCodeSettings);
     showLoginMessage('✅ Email za resetovanje lozinke je poslat na ' + email + '! Proveri inbox (i spam folder).', 'success');
   } catch (error) {
     console.error('Password reset error:', error);
@@ -2963,6 +2973,9 @@ function updateChatList() {
   
   chatMessagesRef = messagesCollection.orderBy('timestamp', 'asc').limit(50);
   
+  // Automatsko brisanje poruka starijih od 24h
+  cleanupOldMessages();
+  
   chatListener = chatMessagesRef.onSnapshot(snapshot => {
     chatMessages.innerHTML = '';
     
@@ -2991,6 +3004,25 @@ function updateChatList() {
 
 function createMessageElement(data) {
   const isMyMessage = currentUser && data.uid === currentUser.uid;
+
+// Funkcija za automatsko brisanje poruka starijih od 24h
+async function cleanupOldMessages() {
+  try {
+    const oneDayAgo = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
+    const oldMessages = await messagesCollection.where('timestamp', '<', oneDayAgo).get();
+    
+    if (!oldMessages.empty) {
+      const batch = db.batch();
+      oldMessages.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      console.log(`Obrisano ${oldMessages.size} starih poruka`);
+    }
+  } catch (error) {
+    console.error('Greška pri brisanju starih poruka:', error);
+  }
+}
   
   const messageDiv = document.createElement('div');
   messageDiv.className = 'chatMessage ' + (isMyMessage ? 'my' : 'other');
@@ -3024,11 +3056,111 @@ function hideChat() {
 }
 
 /* =======================
-   IndexedDB (lokalna baza)
+   IndexedDB (lokalna baza) - DEPRECATED, prelazimo na Firestore
 ======================= */
 const DB_NAME = "beer_scan_db";
 const DB_VER  = 1;
 const STORE   = "beers";
+
+// Nove Firestore funkcije za istoriju
+async function cloudSaveHistory(record) {
+  if (!currentUser) {
+    console.warn('Korisnik nije prijavljen, ne mogu sačuvati u cloud');
+    return false;
+  }
+  
+  try {
+    const docRef = historyCollection.doc(currentUser.uid).collection('beers').doc(record.barcode);
+    await docRef.set({
+      ...record,
+      userId: currentUser.uid,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    return true;
+  } catch (error) {
+    console.error('Greška pri čuvanju u cloud:', error);
+    return false;
+  }
+}
+
+async function cloudGetAll() {
+  if (!currentUser) {
+    console.warn('Korisnik nije prijavljen');
+    return [];
+  }
+  
+  try {
+    const snapshot = await historyCollection.doc(currentUser.uid).collection('beers')
+      .orderBy('updatedAt', 'desc')
+      .get();
+    
+    return snapshot.docs.map(doc => ({
+      ...doc.data(),
+      barcode: doc.id
+    }));
+  } catch (error) {
+    console.error('Greška pri učitavanju iz cloud-a:', error);
+    return [];
+  }
+}
+
+async function cloudDelete(barcode) {
+  if (!currentUser) return false;
+  
+  try {
+    await historyCollection.doc(currentUser.uid).collection('beers').doc(barcode).delete();
+    return true;
+  } catch (error) {
+    console.error('Greška pri brisanju iz cloud-a:', error);
+    return false;
+  }
+}
+
+async function cloudGet(barcode) {
+  if (!currentUser) return null;
+  
+  try {
+    const doc = await historyCollection.doc(currentUser.uid).collection('beers').doc(barcode).get();
+    return doc.exists ? { ...doc.data(), barcode: doc.id } : null;
+  } catch (error) {
+    console.error('Greška pri učitavanju iz cloud-a:', error);
+    return null;
+  }
+}
+
+// Migriraj lokalnu istoriju na cloud
+async function migrateLocalToCloud() {
+  if (!currentUser) return;
+  
+  try {
+    const db = await openDB();
+    const localData = await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE, "readonly");
+      const st = tx.objectStore(STORE);
+      const out = [];
+      const req = st.openCursor();
+      req.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if(cursor){ out.push(cursor.value); cursor.continue(); }
+        else resolve(out);
+      };
+      req.onerror = () => reject(req.error);
+    });
+    
+    if (localData.length > 0) {
+      console.log(`Migriram ${localData.length} zapisa na cloud...`);
+      
+      for (const record of localData) {
+        await cloudSaveHistory(record);
+      }
+      
+      console.log('Migracija završena!');
+      showToast(`✅ ${localData.length} zapisa sinhronizovano sa nalogom`, 'success');
+    }
+  } catch (error) {
+    console.error('Greška pri migraciji:', error);
+  }
+}
 
 function openDB(){
   return new Promise((resolve, reject) => {
@@ -3046,6 +3178,13 @@ function openDB(){
 }
 
 async function dbGet(barcode){
+  // Prvo pokušaj iz cloud-a
+  if (currentUser) {
+    const cloudData = await cloudGet(barcode);
+    if (cloudData) return cloudData;
+  }
+  
+  // Fallback na lokalnu bazu
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readonly");
@@ -3062,6 +3201,10 @@ async function dbPut(record){
   if(!record.untappdId) record.untappdId = null;
   if(!record.calendarEvents) record.calendarEvents = [];
   
+  // Prvo sačuvaj u cloud
+  await cloudSaveHistory(record);
+  
+  // Zatim u lokalnu bazu kao backup
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readwrite");
@@ -3073,6 +3216,10 @@ async function dbPut(record){
 }
 
 async function dbDelete(barcode){
+  // Obriši iz cloud-a
+  await cloudDelete(barcode);
+  
+  // Obriši iz lokalne baze
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readwrite");
@@ -3084,6 +3231,15 @@ async function dbDelete(barcode){
 }
 
 async function dbGetAll(){
+  // Prvo pokušaj iz cloud-a
+  if (currentUser) {
+    const cloudData = await cloudGetAll();
+    if (cloudData && cloudData.length > 0) {
+      return cloudData;
+    }
+  }
+  
+  // Fallback na lokalnu bazu
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readonly");
@@ -3383,6 +3539,9 @@ list.sort((a,b) => {
     </div>
   </div>
   <div class="quick-actions">
+    <button class="quick-btn quick-share" data-barcode="${r.barcode}" onclick="event.stopPropagation(); quickShare('${r.barcode}')" title="Podeli">
+      📤
+    </button>
     <button class="quick-btn quick-fav" data-barcode="${r.barcode}" onclick="event.stopPropagation(); toggleQuickFav('${r.barcode}')" title="Favorit">
       ${r.favorite ? '❤️' : '♡'}
     </button>
@@ -3414,6 +3573,52 @@ async function toggleQuickFav(barcode){
   await dbPut(rec);
   buzz(15);
   await refreshHistory();
+}
+
+async function quickShare(barcode){
+  const rec = await dbGet(barcode);
+  if(!rec) return;
+  
+  const name = rec.off?.productName || 'Pivo';
+  const brands = rec.off?.brands || '';
+  const rating = rec.rating ? `⭐ ${rec.rating}/5` : '';
+  const location = rec.location ? `📍 ${rec.location.name || 'Lokacija'}` : '';
+  
+  let shareText = `🍺 ${name}`;
+  if (brands) shareText += ` (${brands})`;
+  if (rating) shareText += `\n${rating}`;
+  if (location) shareText += `\n${location}`;
+  shareText += `\n\nSkenirano pomoću BeerScan aplikacije`;
+  
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: name,
+        text: shareText,
+        url: window.location.href
+      });
+      
+      // Povećaj brojač deljenja
+      const shareCount = parseInt(localStorage.getItem('shareCount') || '0');
+      localStorage.setItem('shareCount', String(shareCount + 1));
+      
+      showToast('✅ Uspešno podeljeno!', 'success');
+      buzz(20);
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Greška pri deljenju:', error);
+      }
+    }
+  } else {
+    // Fallback: kopiraj u clipboard
+    try {
+      await navigator.clipboard.writeText(shareText);
+      showToast('✅ Kopirano u clipboard!', 'success');
+      buzz(20);
+    } catch (error) {
+      showToast('❌ Deljenje nije podržano', 'error');
+    }
+  }
 }
 
 async function quickDelete(barcode){

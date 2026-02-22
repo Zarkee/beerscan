@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User history - samo vlasnik može pristupiti svojoj istoriji
+    match /userHistory/{userId}/beers/{barcode} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Chat messages - svi prijavljeni mogu čitati i pisati
+    match /chatMessages/{messageId} {
+      // Svi prijavljeni mogu čitati poruke
+      allow read: if request.auth != null;
+      
+      // Samo prijavljeni mogu kreirati poruke sa svojim UID-om
+      allow create: if request.auth != null && 
+                      request.resource.data.uid == request.auth.uid &&
+                      request.resource.data.timestamp != null;
+      
+      // Poruke mogu biti obrisane od strane:
+      // 1. Vlasnika poruke
+      // 2. Automatski nakon 24h (server-side cleanup)
+      allow delete: if request.auth != null && 
+                      (resource.data.uid == request.auth.uid || 
+                       request.time > resource.data.timestamp + duration.value(1, 'd'));
+      
+      // Poruke ne mogu biti izmenjene
+      allow update: if false;
+    }
+    
+    // Users collection - korisnici mogu čitati sve profile, ali menjati samo svoj
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Active users - za tracking online korisnika
+    match /activeUsers/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Automatsko brisanje neaktivnih korisnika (5 minuta)
+      allow delete: if request.auth != null;
+    }
+  }
+}
