@@ -2226,6 +2226,7 @@ let currentUser = null;
 let currentUserData = null;
 let currentRank = 'početnik';
 let currentRankPoints = 0;
+let historyListener = null; // Real-time listener za istoriju
 
 // Show message in login overlay
 function showLoginMessage(message, type = 'error') {
@@ -2279,6 +2280,9 @@ auth.onAuthStateChanged(async (user) => {
     // Migriraj lokalnu istoriju na cloud
     await migrateLocalToCloud();
     
+    // Setup real-time history listener
+    setupHistoryListener();
+    
     // Hide login overlay
     document.getElementById('loginOverlay').classList.add('hidden');
     
@@ -2296,6 +2300,12 @@ auth.onAuthStateChanged(async (user) => {
     currentUser = null;
     currentUserData = null;
     console.log('Nema prijavljenog korisnika');
+    
+    // Stop history listener
+    if (historyListener) {
+      historyListener();
+      historyListener = null;
+    }
     
     // Show login overlay
     document.getElementById('loginOverlay').classList.remove('hidden');
@@ -3182,6 +3192,37 @@ async function migrateLocalToCloud() {
   } catch (error) {
     console.error('Greška pri migraciji:', error);
   }
+}
+
+// Setup real-time listener za istoriju
+function setupHistoryListener() {
+  if (!currentUser) return;
+  
+  // Stop existing listener
+  if (historyListener) {
+    historyListener();
+    historyListener = null;
+  }
+  
+  console.log('🔄 Pokrećem real-time sync za istoriju...');
+  
+  // Listen to changes in user's history
+  historyListener = historyCollection
+    .doc(currentUser.uid)
+    .collection('beers')
+    .onSnapshot(
+      (snapshot) => {
+        console.log(`🔄 Istorija ažurirana: ${snapshot.size} zapisa`);
+        
+        // Refresh history display
+        refreshHistory().catch(err => {
+          console.error('Greška pri refresh-u istorije:', err);
+        });
+      },
+      (error) => {
+        console.error('❌ Greška u history listener-u:', error);
+      }
+    );
 }
 
 function openDB(){
