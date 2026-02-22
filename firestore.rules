@@ -21,7 +21,10 @@ service cloud.firestore {
       // Samo prijavljeni mogu kreirati poruke sa svojim UID-om
       allow create: if request.auth != null && 
                       request.resource.data.uid == request.auth.uid &&
-                      request.resource.data.timestamp != null;
+                      request.resource.data.timestamp != null &&
+                      // Dozvoli opciono beerData polje
+                      (!request.resource.data.keys().hasAny(['beerData']) || 
+                       request.resource.data.beerData is map);
       
       // Poruke mogu biti obrisane od strane:
       // 1. Vlasnika poruke

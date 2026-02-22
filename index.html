@@ -1767,6 +1767,47 @@ select{
     </div>
   </div>
 
+  <!-- Share Modal -->
+  <div id="shareModal" class="loginOverlay" style="display: none;">
+    <div class="loginContainer" style="max-width: 400px;">
+      <div class="loginHeader">
+        <h2>📤 Podeli pivo</h2>
+        <p id="shareModalTitle">Izaberi kako želiš da podeliš</p>
+      </div>
+      
+      <div id="shareModalContent" style="padding: 20px 0;">
+        <!-- Beer preview -->
+        <div id="shareBeerPreview" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <img id="shareBeerImage" src="" style="width: 60px; height: 60px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.25);" onerror="this.style.display='none'">
+            <div style="flex: 1; min-width: 0;">
+              <div id="shareBeerName" style="font-weight: 700; font-size: 16px; margin-bottom: 4px;"></div>
+              <div id="shareBeerBrand" style="color: var(--muted); font-size: 14px;"></div>
+              <div id="shareBeerRating" style="margin-top: 4px;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Share options -->
+        <button id="btnShareToChat" class="loginBtn btnPrimary" style="margin-bottom: 12px;">
+          💬 Pošalji u čet
+        </button>
+        
+        <button id="btnCopyToClipboard" class="loginBtn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+          📋 Kopiraj tekst
+        </button>
+        
+        <button id="btnNativeShare" class="loginBtn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); display: none;">
+          📤 Podeli (sistem)
+        </button>
+      </div>
+      
+      <button id="btnCloseShareModal" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
+        Otkaži
+      </button>
+    </div>
+  </div>
+
   <!-- User Profile in Header -->
   <div id="userProfile" class="hidden" style="position: fixed; top: 16px; right: 16px; z-index: 60;">
     <div class="rankBadge" id="userRankBadge">
@@ -3040,10 +3081,33 @@ function createMessageElement(data) {
   const time = data.timestamp ? data.timestamp.toDate().toLocaleTimeString('sr-RS', { hour: '2-digit', minute: '2-digit' }) : '';
   
   const textDiv = document.createElement('div');
-  textDiv.innerHTML = `
-    <strong style="color: ${isMyMessage ? '#7cb2ff' : '#5cffa4'}">${escapeHtml(data.nickname)}</strong>
-    <div style="margin-top: 4px;">${escapeHtml(data.text)}</div>
-  `;
+  
+  // Check if message has beer data (shared from history)
+  if (data.beerData) {
+    const beer = data.beerData;
+    const ratingStars = beer.rating ? '⭐'.repeat(beer.rating) : '';
+    
+    textDiv.innerHTML = `
+      <strong style="color: ${isMyMessage ? '#7cb2ff' : '#5cffa4'}">${escapeHtml(data.nickname)}</strong>
+      <div style="margin-top: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px;">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          ${beer.imageUrl ? `<img src="${escapeHtml(beer.imageUrl)}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);" onerror="this.style.display='none'">` : ''}
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 700; font-size: 15px; margin-bottom: 2px;">🍺 ${escapeHtml(beer.name)}</div>
+            ${beer.brands ? `<div style="color: var(--muted); font-size: 13px; margin-bottom: 4px;">${escapeHtml(beer.brands)}</div>` : ''}
+            ${ratingStars ? `<div style="font-size: 14px;">${ratingStars}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    // Regular text message
+    textDiv.innerHTML = `
+      <strong style="color: ${isMyMessage ? '#7cb2ff' : '#5cffa4'}">${escapeHtml(data.nickname)}</strong>
+      <div style="margin-top: 4px;">${escapeHtml(data.text)}</div>
+    `;
+  }
+  
   messageDiv.appendChild(textDiv);
   
   const metaDiv = document.createElement('div');
@@ -3658,6 +3722,94 @@ async function quickShare(barcode){
   const rec = await dbGet(barcode);
   if(!rec) return;
   
+  // Store current beer for sharing
+  window.currentShareBeer = rec;
+  
+  // Populate modal
+  const name = rec.off?.productName || 'Pivo';
+  const brands = rec.off?.brands || '';
+  const rating = rec.rating ? `⭐ ${rec.rating}/5` : '';
+  const imageUrl = rec.off?.imageUrl || '';
+  
+  document.getElementById('shareBeerName').textContent = name;
+  document.getElementById('shareBeerBrand').textContent = brands || 'Nepoznat brend';
+  document.getElementById('shareBeerRating').innerHTML = rating || '<span style="color: var(--muted2)">Bez ocene</span>';
+  
+  const imgEl = document.getElementById('shareBeerImage');
+  if (imageUrl) {
+    imgEl.src = imageUrl;
+    imgEl.style.display = 'block';
+  } else {
+    imgEl.style.display = 'none';
+  }
+  
+  // Show native share button if available
+  if (navigator.share) {
+    document.getElementById('btnNativeShare').style.display = 'block';
+  }
+  
+  // Show modal
+  document.getElementById('shareModal').style.display = 'flex';
+}
+
+// Share to chat
+document.getElementById('btnShareToChat')?.addEventListener('click', async () => {
+  const rec = window.currentShareBeer;
+  if (!rec || !currentUser || !currentUserData) {
+    showToast('❌ Morate biti prijavljeni', 'error');
+    return;
+  }
+  
+  try {
+    const name = rec.off?.productName || 'Pivo';
+    const brands = rec.off?.brands || '';
+    const rating = rec.rating ? `⭐ ${rec.rating}/5` : '';
+    const imageUrl = rec.off?.imageUrl || '';
+    
+    // Create rich message
+    let messageText = `🍺 ${name}`;
+    if (brands) messageText += ` (${brands})`;
+    if (rating) messageText += ` ${rating}`;
+    
+    await messagesCollection.add({
+      text: messageText,
+      uid: currentUser.uid,
+      nickname: currentUserData.nickname || currentUser.email.split('@')[0],
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      avatar: currentUserData.avatar || null,
+      // Beer data for rich display
+      beerData: {
+        name: name,
+        brands: brands,
+        rating: rec.rating || 0,
+        imageUrl: imageUrl,
+        barcode: rec.barcode
+      }
+    });
+    
+    // Close modal
+    document.getElementById('shareModal').style.display = 'none';
+    
+    // Open chat
+    document.getElementById('chatWindow').classList.add('active');
+    
+    showToast('✅ Poslato u čet!', 'success');
+    buzz(20);
+    
+    // Povećaj brojač deljenja
+    const shareCount = parseInt(localStorage.getItem('shareCount') || '0');
+    localStorage.setItem('shareCount', String(shareCount + 1));
+  } catch (error) {
+    console.error('Greška pri slanju u čet:', error);
+    showToast('❌ Greška pri slanju', 'error');
+  }
+});
+
+// Copy to clipboard
+document.getElementById('btnCopyToClipboard')?.addEventListener('click', async () => {
+  const rec = window.currentShareBeer;
+  if (!rec) return;
+  
   const name = rec.off?.productName || 'Pivo';
   const brands = rec.off?.brands || '';
   const rating = rec.rating ? `⭐ ${rec.rating}/5` : '';
@@ -3669,36 +3821,57 @@ async function quickShare(barcode){
   if (location) shareText += `\n${location}`;
   shareText += `\n\nSkenirano pomoću BeerScan aplikacije`;
   
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: name,
-        text: shareText,
-        url: window.location.href
-      });
-      
-      // Povećaj brojač deljenja
-      const shareCount = parseInt(localStorage.getItem('shareCount') || '0');
-      localStorage.setItem('shareCount', String(shareCount + 1));
-      
-      showToast('✅ Uspešno podeljeno!', 'success');
-      buzz(20);
-    } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.error('Greška pri deljenju:', error);
-      }
-    }
-  } else {
-    // Fallback: kopiraj u clipboard
-    try {
-      await navigator.clipboard.writeText(shareText);
-      showToast('✅ Kopirano u clipboard!', 'success');
-      buzz(20);
-    } catch (error) {
-      showToast('❌ Deljenje nije podržano', 'error');
+  try {
+    await navigator.clipboard.writeText(shareText);
+    document.getElementById('shareModal').style.display = 'none';
+    showToast('✅ Kopirano u clipboard!', 'success');
+    buzz(20);
+  } catch (error) {
+    showToast('❌ Greška pri kopiranju', 'error');
+  }
+});
+
+// Native share
+document.getElementById('btnNativeShare')?.addEventListener('click', async () => {
+  const rec = window.currentShareBeer;
+  if (!rec) return;
+  
+  const name = rec.off?.productName || 'Pivo';
+  const brands = rec.off?.brands || '';
+  const rating = rec.rating ? `⭐ ${rec.rating}/5` : '';
+  const location = rec.location ? `📍 ${rec.location.name || 'Lokacija'}` : '';
+  
+  let shareText = `🍺 ${name}`;
+  if (brands) shareText += ` (${brands})`;
+  if (rating) shareText += `\n${rating}`;
+  if (location) shareText += `\n${location}`;
+  shareText += `\n\nSkenirano pomoću BeerScan aplikacije`;
+  
+  try {
+    await navigator.share({
+      title: name,
+      text: shareText,
+      url: window.location.href
+    });
+    
+    document.getElementById('shareModal').style.display = 'none';
+    showToast('✅ Uspešno podeljeno!', 'success');
+    buzz(20);
+    
+    // Povećaj brojač deljenja
+    const shareCount = parseInt(localStorage.getItem('shareCount') || '0');
+    localStorage.setItem('shareCount', String(shareCount + 1));
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      console.error('Greška pri deljenju:', error);
     }
   }
-}
+});
+
+// Close share modal
+document.getElementById('btnCloseShareModal')?.addEventListener('click', () => {
+  document.getElementById('shareModal').style.display = 'none';
+});
 
 async function quickDelete(barcode){
   const ok = confirm('Obrisati ovaj proizvod?');
