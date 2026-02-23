@@ -2061,6 +2061,19 @@ select{
         </div>
       </div>
     </div>
+    
+    <!-- Pivski kalendar - samo na Scan stranici -->
+    <div class="card soft" style="margin-top: 16px;">
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <div class="resultTitle">📅 Pivski kalendar</div>
+        <button id="btnAddCalendarEvent" class="primary" style="font-size:12px; padding:8px 12px;">+ Dodaj događaj</button>
+      </div>
+      <div class="hint">Planiraj degustacije, posete pivnicama i pivske događaje</div>
+      <div style="height:10px"></div>
+      <div id="calendarEvents" class="topList">
+        <div class="hint">Nema planiranih događaja. Kliknite + da dodate.</div>
+      </div>
+    </div>
 </section>
 </div>
 
@@ -2208,20 +2221,6 @@ select{
       <div id="topBrands" class="topList">—</div>
     </div>
     
-    <div style="height:12px"></div>
-    
-    <!-- Pivski kalendar -->
-    <div class="card soft">
-      <div class="row" style="justify-content:space-between; align-items:center;">
-        <div class="resultTitle">📅 Pivski kalendar</div>
-        <button id="btnAddCalendarEvent" class="primary" style="font-size:12px; padding:8px 12px;">+ Dodaj događaj</button>
-      </div>
-      <div class="hint">Planiraj degustacije, posete pivnicama i pivske događaje</div>
-      <div style="height:10px"></div>
-      <div id="calendarEvents" class="topList">
-        <div class="hint">Nema planiranih događaja. Kliknite + da dodate.</div>
-      </div>
-    </div>
   </section>
 </div>
 
@@ -2545,6 +2544,45 @@ auth.onAuthStateChanged(async (user) => {
     const userDoc = await usersCollection.doc(user.uid).get();
     if (userDoc.exists) {
       currentUserData = userDoc.data();
+      console.log('User data loaded:', currentUserData);
+      
+      // Load avatar if exists - wait for DOM to be ready
+      setTimeout(() => {
+        const avatarEl = document.getElementById("profileAvatar");
+        if (currentUserData.avatar && avatarEl) {
+          console.log('Setting avatar:', currentUserData.avatar);
+          avatarEl.src = currentUserData.avatar;
+        } else {
+          console.log('Avatar not set:', { hasAvatar: !!currentUserData.avatar, hasElement: !!avatarEl });
+        }
+      }, 100);
+    } else {
+      // Create user document if doesn't exist
+      console.log('Creating new user document');
+      currentUserData = {
+        uid: user.uid,
+        email: user.email,
+        nickname: user.displayName || user.email.split('@')[0],
+        name: user.displayName || '',
+        avatar: user.photoURL || '',
+        bio: '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        totalScans: 0,
+        triedBeers: 0,
+        rank: 'početnik',
+        rankPoints: 0
+      };
+      
+      await usersCollection.doc(user.uid).set(currentUserData);
+      
+      // Load avatar
+      setTimeout(() => {
+        const avatarEl = document.getElementById("profileAvatar");
+        if (currentUserData.avatar && avatarEl) {
+          console.log('Setting avatar for new user:', currentUserData.avatar);
+          avatarEl.src = currentUserData.avatar;
+        }
+      }, 100);
     }
     
     // Migriraj lokalnu istoriju na cloud
@@ -6218,40 +6256,70 @@ btnUploadAvatar.addEventListener("click", () => {
 
 avatarInput.addEventListener("change", async (e) => {
   const file = e.target.files[0];
-  if (!file || !currentUser) return;
+  if (!file || !currentUser) {
+    console.log('Avatar upload: nema fajla ili korisnika', { file: !!file, user: !!currentUser });
+    return;
+  }
+  
+  console.log('Avatar upload započet:', file.name, file.size, file.type);
   
   try {
     showToast('📤 Upload-ujem avatar...', 'info');
     
     // Resize image
+    console.log('Resize-ujem sliku...');
     const resizedBlob = await resizeImage(file, 200, 200);
+    console.log('Slika resize-ovana:', resizedBlob.size);
     
-    // Upload to Firebase Storage
-    const storageRef = storage.ref(`users/${currentUser.uid}/avatar.jpg`);
-    await storageRef.put(resizedBlob);
+    // Convert to Base64
+    console.log('Konvertujem u Base64...');
+    const base64 = await blobToBase64(resizedBlob);
+    console.log('Base64 veličina:', base64.length, 'karaktera (~' + Math.round(base64.length / 1024) + ' KB)');
     
-    // Get download URL
-    const avatarURL = await storageRef.getDownloadURL();
+    // Check size (max ~400KB Base64 = ~300KB image)
+    if (base64.length > 400000) {
+      showToast('⚠️ Slika je prevelika. Odaberi manju sliku.', 'warn');
+      console.log('Slika prevelika:', base64.length, 'karaktera');
+      return;
+    }
     
-    // Update Firestore
+    // Update Firestore with Base64
+    console.log('Ažuriram Firestore sa Base64...');
     await usersCollection.doc(currentUser.uid).update({
-      avatar: avatarURL,
+      avatar: base64, // Base64 string umesto URL-a
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    console.log('Firestore ažuriran');
     
     // Update UI
-    profileAvatar.src = avatarURL;
+    profileAvatar.src = base64;
     if (currentUserData) {
-      currentUserData.avatar = avatarURL;
+      currentUserData.avatar = base64;
     }
+    console.log('UI ažuriran');
     
     showToast('✅ Avatar ažuriran!', 'success');
     buzz(20);
   } catch (error) {
     console.error('Greška pri upload-u avatara:', error);
-    showToast('❌ Greška pri upload-u', 'error');
+    console.error('Error details:', {
+      code: error.code,
+      message: error.message,
+      stack: error.stack
+    });
+    showToast('❌ Greška: ' + error.message, 'error');
   }
 });
+
+// Helper: Blob to Base64
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 // Resize image helper
 function resizeImage(file, maxWidth, maxHeight) {
@@ -6347,8 +6415,13 @@ btnSaveProfile.addEventListener("click", async () => {
 async function loadProfilePage() {
   if (!currentUser || !currentUserData) return;
   
-  // Update avatar
-  profileAvatar.src = currentUserData.avatar || '';
+  // Update avatar (podržava Base64 i URL)
+  if (currentUserData.avatar) {
+    profileAvatar.src = currentUserData.avatar;
+  } else {
+    // Fallback na default avatar
+    profileAvatar.src = '';
+  }
   
   // Update info
   profileNickname.textContent = currentUserData.nickname || currentUser.email.split('@')[0];
