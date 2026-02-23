@@ -1001,6 +1001,25 @@ main::after{
 #status.warn{ border-color: var(--warnStroke); background: var(--warn); color: var(--txt); }
 #status.bad{ border-color: var(--badStroke); background: var(--bad); color: var(--txt); }
 .hidden{ display:none !important; }
+
+/* Badge count */
+.badge-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff5c5c;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid var(--bg);
+}
+
 /* ===== Camera OFF placeholder ===== */
 .cameraPlaceholder{
   padding: 40px 20px;
@@ -1893,6 +1912,17 @@ select{
     Istorija
   </button>
   
+  <button class="tabBtn" id="tabSocialBottom">
+    <span class="ico">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    Social
+  </button>
+  
   <button class="tabBtn" id="tabStatsBottom">
     <span class="ico">
       <svg viewBox="0 0 24 24" fill="none">
@@ -1900,6 +1930,16 @@ select{
       </svg>
     </span>
     Statistika
+  </button>
+  
+  <button class="tabBtn" id="tabProfileBottom">
+    <span class="ico">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    Profil
   </button>
 </div>
   <div id="pageScan" class="tabPage active">
@@ -2184,6 +2224,195 @@ select{
     </div>
   </section>
 </div>
+
+<!-- =======================
+     PAGE: SOCIAL
+======================= -->
+<div id="pageSocial" class="tabPage">
+  <section class="card">
+    <div class="row" style="justify-content: space-between;">
+      <span class="pill">👥 Social</span>
+      <button id="btnNotifications" class="primary" style="position: relative;">
+        🔔 Notifikacije
+        <span id="notificationBadge" class="badge-count" style="display: none;">0</span>
+      </button>
+    </div>
+    
+    <div style="height:16px"></div>
+    
+    <!-- Search Users -->
+    <div class="card soft">
+      <h3>🔍 Pretraži korisnike</h3>
+      <input id="userSearch" type="text" placeholder="Unesi nadimak..." style="width: 100%; margin-top: 12px;" />
+      <div id="userSearchResults" style="margin-top: 16px;"></div>
+    </div>
+    
+    <div style="height:16px"></div>
+    
+    <!-- Friends List -->
+    <div class="card soft">
+      <h3>👥 Prijatelji</h3>
+      <div id="friendsList" style="margin-top: 12px;">
+        <p class="hint">Nemaš prijatelje. Pretraži korisnike da ih dodaš!</p>
+      </div>
+    </div>
+    
+    <div style="height:16px"></div>
+    
+    <!-- Activity Feed -->
+    <div class="card soft">
+      <h3>📰 Aktivnosti prijatelja</h3>
+      <div id="activityFeed" style="margin-top: 12px;">
+        <p class="hint">Nema aktivnosti. Dodaj prijatelje da vidiš šta rade!</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- =======================
+     PAGE: PROFILE
+======================= -->
+<div id="pageProfile" class="tabPage">
+  <section class="card">
+    <!-- Profile Header -->
+    <div style="text-align: center; padding: 20px 0;">
+      <div id="profileAvatarContainer" style="position: relative; display: inline-block;">
+        <img id="profileAvatar" src="" alt="Avatar" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--stroke); background: var(--card); cursor: pointer;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
+        <button id="btnUploadAvatar" style="position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+          📷
+        </button>
+        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+      </div>
+      
+      <h2 id="profileNickname" style="margin-top: 16px; margin-bottom: 4px;">-</h2>
+      <p id="profileName" style="color: var(--muted); margin-bottom: 8px;">-</p>
+      <p id="profileBio" style="color: var(--muted2); font-size: 14px; max-width: 400px; margin: 0 auto;">-</p>
+      
+      <button id="btnEditProfile" class="primary" style="margin-top: 16px;">
+        ✏️ Izmeni profil
+      </button>
+    </div>
+    
+    <!-- Stats -->
+    <div class="statsGrid" style="margin-top: 20px;">
+      <div class="statCard">
+        <div class="statLabel">Ukupno piva</div>
+        <div class="statValue" id="profileTotalBeers">0</div>
+      </div>
+      
+      <div class="statCard">
+        <div class="statLabel">Probano</div>
+        <div class="statValue" id="profileTriedBeers">0</div>
+      </div>
+      
+      <div class="statCard">
+        <div class="statLabel">Prosečna ocena</div>
+        <div class="statValue" id="profileAvgRating">0</div>
+      </div>
+    </div>
+    
+    <!-- Followers/Following -->
+    <div class="row" style="gap: 12px; margin-top: 20px; justify-content: center;">
+      <div class="card soft" style="flex: 1; text-align: center; cursor: pointer;" id="btnShowFollowers">
+        <div style="font-size: 24px; font-weight: 700;" id="followersCount">0</div>
+        <div style="color: var(--muted); font-size: 14px;">Followers</div>
+      </div>
+      
+      <div class="card soft" style="flex: 1; text-align: center; cursor: pointer;" id="btnShowFollowing">
+        <div style="font-size: 24px; font-weight: 700;" id="followingCount">0</div>
+        <div style="color: var(--muted); font-size: 14px;">Following</div>
+      </div>
+    </div>
+    
+    <!-- My Beers Grid -->
+    <div style="margin-top: 24px;">
+      <h3>🍺 Moja piva</h3>
+      <div id="profileBeersGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-top: 12px;">
+        <p class="hint">Nemaš skeniranih piva.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="loginOverlay" style="display: none;">
+  <div class="loginContainer" style="max-width: 500px;">
+    <div class="loginHeader">
+      <h2>✏️ Izmeni profil</h2>
+      <p>Ažuriraj svoje informacije</p>
+    </div>
+    
+    <div style="padding: 20px 0;">
+      <div class="formGroup">
+        <label for="editNickname">Nadimak</label>
+        <input type="text" id="editNickname" placeholder="Tvoj nadimak" />
+      </div>
+      
+      <div class="formGroup">
+        <label for="editName">Ime i prezime</label>
+        <input type="text" id="editName" placeholder="Tvoje ime" />
+      </div>
+      
+      <div class="formGroup">
+        <label for="editBio">Bio</label>
+        <textarea id="editBio" placeholder="Nešto o tebi..." rows="3" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); color: var(--txt); font-family: inherit; resize: vertical;"></textarea>
+      </div>
+      
+      <button id="btnSaveProfile" class="loginBtn btnPrimary">
+        💾 Sačuvaj
+      </button>
+      
+      <button id="btnCancelEditProfile" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
+        Otkaži
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Beer Photo Modal -->
+<div id="uploadBeerPhotoModal" class="loginOverlay" style="display: none;">
+  <div class="loginContainer" style="max-width: 500px;">
+    <div class="loginHeader">
+      <h2>📸 Upload sliku piva</h2>
+      <p>Dodaj fotografiju trenutnog piva</p>
+    </div>
+    
+    <div style="padding: 20px 0;">
+      <input type="file" id="beerPhotoInput" accept="image/*" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); color: var(--txt);" />
+      
+      <div id="beerPhotoPreview" style="margin-top: 16px; display: none;">
+        <img id="beerPhotoPreviewImg" src="" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 12px; border: 1px solid var(--stroke);" />
+      </div>
+      
+      <button id="btnUploadBeerPhoto" class="loginBtn btnPrimary" style="margin-top: 16px;">
+        📤 Upload
+      </button>
+      
+      <button id="btnCancelBeerPhoto" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
+        Otkaži
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications Modal -->
+<div id="notificationsModal" class="loginOverlay" style="display: none;">
+  <div class="loginContainer" style="max-width: 600px;">
+    <div class="loginHeader">
+      <h2>🔔 Notifikacije</h2>
+      <p>Tvoje nedavne notifikacije</p>
+    </div>
+    
+    <div id="notificationsList" style="padding: 20px 0; max-height: 400px; overflow-y: auto;">
+      <p class="hint">Nemaš notifikacija.</p>
+    </div>
+    
+    <button id="btnCloseNotifications" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2);">
+      Zatvori
+    </button>
+  </div>
+</div>
+
 <!-- iOS-style Scan dugme (Start/Stop toggle) -->
 <div class="scanFabWrap" id="scanFabWrap">
   <div class="scanFabPulse"></div>
@@ -5891,6 +6120,722 @@ if(urlAction === 'scan'){
 } else if(urlAction === 'stats'){
   setTimeout(() => setTab('stats'), 1000);
 }
+
+/* =======================
+   SOCIAL & PROFILE FEATURES - v3.0.0
+======================= */
+
+// Firebase references for social features
+const followsCollection = db.collection('follows');
+const feedCollection = db.collection('feed');
+const reactionsCollection = db.collection('reactions');
+const notificationsCollection = db.collection('notifications');
+
+// Profile elements
+const pageSocial = document.getElementById("pageSocial");
+const pageProfile = document.getElementById("pageProfile");
+const tabSocialBottom = document.getElementById("tabSocialBottom");
+const tabProfileBottom = document.getElementById("tabProfileBottom");
+
+// Avatar upload
+const profileAvatar = document.getElementById("profileAvatar");
+const btnUploadAvatar = document.getElementById("btnUploadAvatar");
+const avatarInput = document.getElementById("avatarInput");
+
+// Profile info
+const profileNickname = document.getElementById("profileNickname");
+const profileName = document.getElementById("profileName");
+const profileBio = document.getElementById("profileBio");
+const profileTotalBeers = document.getElementById("profileTotalBeers");
+const profileTriedBeers = document.getElementById("profileTriedBeers");
+const profileAvgRating = document.getElementById("profileAvgRating");
+const followersCount = document.getElementById("followersCount");
+const followingCount = document.getElementById("followingCount");
+
+// Edit profile
+const btnEditProfile = document.getElementById("btnEditProfile");
+const editProfileModal = document.getElementById("editProfileModal");
+const btnSaveProfile = document.getElementById("btnSaveProfile");
+const btnCancelEditProfile = document.getElementById("btnCancelEditProfile");
+
+// Beer photo upload
+const uploadBeerPhotoModal = document.getElementById("uploadBeerPhotoModal");
+const beerPhotoInput = document.getElementById("beerPhotoInput");
+const beerPhotoPreview = document.getElementById("beerPhotoPreview");
+const beerPhotoPreviewImg = document.getElementById("beerPhotoPreviewImg");
+const btnUploadBeerPhoto = document.getElementById("btnUploadBeerPhoto");
+const btnCancelBeerPhoto = document.getElementById("btnCancelBeerPhoto");
+
+// Notifications
+const btnNotifications = document.getElementById("btnNotifications");
+const notificationsModal = document.getElementById("notificationsModal");
+const notificationsList = document.getElementById("notificationsList");
+const notificationBadge = document.getElementById("notificationBadge");
+const btnCloseNotifications = document.getElementById("btnCloseNotifications");
+
+// User search
+const userSearch = document.getElementById("userSearch");
+const userSearchResults = document.getElementById("userSearchResults");
+const friendsList = document.getElementById("friendsList");
+const activityFeed = document.getElementById("activityFeed");
+
+// Update setTab function to include social and profile
+const originalSetTab = setTab;
+setTab = function(which) {
+  const socialOn = which === "social";
+  const profileOn = which === "profile";
+  
+  if (socialOn) {
+    pageSocial.classList.add("active");
+    pageProfile.classList.remove("active");
+    tabSocialBottom.classList.add("active");
+    tabProfileBottom.classList.remove("active");
+    loadSocialPage();
+  } else if (profileOn) {
+    pageProfile.classList.add("active");
+    pageSocial.classList.remove("active");
+    tabProfileBottom.classList.add("active");
+    tabSocialBottom.classList.remove("active");
+    loadProfilePage();
+  } else {
+    pageSocial.classList.remove("active");
+    pageProfile.classList.remove("active");
+    tabSocialBottom.classList.remove("active");
+    tabProfileBottom.classList.remove("active");
+  }
+  
+  originalSetTab(which);
+};
+
+// Tab listeners
+tabSocialBottom.addEventListener("click", () => setTab("social"));
+tabProfileBottom.addEventListener("click", () => setTab("profile"));
+
+// Avatar upload
+btnUploadAvatar.addEventListener("click", () => {
+  avatarInput.click();
+});
+
+avatarInput.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file || !currentUser) return;
+  
+  try {
+    showToast('📤 Upload-ujem avatar...', 'info');
+    
+    // Resize image
+    const resizedBlob = await resizeImage(file, 200, 200);
+    
+    // Upload to Firebase Storage
+    const storageRef = storage.ref(`users/${currentUser.uid}/avatar.jpg`);
+    await storageRef.put(resizedBlob);
+    
+    // Get download URL
+    const avatarURL = await storageRef.getDownloadURL();
+    
+    // Update Firestore
+    await usersCollection.doc(currentUser.uid).update({
+      avatar: avatarURL,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Update UI
+    profileAvatar.src = avatarURL;
+    if (currentUserData) {
+      currentUserData.avatar = avatarURL;
+    }
+    
+    showToast('✅ Avatar ažuriran!', 'success');
+    buzz(20);
+  } catch (error) {
+    console.error('Greška pri upload-u avatara:', error);
+    showToast('❌ Greška pri upload-u', 'error');
+  }
+});
+
+// Resize image helper
+function resizeImage(file, maxWidth, maxHeight) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob(resolve, 'image/jpeg', 0.9);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Edit profile
+btnEditProfile.addEventListener("click", () => {
+  if (!currentUserData) return;
+  
+  document.getElementById("editNickname").value = currentUserData.nickname || '';
+  document.getElementById("editName").value = currentUserData.name || '';
+  document.getElementById("editBio").value = currentUserData.bio || '';
+  
+  editProfileModal.style.display = 'flex';
+});
+
+btnCancelEditProfile.addEventListener("click", () => {
+  editProfileModal.style.display = 'none';
+});
+
+btnSaveProfile.addEventListener("click", async () => {
+  if (!currentUser) return;
+  
+  const nickname = document.getElementById("editNickname").value.trim();
+  const name = document.getElementById("editName").value.trim();
+  const bio = document.getElementById("editBio").value.trim();
+  
+  if (!nickname) {
+    showToast('⚠️ Nadimak je obavezan', 'warn');
+    return;
+  }
+  
+  try {
+    await usersCollection.doc(currentUser.uid).update({
+      nickname: nickname,
+      name: name,
+      bio: bio,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Update local data
+    if (currentUserData) {
+      currentUserData.nickname = nickname;
+      currentUserData.name = name;
+      currentUserData.bio = bio;
+    }
+    
+    // Update UI
+    loadProfilePage();
+    
+    editProfileModal.style.display = 'none';
+    showToast('✅ Profil ažuriran!', 'success');
+    buzz(20);
+  } catch (error) {
+    console.error('Greška pri ažuriranju profila:', error);
+    showToast('❌ Greška pri ažuriranju', 'error');
+  }
+});
+
+// Load profile page
+async function loadProfilePage() {
+  if (!currentUser || !currentUserData) return;
+  
+  // Update avatar
+  profileAvatar.src = currentUserData.avatar || '';
+  
+  // Update info
+  profileNickname.textContent = currentUserData.nickname || currentUser.email.split('@')[0];
+  profileName.textContent = currentUserData.name || '-';
+  profileBio.textContent = currentUserData.bio || 'Nema bio-a';
+  
+  // Update stats
+  const beers = await dbGetAll();
+  const triedBeers = beers.filter(b => (b.timesTried || 0) > 0);
+  const totalRating = triedBeers.reduce((sum, b) => sum + (b.rating || 0), 0);
+  const avgRating = triedBeers.length > 0 ? (totalRating / triedBeers.length).toFixed(1) : 0;
+  
+  profileTotalBeers.textContent = beers.length;
+  profileTriedBeers.textContent = triedBeers.length;
+  profileAvgRating.textContent = avgRating;
+  
+  // Update followers/following counts
+  await updateFollowCounts();
+  
+  // Load beers grid
+  await loadProfileBeersGrid(beers);
+}
+
+// Update follow counts
+async function updateFollowCounts() {
+  if (!currentUser) return;
+  
+  try {
+    const followersSnap = await followsCollection.doc(currentUser.uid).collection('followers').get();
+    const followingSnap = await followsCollection.doc(currentUser.uid).collection('following').get();
+    
+    followersCount.textContent = followersSnap.size;
+    followingCount.textContent = followingSnap.size;
+  } catch (error) {
+    console.error('Greška pri učitavanju follow counts:', error);
+  }
+}
+
+// Load profile beers grid
+async function loadProfileBeersGrid(beers) {
+  const grid = document.getElementById("profileBeersGrid");
+  
+  if (!beers || beers.length === 0) {
+    grid.innerHTML = '<p class="hint">Nemaš skeniranih piva.</p>';
+    return;
+  }
+  
+  grid.innerHTML = beers.slice(0, 12).map(beer => {
+    const imageUrl = beer.off?.imageUrl || '';
+    const name = beer.off?.productName || 'Pivo';
+    const rating = beer.rating ? '⭐'.repeat(beer.rating) : '';
+    
+    return `
+      <div class="beer-grid-item" style="cursor: pointer; border-radius: 12px; overflow: hidden; background: var(--card); border: 1px solid var(--stroke);" onclick="handleBarcode('${beer.barcode}', { fromHistoryClick: true })">
+        <img src="${imageUrl}" style="width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--card2);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22%3E%3Cpath d=%22M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z%22/%3E%3C/svg%3E'">
+        <div style="padding: 8px; font-size: 12px;">
+          <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
+          ${rating ? `<div style="margin-top: 4px;">${rating}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Beer photo upload
+beerPhotoInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    beerPhotoPreviewImg.src = e.target.result;
+    beerPhotoPreview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+btnUploadBeerPhoto.addEventListener("click", async () => {
+  if (!currentUser || !currentBarcode) {
+    showToast('❌ Nema aktivnog piva', 'error');
+    return;
+  }
+  
+  const file = beerPhotoInput.files[0];
+  if (!file) {
+    showToast('⚠️ Izaberi sliku', 'warn');
+    return;
+  }
+  
+  try {
+    showToast('📤 Upload-ujem sliku...', 'info');
+    
+    // Resize image
+    const resizedBlob = await resizeImage(file, 800, 800);
+    
+    // Upload to Firebase Storage
+    const photoId = Date.now();
+    const storageRef = storage.ref(`beers/${currentUser.uid}/${currentBarcode}/${photoId}.jpg`);
+    await storageRef.put(resizedBlob);
+    
+    // Get download URL
+    const photoURL = await storageRef.getDownloadURL();
+    
+    // Update beer record
+    const rec = await dbGet(currentBarcode);
+    if (rec) {
+      if (!rec.photos) rec.photos = [];
+      rec.photos.push({
+        url: photoURL,
+        uploadedAt: Date.now()
+      });
+      rec.updatedAt = Date.now();
+      await dbPut(rec);
+      
+      // Create activity feed
+      await createFeedActivity('photo', {
+        beerName: rec.off?.productName || 'Pivo',
+        beerBarcode: currentBarcode,
+        photoURL: photoURL
+      });
+    }
+    
+    uploadBeerPhotoModal.style.display = 'none';
+    beerPhotoInput.value = '';
+    beerPhotoPreview.style.display = 'none';
+    
+    showToast('✅ Slika upload-ovana!', 'success');
+    buzz(20);
+    
+    await handleBarcode(currentBarcode, { fromHistoryClick: true });
+  } catch (error) {
+    console.error('Greška pri upload-u slike:', error);
+    showToast('❌ Greška pri upload-u', 'error');
+  }
+});
+
+btnCancelBeerPhoto.addEventListener("click", () => {
+  uploadBeerPhotoModal.style.display = 'none';
+  beerPhotoInput.value = '';
+  beerPhotoPreview.style.display = 'none';
+});
+
+// Add button to open beer photo upload modal
+const btnUploadBeerPhotoTrigger = document.createElement('button');
+btnUploadBeerPhotoTrigger.id = 'btnUploadBeerPhotoTrigger';
+btnUploadBeerPhotoTrigger.className = 'primary';
+btnUploadBeerPhotoTrigger.textContent = '📸 Dodaj sliku';
+btnUploadBeerPhotoTrigger.disabled = true;
+btnUploadBeerPhotoTrigger.addEventListener('click', () => {
+  uploadBeerPhotoModal.style.display = 'flex';
+});
+
+// Insert button after btnCapture
+if (btnCapture && btnCapture.parentNode) {
+  btnCapture.parentNode.insertBefore(btnUploadBeerPhotoTrigger, btnCapture.nextSibling);
+}
+
+// User search
+let searchTimeout = null;
+userSearch.addEventListener("input", () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(searchUsers, 500);
+});
+
+async function searchUsers() {
+  const query = userSearch.value.trim().toLowerCase();
+  
+  if (!query || query.length < 2) {
+    userSearchResults.innerHTML = '';
+    return;
+  }
+  
+  try {
+    const snapshot = await usersCollection
+      .where('nickname', '>=', query)
+      .where('nickname', '<=', query + '\uf8ff')
+      .limit(10)
+      .get();
+    
+    if (snapshot.empty) {
+      userSearchResults.innerHTML = '<p class="hint">Nema rezultata</p>';
+      return;
+    }
+    
+    userSearchResults.innerHTML = snapshot.docs.map(doc => {
+      const user = doc.data();
+      const isFollowing = false; // TODO: Check if following
+      
+      return `
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px;">
+          <img src="${user.avatar || ''}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid var(--stroke); background: var(--card2);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
+          <div style="flex: 1;">
+            <div style="font-weight: 700;">${escapeHtml(user.nickname)}</div>
+            <div style="color: var(--muted); font-size: 13px;">${escapeHtml(user.name || '')}</div>
+          </div>
+          <button class="primary" onclick="toggleFollow('${user.uid}', '${escapeHtml(user.nickname)}')" data-user-id="${user.uid}">
+            ${isFollowing ? 'Unfollow' : 'Follow'}
+          </button>
+        </div>
+      `;
+    }).join('');
+  } catch (error) {
+    console.error('Greška pri pretrazi korisnika:', error);
+    userSearchResults.innerHTML = '<p class="hint">Greška pri pretrazi</p>';
+  }
+}
+
+// Follow/Unfollow
+async function toggleFollow(userId, nickname) {
+  if (!currentUser) return;
+  
+  try {
+    const followingRef = followsCollection.doc(currentUser.uid).collection('following').doc(userId);
+    const followerRef = followsCollection.doc(userId).collection('followers').doc(currentUser.uid);
+    
+    const followingDoc = await followingRef.get();
+    
+    if (followingDoc.exists) {
+      // Unfollow
+      await followingRef.delete();
+      await followerRef.delete();
+      showToast(`✅ Unfollowed ${nickname}`, 'success');
+    } else {
+      // Follow
+      await followingRef.set({
+        userId: userId,
+        nickname: nickname,
+        followedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      await followerRef.set({
+        userId: currentUser.uid,
+        nickname: currentUserData?.nickname || currentUser.email.split('@')[0],
+        followedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      // Create notification
+      await createNotification(userId, 'follow', {
+        fromUserId: currentUser.uid,
+        fromNickname: currentUserData?.nickname || currentUser.email.split('@')[0]
+      });
+      
+      showToast(`✅ Followed ${nickname}`, 'success');
+    }
+    
+    buzz(20);
+    await searchUsers(); // Refresh results
+    await loadFriendsList();
+  } catch (error) {
+    console.error('Greška pri follow/unfollow:', error);
+    showToast('❌ Greška', 'error');
+  }
+}
+
+// Load friends list
+async function loadFriendsList() {
+  if (!currentUser) return;
+  
+  try {
+    const snapshot = await followsCollection.doc(currentUser.uid).collection('following').get();
+    
+    if (snapshot.empty) {
+      friendsList.innerHTML = '<p class="hint">Nemaš prijatelje. Pretraži korisnike da ih dodaš!</p>';
+      return;
+    }
+    
+    friendsList.innerHTML = snapshot.docs.map(doc => {
+      const friend = doc.data();
+      
+      return `
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px;">
+          <div style="flex: 1;">
+            <div style="font-weight: 700;">${escapeHtml(friend.nickname)}</div>
+          </div>
+          <button class="danger" onclick="toggleFollow('${friend.userId}', '${escapeHtml(friend.nickname)}')">
+            Unfollow
+          </button>
+        </div>
+      `;
+    }).join('');
+  } catch (error) {
+    console.error('Greška pri učitavanju prijatelja:', error);
+  }
+}
+
+// Load activity feed
+async function loadActivityFeed() {
+  if (!currentUser) return;
+  
+  try {
+    // Get following list
+    const followingSnap = await followsCollection.doc(currentUser.uid).collection('following').get();
+    const followingIds = followingSnap.docs.map(doc => doc.data().userId);
+    
+    if (followingIds.length === 0) {
+      activityFeed.innerHTML = '<p class="hint">Nema aktivnosti. Dodaj prijatelje da vidiš šta rade!</p>';
+      return;
+    }
+    
+    // Get activities from followed users
+    const activities = [];
+    for (const userId of followingIds.slice(0, 10)) { // Limit to 10 users
+      const snapshot = await feedCollection.doc(userId).collection('items')
+        .orderBy('createdAt', 'desc')
+        .limit(5)
+        .get();
+      
+      snapshot.docs.forEach(doc => {
+        activities.push({ ...doc.data(), id: doc.id });
+      });
+    }
+    
+    // Sort by date
+    activities.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    
+    if (activities.length === 0) {
+      activityFeed.innerHTML = '<p class="hint">Nema aktivnosti</p>';
+      return;
+    }
+    
+    activityFeed.innerHTML = activities.slice(0, 20).map(activity => {
+      const time = activity.createdAt ? formatDate(activity.createdAt) : '';
+      
+      if (activity.type === 'rating') {
+        return `
+          <div style="padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px;">
+            <div style="font-weight: 700;">${escapeHtml(activity.nickname)}</div>
+            <div style="color: var(--muted); font-size: 13px; margin-top: 4px;">
+              Ocenio ${escapeHtml(activity.data.beerName)} sa ${'⭐'.repeat(activity.data.rating)}
+            </div>
+            <div style="color: var(--muted2); font-size: 12px; margin-top: 4px;">${time}</div>
+          </div>
+        `;
+      } else if (activity.type === 'photo') {
+        return `
+          <div style="padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px;">
+            <div style="font-weight: 700;">${escapeHtml(activity.nickname)}</div>
+            <div style="color: var(--muted); font-size: 13px; margin-top: 4px;">
+              Dodao sliku za ${escapeHtml(activity.data.beerName)}
+            </div>
+            ${activity.data.photoURL ? `<img src="${activity.data.photoURL}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid var(--stroke);">` : ''}
+            <div style="color: var(--muted2); font-size: 12px; margin-top: 4px;">${time}</div>
+          </div>
+        `;
+      }
+      
+      return '';
+    }).join('');
+  } catch (error) {
+    console.error('Greška pri učitavanju feed-a:', error);
+  }
+}
+
+// Create feed activity
+async function createFeedActivity(type, data) {
+  if (!currentUser || !currentUserData) return;
+  
+  try {
+    await feedCollection.doc(currentUser.uid).collection('items').add({
+      type: type,
+      userId: currentUser.uid,
+      nickname: currentUserData.nickname || currentUser.email.split('@')[0],
+      data: data,
+      createdAt: Date.now()
+    });
+  } catch (error) {
+    console.error('Greška pri kreiranju aktivnosti:', error);
+  }
+}
+
+// Create notification
+async function createNotification(userId, type, data) {
+  try {
+    await notificationsCollection.doc(userId).collection('items').add({
+      type: type,
+      data: data,
+      read: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Greška pri kreiranju notifikacije:', error);
+  }
+}
+
+// Load notifications
+async function loadNotifications() {
+  if (!currentUser) return;
+  
+  try {
+    const snapshot = await notificationsCollection.doc(currentUser.uid).collection('items')
+      .orderBy('createdAt', 'desc')
+      .limit(20)
+      .get();
+    
+    const unreadCount = snapshot.docs.filter(doc => !doc.data().read).length;
+    
+    if (unreadCount > 0) {
+      notificationBadge.textContent = unreadCount;
+      notificationBadge.style.display = 'flex';
+    } else {
+      notificationBadge.style.display = 'none';
+    }
+    
+    if (snapshot.empty) {
+      notificationsList.innerHTML = '<p class="hint">Nemaš notifikacija.</p>';
+      return;
+    }
+    
+    notificationsList.innerHTML = snapshot.docs.map(doc => {
+      const notif = doc.data();
+      const time = notif.createdAt ? formatDate(notif.createdAt) : '';
+      
+      let message = '';
+      if (notif.type === 'follow') {
+        message = `${escapeHtml(notif.data.fromNickname)} te je zapratio`;
+      } else if (notif.type === 'like') {
+        message = `${escapeHtml(notif.data.fromNickname)} je lajkovao tvoje pivo`;
+      }
+      
+      return `
+        <div style="padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: ${notif.read ? 'var(--card)' : 'var(--accent)'}; margin-bottom: 8px;" data-notif-id="${doc.id}">
+          <div style="font-weight: 700;">${message}</div>
+          <div style="color: var(--muted2); font-size: 12px; margin-top: 4px;">${time}</div>
+        </div>
+      `;
+    }).join('');
+    
+    // Mark all as read
+    const batch = db.batch();
+    snapshot.docs.forEach(doc => {
+      if (!doc.data().read) {
+        batch.update(doc.ref, { read: true });
+      }
+    });
+    await batch.commit();
+    
+    notificationBadge.style.display = 'none';
+  } catch (error) {
+    console.error('Greška pri učitavanju notifikacija:', error);
+  }
+}
+
+// Notifications button
+btnNotifications.addEventListener("click", () => {
+  loadNotifications();
+  notificationsModal.style.display = 'flex';
+});
+
+btnCloseNotifications.addEventListener("click", () => {
+  notificationsModal.style.display = 'none';
+});
+
+// Load social page
+async function loadSocialPage() {
+  await loadFriendsList();
+  await loadActivityFeed();
+}
+
+// Update btnCapture to create feed activity
+const originalMarkAsTried = markAsTried;
+markAsTried = async function() {
+  await originalMarkAsTried();
+  
+  if (currentBarcode) {
+    const rec = await dbGet(currentBarcode);
+    if (rec && rec.rating) {
+      await createFeedActivity('rating', {
+        beerName: rec.off?.productName || 'Pivo',
+        beerBarcode: currentBarcode,
+        rating: rec.rating
+      });
+    }
+  }
+};
+
+// Enable beer photo upload button when barcode is scanned
+handleBarcode = (function(originalFunc) {
+  return async function(raw, opts = {}) {
+    await originalFunc(raw, opts);
+    
+    if (btnUploadBeerPhotoTrigger) {
+      btnUploadBeerPhotoTrigger.disabled = false;
+    }
+  };
+})(handleBarcode);
+
+console.log('✅ Social & Profile features loaded');
 </script>
 
 </body>

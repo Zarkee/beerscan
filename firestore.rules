@@ -51,5 +51,36 @@ service cloud.firestore {
       // Automatsko brisanje neaktivnih korisnika (5 minuta)
       allow delete: if request.auth != null;
     }
+    
+    // Follows - follow/unfollow sistem
+    match /follows/{userId}/following/{followedId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    match /follows/{userId}/followers/{followerId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Feed - aktivnosti korisnika
+    match /feed/{userId}/items/{itemId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Reactions - lajkovi na piva
+    match /reactions/{beerId}/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Notifications - notifikacije za korisnika
+    match /notifications/{userId}/{notificationId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
   }
 }
