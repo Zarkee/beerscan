@@ -968,6 +968,38 @@ main::after{
   z-index: 1;
 }
 
+/* ===== Modal Close Button (X) ===== */
+.modalCloseBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(0,0,0,.40);
+  backdrop-filter: blur(10px);
+  color: var(--txt);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s ease;
+  z-index: 10;
+}
+
+.modalCloseBtn:hover {
+  background: rgba(255,92,92,.25);
+  border-color: rgba(255,92,92,.45);
+  transform: scale(1.1);
+}
+
+.modalCloseBtn:active {
+  transform: scale(0.95);
+}
+
 /* ===== Cheers Animation ===== */
 .cheersOverlay {
   position: fixed;
@@ -1861,7 +1893,11 @@ select{
 
   <!-- Share Modal -->
   <div id="shareModal" class="loginOverlay" style="display: none;">
-    <div class="loginContainer" style="max-width: 400px;">
+    <div class="loginContainer" style="max-width: 400px; position: relative;">
+      
+      <!-- Close X Button -->
+      <button class="modalCloseBtn" id="btnCloseShareModalX" aria-label="Zatvori">×</button>
+      
       <div class="loginHeader">
         <h2>📤 Podeli pivo</h2>
         <p id="shareModalTitle">Izaberi kako želiš da podeliš</p>
@@ -1882,11 +1918,11 @@ select{
         
         <!-- Share options -->
         <button id="btnShareToChat" class="loginBtn btnPrimary" style="margin-bottom: 12px;">
-          💬 Pošalji u čet
+          � Pošarlji u čet
         </button>
         
         <button id="btnCopyToClipboard" class="loginBtn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-          📋 Kopiraj tekst
+          � Kopiraj tekst
         </button>
         
         <button id="btnNativeShare" class="loginBtn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); display: none;">
@@ -2413,7 +2449,11 @@ select{
 
 <!-- Edit Profile Modal -->
 <div id="editProfileModal" class="loginOverlay" style="display: none;">
-  <div class="loginContainer" style="max-width: 500px;">
+  <div class="loginContainer" style="max-width: 500px; position: relative;">
+    
+    <!-- Close X Button -->
+    <button class="modalCloseBtn" id="btnCloseEditProfileX" aria-label="Zatvori">×</button>
+    
     <div class="loginHeader">
       <h2>✏️ Izmeni profil</h2>
       <p>Ažuriraj svoje informacije</p>
@@ -2448,7 +2488,11 @@ select{
 
 <!-- Upload Beer Photo Modal -->
 <div id="uploadBeerPhotoModal" class="loginOverlay" style="display: none;">
-  <div class="loginContainer" style="max-width: 500px;">
+  <div class="loginContainer" style="max-width: 500px; position: relative;">
+    
+    <!-- Close X Button -->
+    <button class="modalCloseBtn" id="btnCloseUploadBeerPhotoX" aria-label="Zatvori">×</button>
+    
     <div class="loginHeader">
       <h2>📸 Upload sliku piva</h2>
       <p>Dodaj fotografiju trenutnog piva</p>
@@ -2474,25 +2518,29 @@ select{
 
 <!-- Notifications Modal -->
 <div id="notificationsModal" class="loginOverlay" style="display: none;">
-  <div class="loginContainer" style="max-width: 600px;">
+  <div class="loginContainer" style="max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
+    
+    <!-- Close X Button -->
+    <button class="modalCloseBtn" id="btnCloseNotificationsX" aria-label="Zatvori">×</button>
+    
     <div class="loginHeader">
       <h2>🔔 Notifikacije</h2>
       <p>Tvoje nedavne notifikacije</p>
     </div>
     
-    <div id="notificationsList" style="padding: 20px 0; max-height: 400px; overflow-y: auto;">
+    <div id="notificationsList" style="padding: 20px 0;">
       <p class="hint">Nemaš notifikacija.</p>
     </div>
-    
-    <button id="btnCloseNotifications" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2);">
-      Zatvori
-    </button>
   </div>
 </div>
 
 <!-- User Profile Modal -->
 <div id="userProfileModal" class="loginOverlay" style="display: none;">
-  <div class="loginContainer" style="max-width: 600px;">
+  <div class="loginContainer" style="max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;">
+    
+    <!-- Close X Button -->
+    <button class="modalCloseBtn" id="btnCloseUserProfileX" aria-label="Zatvori">×</button>
+    
     <div class="loginHeader">
       <h2 id="userProfileNickname">Profil korisnika</h2>
       <p id="userProfileEmail">-</p>
@@ -2547,10 +2595,6 @@ select{
         </div>
       </div>
     </div>
-    
-    <button id="btnCloseUserProfile" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
-      Zatvori
-    </button>
   </div>
 </div>
 
@@ -4440,6 +4484,11 @@ document.getElementById('btnNativeShare')?.addEventListener('click', async () =>
 
 // Close share modal
 document.getElementById('btnCloseShareModal')?.addEventListener('click', () => {
+  document.getElementById('shareModal').style.display = 'none';
+});
+
+// Close share modal with X button
+document.getElementById('btnCloseShareModalX')?.addEventListener('click', () => {
   document.getElementById('shareModal').style.display = 'none';
 });
 
@@ -6635,6 +6684,11 @@ btnCancelEditProfile.addEventListener("click", () => {
   editProfileModal.style.display = 'none';
 });
 
+// Close edit profile with X button
+document.getElementById('btnCloseEditProfileX').addEventListener('click', () => {
+  editProfileModal.style.display = 'none';
+});
+
 btnSaveProfile.addEventListener("click", async () => {
   if (!currentUser) return;
   
@@ -6822,6 +6876,13 @@ btnUploadBeerPhoto.addEventListener("click", async () => {
 });
 
 btnCancelBeerPhoto.addEventListener("click", () => {
+  uploadBeerPhotoModal.style.display = 'none';
+  beerPhotoInput.value = '';
+  beerPhotoPreview.style.display = 'none';
+});
+
+// Close upload beer photo with X button
+document.getElementById('btnCloseUploadBeerPhotoX').addEventListener('click', () => {
   uploadBeerPhotoModal.style.display = 'none';
   beerPhotoInput.value = '';
   beerPhotoPreview.style.display = 'none';
@@ -7309,6 +7370,11 @@ btnCloseNotifications.addEventListener("click", () => {
   notificationsModal.style.display = 'none';
 });
 
+// Close notifications with X button
+document.getElementById('btnCloseNotificationsX').addEventListener('click', () => {
+  notificationsModal.style.display = 'none';
+});
+
 // Load social page
 async function loadSocialPage() {
   await loadFriendsList();
@@ -7443,6 +7509,11 @@ async function viewUserProfile(userId) {
 
 // Close user profile modal
 document.getElementById('btnCloseUserProfile').addEventListener('click', () => {
+  document.getElementById('userProfileModal').style.display = 'none';
+});
+
+// Close user profile modal with X button
+document.getElementById('btnCloseUserProfileX').addEventListener('click', () => {
   document.getElementById('userProfileModal').style.display = 'none';
 });
 
