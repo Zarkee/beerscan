@@ -8186,24 +8186,44 @@ async function loadStories() {
   if (!currentUser) return;
   
   try {
+    console.log('📸 Učitavam stories...');
+    
     // Get stories from followed users + own stories
     const followingSnapshot = await followsCollection.doc(currentUser.uid).collection('following').get();
     const followingIds = followingSnapshot.docs.map(doc => doc.id);
     followingIds.push(currentUser.uid); // Add own stories
     
-    // Get all stories that haven't expired
+    console.log('👥 Following IDs:', followingIds);
+    
+    if (followingIds.length === 0) {
+      console.log('⚠️ Nema followinga');
+      return;
+    }
+    
+    // Get all stories (simplified query - no index needed)
     const now = firebase.firestore.Timestamp.now();
     const storiesSnapshot = await storiesCollection
-      .where('userId', 'in', followingIds.slice(0, 10)) // Firestore limit
       .where('expiresAt', '>', now)
       .orderBy('expiresAt', 'desc')
-      .orderBy('createdAt', 'desc')
+      .limit(50)
       .get();
+    
+    console.log('📊 Ukupno stories:', storiesSnapshot.size);
+    
+    // Filter stories by following users (client-side)
+    const allStories = [];
+    storiesSnapshot.docs.forEach(doc => {
+      const story = { id: doc.id, ...doc.data() };
+      if (followingIds.includes(story.userId)) {
+        allStories.push(story);
+      }
+    });
+    
+    console.log('✅ Filtrirano stories:', allStories.length);
     
     // Group stories by user
     const storiesByUser = {};
-    storiesSnapshot.docs.forEach(doc => {
-      const story = { id: doc.id, ...doc.data() };
+    allStories.forEach(story => {
       if (!storiesByUser[story.userId]) {
         storiesByUser[story.userId] = [];
       }
@@ -8238,8 +8258,11 @@ async function loadStories() {
       
       storiesBar.appendChild(storyItem);
     }
+    
+    console.log('✅ Stories bar ažuriran, ukupno korisnika:', Object.keys(storiesByUser).length);
   } catch (error) {
-    console.error('Greška pri učitavanju stories:', error);
+    console.error('❌ Greška pri učitavanju stories:', error);
+    showToast('❌ Greška pri učitavanju stories: ' + error.message, 'error');
   }
 }
 
