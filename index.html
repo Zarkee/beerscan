@@ -2241,8 +2241,13 @@ select{
     
     <!-- Search Users -->
     <div class="card soft">
-      <h3>🔍 Pretraži korisnike</h3>
-      <input id="userSearch" type="text" placeholder="Unesi nadimak..." style="width: 100%; margin-top: 12px;" />
+      <div class="row" style="justify-content: space-between; align-items: center;">
+        <h3>🔍 Pretraži korisnike</h3>
+        <button id="btnShowAllUsers" class="primary" style="font-size: 12px; padding: 8px 12px;">
+          Prikaži sve
+        </button>
+      </div>
+      <input id="userSearch" type="text" placeholder="Unesi nadimak, ime ili email..." style="width: 100%; margin-top: 12px;" />
       <div id="userSearchResults" style="margin-top: 16px;"></div>
     </div>
     
@@ -6384,6 +6389,7 @@ const btnCloseNotifications = document.getElementById("btnCloseNotifications");
 // User search
 const userSearch = document.getElementById("userSearch");
 const userSearchResults = document.getElementById("userSearchResults");
+const btnShowAllUsers = document.getElementById("btnShowAllUsers");
 const friendsList = document.getElementById("friendsList");
 const activityFeed = document.getElementById("activityFeed");
 
@@ -6756,6 +6762,76 @@ userSearch.addEventListener("input", () => {
   searchTimeout = setTimeout(searchUsers, 500);
 });
 
+// Show all users button
+btnShowAllUsers.addEventListener("click", async () => {
+  userSearch.value = '';
+  await showAllUsers();
+});
+
+async function showAllUsers() {
+  try {
+    console.log('📋 Prikazujem sve korisnike...');
+    
+    userSearchResults.innerHTML = '<p class="hint">Učitavam...</p>';
+    
+    // Get all users
+    const snapshot = await usersCollection.limit(50).get();
+    
+    console.log('📊 Ukupno korisnika:', snapshot.size);
+    
+    if (snapshot.empty) {
+      userSearchResults.innerHTML = '<p class="hint">Nema korisnika u bazi</p>';
+      return;
+    }
+    
+    // Filter out current user
+    const allUsers = [];
+    for (const doc of snapshot.docs) {
+      if (doc.id !== currentUser.uid) {
+        allUsers.push({ ...doc.data(), uid: doc.id });
+      }
+    }
+    
+    console.log('✅ Korisnika (bez tebe):', allUsers.length);
+    
+    if (allUsers.length === 0) {
+      userSearchResults.innerHTML = '<p class="hint">Nema drugih korisnika</p>';
+      return;
+    }
+    
+    // Check which users are already followed
+    const followingSnapshot = await followsCollection.doc(currentUser.uid).collection('following').get();
+    const followingIds = new Set(followingSnapshot.docs.map(doc => doc.id));
+    
+    userSearchResults.innerHTML = `
+      <div style="margin-bottom: 12px; color: var(--muted); font-size: 14px;">
+        Prikazano ${allUsers.length} korisnika
+      </div>
+    ` + allUsers.map(user => {
+      const isFollowing = followingIds.has(user.uid);
+      
+      return `
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px;">
+          <img src="${user.avatar || ''}" 
+               style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--stroke); background: var(--card2); cursor: pointer;"
+               onclick="viewUserProfile('${user.uid}')"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
+          <div style="flex: 1; cursor: pointer;" onclick="viewUserProfile('${user.uid}')">
+            <div style="font-weight: 700;">${escapeHtml(user.nickname || user.email.split('@')[0])}</div>
+            <div style="color: var(--muted); font-size: 13px;">${escapeHtml(user.name || user.email)}</div>
+          </div>
+          <button class="${isFollowing ? 'danger' : 'primary'}" onclick="toggleFollow('${user.uid}', '${escapeHtml(user.nickname || user.email.split('@')[0])}')" data-user-id="${user.uid}">
+            ${isFollowing ? 'Unfollow' : 'Follow'}
+          </button>
+        </div>
+      `;
+    }).join('');
+  } catch (error) {
+    console.error('❌ Greška pri prikazivanju korisnika:', error);
+    userSearchResults.innerHTML = '<p class="hint">Greška: ' + error.message + '</p>';
+  }
+}
+
 async function searchUsers() {
   const query = userSearch.value.trim().toLowerCase();
   
@@ -6765,37 +6841,69 @@ async function searchUsers() {
   }
   
   try {
-    const snapshot = await usersCollection
-      .where('nickname', '>=', query)
-      .where('nickname', '<=', query + '\uf8ff')
-      .limit(10)
-      .get();
+    console.log('🔍 Pretražujem korisnike:', query);
+    
+    // Get all users (since we need case-insensitive search)
+    const snapshot = await usersCollection.limit(50).get();
+    
+    console.log('📊 Ukupno korisnika u bazi:', snapshot.size);
     
     if (snapshot.empty) {
-      userSearchResults.innerHTML = '<p class="hint">Nema rezultata</p>';
+      userSearchResults.innerHTML = '<p class="hint">Nema korisnika u bazi</p>';
       return;
     }
     
-    userSearchResults.innerHTML = snapshot.docs.map(doc => {
+    // Filter by nickname (case-insensitive)
+    const matchedUsers = [];
+    for (const doc of snapshot.docs) {
       const user = doc.data();
-      const isFollowing = false; // TODO: Check if following
+      const nickname = (user.nickname || '').toLowerCase();
+      const name = (user.name || '').toLowerCase();
+      const email = (user.email || '').toLowerCase();
+      
+      // Skip current user
+      if (doc.id === currentUser.uid) continue;
+      
+      // Check if matches query
+      if (nickname.includes(query) || name.includes(query) || email.includes(query)) {
+        matchedUsers.push({ ...user, uid: doc.id });
+      }
+    }
+    
+    console.log('✅ Pronađeno korisnika:', matchedUsers.length);
+    
+    if (matchedUsers.length === 0) {
+      userSearchResults.innerHTML = '<p class="hint">Nema rezultata za "' + escapeHtml(query) + '"</p>';
+      return;
+    }
+    
+    // Check which users are already followed
+    const followingSnapshot = await followsCollection.doc(currentUser.uid).collection('following').get();
+    const followingIds = new Set(followingSnapshot.docs.map(doc => doc.id));
+    
+    userSearchResults.innerHTML = matchedUsers.slice(0, 10).map(user => {
+      const isFollowing = followingIds.has(user.uid);
       
       return `
         <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px;">
-          <img src="${user.avatar || ''}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid var(--stroke); background: var(--card2);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
-          <div style="flex: 1;">
-            <div style="font-weight: 700;">${escapeHtml(user.nickname)}</div>
-            <div style="color: var(--muted); font-size: 13px;">${escapeHtml(user.name || '')}</div>
+          <img src="${user.avatar || ''}" 
+               style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--stroke); background: var(--card2); cursor: pointer;"
+               onclick="viewUserProfile('${user.uid}')"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
+          <div style="flex: 1; cursor: pointer;" onclick="viewUserProfile('${user.uid}')">
+            <div style="font-weight: 700;">${escapeHtml(user.nickname || user.email.split('@')[0])}</div>
+            <div style="color: var(--muted); font-size: 13px;">${escapeHtml(user.name || user.email)}</div>
           </div>
-          <button class="primary" onclick="toggleFollow('${user.uid}', '${escapeHtml(user.nickname)}')" data-user-id="${user.uid}">
+          <button class="${isFollowing ? 'danger' : 'primary'}" onclick="toggleFollow('${user.uid}', '${escapeHtml(user.nickname || user.email.split('@')[0])}')" data-user-id="${user.uid}">
             ${isFollowing ? 'Unfollow' : 'Follow'}
           </button>
         </div>
       `;
     }).join('');
   } catch (error) {
-    console.error('Greška pri pretrazi korisnika:', error);
-    userSearchResults.innerHTML = '<p class="hint">Greška pri pretrazi</p>';
+    console.error('❌ Greška pri pretrazi korisnika:', error);
+    console.error('Error details:', error.message);
+    userSearchResults.innerHTML = '<p class="hint">Greška pri pretrazi: ' + error.message + '</p>';
   }
 }
 
