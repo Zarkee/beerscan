@@ -8412,6 +8412,107 @@ document.getElementById('btnPrevStory').addEventListener('click', prevStory);
 document.getElementById('btnNextStory').addEventListener('click', nextStory);
 btnCloseStoryViewer.addEventListener('click', closeStoryViewer);
 
+// ===== SWIPE GESTURES FOR STORY VIEWER =====
+let touchStartY = 0;
+let touchStartX = 0;
+let touchEndY = 0;
+let touchEndX = 0;
+let isDragging = false;
+
+storyViewer.addEventListener('touchstart', (e) => {
+  touchStartY = e.touches[0].clientY;
+  touchStartX = e.touches[0].clientX;
+  isDragging = false;
+}, { passive: true });
+
+storyViewer.addEventListener('touchmove', (e) => {
+  if (!isDragging) {
+    isDragging = true;
+  }
+  touchEndY = e.touches[0].clientY;
+  touchEndX = e.touches[0].clientX;
+  
+  const deltaY = touchEndY - touchStartY;
+  
+  // Visual feedback for swipe down
+  if (deltaY > 0) {
+    const opacity = Math.max(0.3, 1 - (deltaY / 500));
+    const scale = Math.max(0.8, 1 - (deltaY / 1000));
+    storyViewer.style.opacity = opacity;
+    storyViewer.style.transform = `translateY(${deltaY}px) scale(${scale})`;
+  }
+}, { passive: true });
+
+storyViewer.addEventListener('touchend', (e) => {
+  const deltaY = touchEndY - touchStartY;
+  const deltaX = touchEndX - touchStartX;
+  
+  // Reset visual feedback
+  storyViewer.style.opacity = '1';
+  storyViewer.style.transform = 'translateY(0) scale(1)';
+  storyViewer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+  
+  setTimeout(() => {
+    storyViewer.style.transition = '';
+  }, 300);
+  
+  if (!isDragging) return;
+  
+  const minSwipeDistance = 50;
+  
+  // Swipe down to close
+  if (deltaY > minSwipeDistance && Math.abs(deltaX) < Math.abs(deltaY)) {
+    closeStoryViewer();
+    return;
+  }
+  
+  // Swipe left to next story
+  if (deltaX < -minSwipeDistance && Math.abs(deltaX) > Math.abs(deltaY)) {
+    nextStory();
+    return;
+  }
+  
+  // Swipe right to previous story
+  if (deltaX > minSwipeDistance && Math.abs(deltaX) > Math.abs(deltaY)) {
+    prevStory();
+    return;
+  }
+}, { passive: true });
+
+// Tap left/right for navigation (desktop & mobile)
+storyViewer.addEventListener('click', (e) => {
+  // Ignore clicks on buttons and reactions
+  if (e.target.closest('button') || e.target.closest('.storyReactionBtn')) {
+    return;
+  }
+  
+  const viewportWidth = window.innerWidth;
+  const clickX = e.clientX;
+  
+  // Tap on left 1/3 = previous story
+  if (clickX < viewportWidth / 3) {
+    prevStory();
+  }
+  // Tap on right 1/3 = next story
+  else if (clickX > (viewportWidth * 2) / 3) {
+    nextStory();
+  }
+  // Tap in middle = pause/resume (optional)
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (storyViewer.style.display === 'none') return;
+  
+  if (e.key === 'ArrowLeft') {
+    prevStory();
+  } else if (e.key === 'ArrowRight') {
+    nextStory();
+  } else if (e.key === 'Escape') {
+    closeStoryViewer();
+  }
+});
+
 // Story reactions
 document.querySelectorAll('.storyReactionBtn').forEach(btn => {
   btn.addEventListener('click', async () => {
