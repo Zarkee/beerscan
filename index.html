@@ -7182,68 +7182,94 @@ async function loadSocialPage() {
 
 // View user profile
 async function viewUserProfile(userId) {
-  if (!currentUser || !userId) return;
+  if (!currentUser || !userId) {
+    console.log('⚠️ Nema korisnika ili userId');
+    return;
+  }
   
   try {
-    console.log('Učitavam profil korisnika:', userId);
+    console.log('📋 Učitavam profil korisnika:', userId);
     
     // Get user data
+    console.log('1️⃣ Učitavam user data...');
     const userDoc = await usersCollection.doc(userId).get();
     if (!userDoc.exists) {
+      console.log('❌ Korisnik ne postoji u bazi');
       showToast('⚠️ Korisnik nije pronađen', 'warn');
       return;
     }
     
     const userData = userDoc.data();
-    console.log('User data:', userData);
+    console.log('✅ User data:', userData);
     
     // Get user's beers
-    const beersSnapshot = await historyCollection.doc(userId).collection('beers').get();
-    const beers = beersSnapshot.docs.map(doc => ({ ...doc.data(), barcode: doc.id }));
-    const triedBeers = beers.filter(b => (b.timesTried || 0) > 0);
-    const totalRating = triedBeers.reduce((sum, b) => sum + (b.rating || 0), 0);
-    const avgRating = triedBeers.length > 0 ? (totalRating / triedBeers.length).toFixed(1) : 0;
-    
-    console.log('Beers:', beers.length, 'Tried:', triedBeers.length);
-    
-    // Update modal
-    document.getElementById('userProfileNickname').textContent = userData.nickname || 'Korisnik';
-    document.getElementById('userProfileEmail').textContent = userData.email || '';
-    document.getElementById('userProfileAvatar').src = userData.avatar || '';
-    document.getElementById('userProfileName').textContent = userData.name || '-';
-    document.getElementById('userProfileBio').textContent = userData.bio || 'Nema bio-a';
-    document.getElementById('userProfileTotalBeers').textContent = beers.length;
-    document.getElementById('userProfileTriedBeers').textContent = triedBeers.length;
-    document.getElementById('userProfileAvgRating').textContent = avgRating;
-    
-    // Update rank
-    const rank = userData.rank || 'početnik';
-    const rankEmoji = rank === 'legenda' ? '🏆' : rank === 'ekspert' ? '🥇' : rank === 'majstor' ? '🥈' : rank === 'iskusan' ? '🥉' : '🌟';
-    document.getElementById('userProfileRank').textContent = `${rankEmoji} ${rank.charAt(0).toUpperCase() + rank.slice(1)}`;
-    
-    // Update beers grid
-    const beersGrid = document.getElementById('userProfileBeersGrid');
-    if (beers.length === 0) {
-      beersGrid.innerHTML = '<p class="hint">Nema skeniranih piva.</p>';
-    } else {
-      beersGrid.innerHTML = beers.slice(0, 20).map(beer => {
-        const imageUrl = beer.off?.imageUrl || '';
-        const name = beer.off?.productName || 'Pivo';
-        const rating = beer.rating ? '⭐'.repeat(beer.rating) : '';
-        
-        return `
-          <div style="border-radius: 8px; overflow: hidden; background: var(--card); border: 1px solid var(--stroke);">
-            <img src="${imageUrl}" style="width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--card2);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22%3E%3Cpath d=%22M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z%22/%3E%3C/svg%3E'">
-            <div style="padding: 6px; font-size: 10px;">
-              <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
-              ${rating ? `<div style="margin-top: 2px;">${rating}</div>` : ''}
+    console.log('2️⃣ Učitavam piva korisnika...');
+    try {
+      const beersSnapshot = await historyCollection.doc(userId).collection('beers').get();
+      const beers = beersSnapshot.docs.map(doc => ({ ...doc.data(), barcode: doc.id }));
+      const triedBeers = beers.filter(b => (b.timesTried || 0) > 0);
+      const totalRating = triedBeers.reduce((sum, b) => sum + (b.rating || 0), 0);
+      const avgRating = triedBeers.length > 0 ? (totalRating / triedBeers.length).toFixed(1) : 0;
+      
+      console.log('✅ Beers:', beers.length, 'Tried:', triedBeers.length);
+      
+      // Update modal
+      console.log('3️⃣ Ažuriram modal...');
+      document.getElementById('userProfileNickname').textContent = userData.nickname || 'Korisnik';
+      document.getElementById('userProfileEmail').textContent = userData.email || '';
+      document.getElementById('userProfileAvatar').src = userData.avatar || '';
+      document.getElementById('userProfileName').textContent = userData.name || '-';
+      document.getElementById('userProfileBio').textContent = userData.bio || 'Nema bio-a';
+      document.getElementById('userProfileTotalBeers').textContent = beers.length;
+      document.getElementById('userProfileTriedBeers').textContent = triedBeers.length;
+      document.getElementById('userProfileAvgRating').textContent = avgRating;
+      
+      // Update rank
+      const rank = userData.rank || 'početnik';
+      const rankEmoji = rank === 'legenda' ? '🏆' : rank === 'ekspert' ? '🥇' : rank === 'majstor' ? '🥈' : rank === 'iskusan' ? '🥉' : '🌟';
+      document.getElementById('userProfileRank').textContent = `${rankEmoji} ${rank.charAt(0).toUpperCase() + rank.slice(1)}`;
+      
+      // Update beers grid
+      const beersGrid = document.getElementById('userProfileBeersGrid');
+      if (beers.length === 0) {
+        beersGrid.innerHTML = '<p class="hint">Nema skeniranih piva.</p>';
+      } else {
+        beersGrid.innerHTML = beers.slice(0, 20).map(beer => {
+          const imageUrl = beer.off?.imageUrl || '';
+          const name = beer.off?.productName || 'Pivo';
+          const rating = beer.rating ? '⭐'.repeat(beer.rating) : '';
+          
+          return `
+            <div style="border-radius: 8px; overflow: hidden; background: var(--card); border: 1px solid var(--stroke);">
+              <img src="${imageUrl}" style="width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--card2);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22%3E%3Cpath d=%22M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z%22/%3E%3C/svg%3E'">
+              <div style="padding: 6px; font-size: 10px;">
+                <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
+                ${rating ? `<div style="margin-top: 2px;">${rating}</div>` : ''}
+              </div>
             </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
+    } catch (beersError) {
+      console.error('❌ Greška pri učitavanju piva:', beersError);
+      console.error('Error code:', beersError.code);
+      console.error('Error message:', beersError.message);
+      
+      // Ako je permission denied, prikaži poruku
+      if (beersError.code === 'permission-denied') {
+        console.log('⚠️ Permission denied - treba deploy-ovati nove Firestore rules!');
+        showToast('⚠️ Nema dozvole za čitanje istorije. Deploy-uj nove Firestore rules!', 'warn');
+      }
+      
+      // Nastavi sa praznom istorijom
+      document.getElementById('userProfileTotalBeers').textContent = '0';
+      document.getElementById('userProfileTriedBeers').textContent = '0';
+      document.getElementById('userProfileAvgRating').textContent = '0';
+      document.getElementById('userProfileBeersGrid').innerHTML = '<p class="hint">Nema dostupnih podataka o pivima.</p>';
     }
     
     // Check if following
+    console.log('4️⃣ Proveravam follow status...');
     const followingDoc = await followsCollection.doc(currentUser.uid).collection('following').doc(userId).get();
     const isFollowing = followingDoc.exists;
     
@@ -7261,10 +7287,15 @@ async function viewUserProfile(userId) {
     };
     
     // Show modal
+    console.log('5️⃣ Prikazujem modal...');
     document.getElementById('userProfileModal').style.display = 'flex';
+    console.log('✅ Profil uspešno učitan!');
   } catch (error) {
-    console.error('Greška pri učitavanju profila:', error);
-    showToast('❌ Greška pri učitavanju profila', 'error');
+    console.error('❌ Greška pri učitavanju profila:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    showToast('❌ Greška pri učitavanju profila: ' + error.message, 'error');
   }
 }
 

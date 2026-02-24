@@ -2,14 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // User history - samo vlasnik može pristupiti svojoj istoriji
+    // User history - svi mogu čitati, samo vlasnik može pisati
     match /userHistory/{userId} {
-      // Dozvoli čitanje parent dokumenta
-      allow read: if request.auth != null && request.auth.uid == userId;
+      // Dozvoli čitanje parent dokumenta svim prijavljenim korisnicima
+      allow read: if request.auth != null;
       
       // Beers subcollection
       match /beers/{barcode} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        // Svi prijavljeni mogu čitati istoriju (za profile view)
+        allow read: if request.auth != null;
+        // Samo vlasnik može pisati/menjati svoju istoriju
+        allow write: if request.auth != null && request.auth.uid == userId;
       }
     }
     
