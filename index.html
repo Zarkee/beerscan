@@ -2870,8 +2870,33 @@ select{
     </div>
     
     <div style="padding: 20px 0;">
-      <input type="file" id="storyImageInput" accept="image/*" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); color: var(--txt);" />
+      <!-- Camera or File Choice -->
+      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+        <button id="btnOpenCamera" class="loginBtn btnPrimary" style="flex: 1;">
+          📷 Slikaj sada
+        </button>
+        <button id="btnChooseFile" class="loginBtn" style="flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);">
+          🖼️ Izaberi sliku
+        </button>
+      </div>
       
+      <!-- Camera View -->
+      <div id="storyCameraView" style="display: none; margin-bottom: 16px;">
+        <video id="storyCameraVideo" autoplay playsinline style="width: 100%; max-height: 400px; border-radius: 12px; border: 1px solid var(--stroke); background: #000;"></video>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button id="btnCaptureStory" class="loginBtn btnPrimary" style="flex: 1;">
+            📸 Uslikaj
+          </button>
+          <button id="btnCloseCameraStory" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2);">
+            Otkaži
+          </button>
+        </div>
+      </div>
+      
+      <!-- File Input (hidden by default) -->
+      <input type="file" id="storyImageInput" accept="image/*" style="display: none;" />
+      
+      <!-- Image Preview -->
       <div id="storyImagePreview" style="margin-top: 16px; display: none;">
         <img id="storyImagePreviewImg" src="" style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 12px; border: 1px solid var(--stroke);" />
       </div>
@@ -7955,9 +7980,19 @@ const storiesBar = document.getElementById('storiesBar');
 const storyViewer = document.getElementById('storyViewer');
 const btnCloseStoryViewer = document.getElementById('btnCloseStoryViewer');
 
+// Camera elements
+const btnOpenCamera = document.getElementById('btnOpenCamera');
+const btnChooseFile = document.getElementById('btnChooseFile');
+const storyCameraView = document.getElementById('storyCameraView');
+const storyCameraVideo = document.getElementById('storyCameraVideo');
+const btnCaptureStory = document.getElementById('btnCaptureStory');
+const btnCloseCameraStory = document.getElementById('btnCloseCameraStory');
+
 let currentStories = [];
 let currentStoryIndex = 0;
 let storyProgressInterval = null;
+let storyCameraStream = null;
+let capturedStoryImage = null;
 
 // Open create story modal
 addStoryBtn.addEventListener('click', () => {
@@ -7968,12 +8003,77 @@ addStoryBtn.addEventListener('click', () => {
   createStoryModal.style.display = 'flex';
 });
 
+// Open camera for story
+btnOpenCamera.addEventListener('click', async () => {
+  try {
+    storyCameraStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'user' },
+      audio: false 
+    });
+    storyCameraVideo.srcObject = storyCameraStream;
+    storyCameraView.style.display = 'block';
+    storyImagePreview.style.display = 'none';
+  } catch (error) {
+    console.error('Greška pri otvaranju kamere:', error);
+    showToast('❌ Ne mogu da pristupim kameri', 'error');
+  }
+});
+
+// Close camera
+btnCloseCameraStory.addEventListener('click', () => {
+  if (storyCameraStream) {
+    storyCameraStream.getTracks().forEach(track => track.stop());
+    storyCameraStream = null;
+  }
+  storyCameraView.style.display = 'none';
+});
+
+// Capture photo from camera
+btnCaptureStory.addEventListener('click', () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = storyCameraVideo.videoWidth;
+  canvas.height = storyCameraVideo.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(storyCameraVideo, 0, 0);
+  
+  // Convert to blob
+  canvas.toBlob((blob) => {
+    capturedStoryImage = new File([blob], `story_${Date.now()}.jpg`, { type: 'image/jpeg' });
+    
+    // Show preview
+    storyImagePreviewImg.src = canvas.toDataURL('image/jpeg');
+    storyImagePreview.style.display = 'block';
+    
+    // Close camera
+    if (storyCameraStream) {
+      storyCameraStream.getTracks().forEach(track => track.stop());
+      storyCameraStream = null;
+    }
+    storyCameraView.style.display = 'none';
+    
+    showToast('✅ Slika snimljena!', 'success');
+  }, 'image/jpeg', 0.9);
+});
+
+// Choose file
+btnChooseFile.addEventListener('click', () => {
+  storyImageInput.click();
+});
+
 // Cancel story
 btnCancelStory.addEventListener('click', () => {
   createStoryModal.style.display = 'none';
   storyImageInput.value = '';
   storyImagePreview.style.display = 'none';
   storyTextInput.value = '';
+  capturedStoryImage = null;
+  
+  // Close camera if open
+  if (storyCameraStream) {
+    storyCameraStream.getTracks().forEach(track => track.stop());
+    storyCameraStream = null;
+  }
+  storyCameraView.style.display = 'none';
 });
 
 // Preview story image
@@ -7993,7 +8093,8 @@ storyImageInput.addEventListener('change', (e) => {
 btnPublishStory.addEventListener('click', async () => {
   if (!currentUser) return;
   
-  const file = storyImageInput.files[0];
+  // Get file from input or captured image
+  const file = capturedStoryImage || storyImageInput.files[0];
   if (!file) {
     showToast('⚠️ Dodaj sliku za story', 'warn');
     return;
@@ -8003,13 +8104,15 @@ btnPublishStory.addEventListener('click', async () => {
     btnPublishStory.disabled = true;
     btnPublishStory.textContent = '⏳ Objavljujem...';
     
-    // Upload image to Storage
-    const storageRef = storage.ref();
-    const storyImageRef = storageRef.child(`stories/${currentUser.uid}/${Date.now()}_${file.name}`);
-    await storyImageRef.put(file);
-    const imageUrl = await storyImageRef.getDownloadURL();
+    // Convert image to Base64 (NO STORAGE NEEDED!)
+    const base64Image = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
     
-    // Create story document
+    // Create story document with Base64 image
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
     
@@ -8017,7 +8120,7 @@ btnPublishStory.addEventListener('click', async () => {
       userId: currentUser.uid,
       userNickname: currentUserData?.nickname || currentUser.email.split('@')[0],
       userAvatar: currentUserData?.avatar || '',
-      imageUrl: imageUrl,
+      imageBase64: base64Image, // Store as Base64 - FREE!
       text: storyTextInput.value.trim() || '',
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt),
@@ -8035,6 +8138,7 @@ btnPublishStory.addEventListener('click', async () => {
     storyImageInput.value = '';
     storyImagePreview.style.display = 'none';
     storyTextInput.value = '';
+    capturedStoryImage = null;
     btnPublishStory.disabled = false;
     btnPublishStory.textContent = '📤 Objavi Story';
     
@@ -8042,7 +8146,7 @@ btnPublishStory.addEventListener('click', async () => {
     await loadStories();
   } catch (error) {
     console.error('Greška pri objavljivanju story-ja:', error);
-    showToast('❌ Greška pri objavljivanju', 'error');
+    showToast('❌ Greška: ' + error.message, 'error');
     btnPublishStory.disabled = false;
     btnPublishStory.textContent = '📤 Objavi Story';
   }
@@ -8173,7 +8277,8 @@ async function showStory(index) {
   document.getElementById('storyUserAvatar').src = story.userAvatar;
   document.getElementById('storyUserName').textContent = story.userNickname;
   document.getElementById('storyTime').textContent = formatDate(story.createdAt?.toMillis());
-  document.getElementById('storyImage').src = story.imageUrl;
+  // Use Base64 image instead of URL
+  document.getElementById('storyImage').src = story.imageBase64 || story.imageUrl || '';
   document.getElementById('storyTextDisplay').textContent = story.text || '';
   
   // Show/hide navigation buttons
