@@ -2412,6 +2412,65 @@ select{
   </div>
 </div>
 
+<!-- User Profile Modal -->
+<div id="userProfileModal" class="loginOverlay" style="display: none;">
+  <div class="loginContainer" style="max-width: 600px;">
+    <div class="loginHeader">
+      <h2 id="userProfileNickname">Profil korisnika</h2>
+      <p id="userProfileEmail">-</p>
+    </div>
+    
+    <div style="padding: 20px 0;">
+      <!-- Avatar and Info -->
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img id="userProfileAvatar" src="" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--stroke); background: var(--card);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
+        <h3 id="userProfileName" style="margin-top: 12px; margin-bottom: 4px;">-</h3>
+        <p id="userProfileBio" style="color: var(--muted2); font-size: 14px; max-width: 400px; margin: 0 auto;">-</p>
+      </div>
+      
+      <!-- Stats -->
+      <div class="statsGrid" style="margin-bottom: 20px;">
+        <div class="statCard">
+          <div class="statLabel">Ukupno piva</div>
+          <div class="statValue" id="userProfileTotalBeers">0</div>
+        </div>
+        
+        <div class="statCard">
+          <div class="statLabel">Probano</div>
+          <div class="statValue" id="userProfileTriedBeers">0</div>
+        </div>
+        
+        <div class="statCard">
+          <div class="statLabel">Prosečna ocena</div>
+          <div class="statValue" id="userProfileAvgRating">0</div>
+        </div>
+      </div>
+      
+      <!-- Rank Badge -->
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span class="pill" id="userProfileRank" style="font-size: 16px; padding: 8px 16px;">🏆 Rang</span>
+      </div>
+      
+      <!-- Follow/Unfollow Button -->
+      <button id="btnFollowUser" class="loginBtn btnPrimary" style="width: 100%;">
+        Follow
+      </button>
+      
+      <!-- Beers Grid -->
+      <div style="margin-top: 24px;">
+        <h3>🍺 Piva</h3>
+        <div id="userProfileBeersGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 12px; max-height: 300px; overflow-y: auto;">
+          <p class="hint">Nema skeniranih piva.</p>
+        </div>
+      </div>
+    </div>
+    
+    <button id="btnCloseUserProfile" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
+      Zatvori
+    </button>
+  </div>
+</div>
+
 <!-- iOS-style Scan dugme (Start/Stop toggle) -->
 <div class="scanFabWrap" id="scanFabWrap">
   <div class="scanFabPulse"></div>
@@ -2495,13 +2554,15 @@ window.debugHistory = async function() {
   console.log('=== 🔍 DEBUG HISTORY ===');
   console.log('👤 Trenutni korisnik:', currentUser ? currentUser.email : 'NIJE PRIJAVLJEN');
   
+  let cloudData = [];
+  
   if (currentUser) {
     console.log('📧 Email:', currentUser.email);
     console.log('🆔 UID:', currentUser.uid);
     
     // Proveri cloud
     console.log('\n☁️ CLOUD (Firestore):');
-    const cloudData = await cloudGetAll();
+    cloudData = await cloudGetAll();
     console.log('Broj zapisa:', cloudData.length);
     if (cloudData.length > 0) {
       console.log('Primeri:', cloudData.slice(0, 5).map(b => ({
@@ -6754,23 +6815,30 @@ async function toggleFollow(userId, nickname) {
       await followerRef.delete();
       showToast(`✅ Unfollowed ${nickname}`, 'success');
     } else {
+      // Get user data for avatar
+      const userDoc = await usersCollection.doc(userId).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+      
       // Follow
       await followingRef.set({
         userId: userId,
         nickname: nickname,
+        avatar: userData.avatar || '',
         followedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       
       await followerRef.set({
         userId: currentUser.uid,
         nickname: currentUserData?.nickname || currentUser.email.split('@')[0],
+        avatar: currentUserData?.avatar || '',
         followedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       
       // Create notification
       await createNotification(userId, 'follow', {
         fromUserId: currentUser.uid,
-        fromNickname: currentUserData?.nickname || currentUser.email.split('@')[0]
+        fromNickname: currentUserData?.nickname || currentUser.email.split('@')[0],
+        fromAvatar: currentUserData?.avatar || ''
       });
       
       showToast(`✅ Followed ${nickname}`, 'success');
@@ -6799,13 +6867,18 @@ async function loadFriendsList() {
     
     friendsList.innerHTML = snapshot.docs.map(doc => {
       const friend = doc.data();
+      const avatarUrl = friend.avatar || '';
       
       return `
-        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px; cursor: pointer;" onclick="viewUserProfile('${friend.userId}')">
+          <img src="${avatarUrl}" 
+               style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--stroke); background: var(--card2);"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
           <div style="flex: 1;">
             <div style="font-weight: 700;">${escapeHtml(friend.nickname)}</div>
+            <div style="font-size: 12px; color: var(--muted2);">Klikni da vidiš profil</div>
           </div>
-          <button class="danger" onclick="toggleFollow('${friend.userId}', '${escapeHtml(friend.nickname)}')">
+          <button class="danger" onclick="event.stopPropagation(); toggleFollow('${friend.userId}', '${escapeHtml(friend.nickname)}')">
             Unfollow
           </button>
         </div>
@@ -6941,19 +7014,28 @@ async function loadNotifications() {
     
     notificationsList.innerHTML = snapshot.docs.map(doc => {
       const notif = doc.data();
-      const time = notif.createdAt ? formatDate(notif.createdAt) : '';
+      const time = notif.createdAt ? formatDate(notif.createdAt.toMillis()) : '';
+      const avatarUrl = notif.data?.fromAvatar || '';
       
       let message = '';
+      let icon = '👤';
       if (notif.type === 'follow') {
         message = `${escapeHtml(notif.data.fromNickname)} te je zapratio`;
+        icon = '👥';
       } else if (notif.type === 'like') {
         message = `${escapeHtml(notif.data.fromNickname)} je lajkovao tvoje pivo`;
+        icon = '❤️';
       }
       
       return `
-        <div style="padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: ${notif.read ? 'var(--card)' : 'var(--accent)'}; margin-bottom: 8px;" data-notif-id="${doc.id}">
-          <div style="font-weight: 700;">${message}</div>
-          <div style="color: var(--muted2); font-size: 12px; margin-top: 4px;">${time}</div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: ${notif.read ? 'var(--card)' : 'var(--accent)'}; margin-bottom: 8px; cursor: pointer;" onclick="viewUserProfile('${notif.data.fromUserId}')" data-notif-id="${doc.id}">
+          <img src="${avatarUrl}" 
+               style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--stroke); background: var(--card2);"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
+          <div style="flex: 1;">
+            <div style="font-weight: 700;">${icon} ${message}</div>
+            <div style="color: var(--muted2); font-size: 12px; margin-top: 4px;">${time}</div>
+          </div>
         </div>
       `;
     }).join('');
@@ -6987,7 +7069,101 @@ btnCloseNotifications.addEventListener("click", () => {
 async function loadSocialPage() {
   await loadFriendsList();
   await loadActivityFeed();
+  await loadNotifications(); // Update badge
 }
+
+// View user profile
+async function viewUserProfile(userId) {
+  if (!currentUser || !userId) return;
+  
+  try {
+    console.log('Učitavam profil korisnika:', userId);
+    
+    // Get user data
+    const userDoc = await usersCollection.doc(userId).get();
+    if (!userDoc.exists) {
+      showToast('⚠️ Korisnik nije pronađen', 'warn');
+      return;
+    }
+    
+    const userData = userDoc.data();
+    console.log('User data:', userData);
+    
+    // Get user's beers
+    const beersSnapshot = await historyCollection.doc(userId).collection('beers').get();
+    const beers = beersSnapshot.docs.map(doc => ({ ...doc.data(), barcode: doc.id }));
+    const triedBeers = beers.filter(b => (b.timesTried || 0) > 0);
+    const totalRating = triedBeers.reduce((sum, b) => sum + (b.rating || 0), 0);
+    const avgRating = triedBeers.length > 0 ? (totalRating / triedBeers.length).toFixed(1) : 0;
+    
+    console.log('Beers:', beers.length, 'Tried:', triedBeers.length);
+    
+    // Update modal
+    document.getElementById('userProfileNickname').textContent = userData.nickname || 'Korisnik';
+    document.getElementById('userProfileEmail').textContent = userData.email || '';
+    document.getElementById('userProfileAvatar').src = userData.avatar || '';
+    document.getElementById('userProfileName').textContent = userData.name || '-';
+    document.getElementById('userProfileBio').textContent = userData.bio || 'Nema bio-a';
+    document.getElementById('userProfileTotalBeers').textContent = beers.length;
+    document.getElementById('userProfileTriedBeers').textContent = triedBeers.length;
+    document.getElementById('userProfileAvgRating').textContent = avgRating;
+    
+    // Update rank
+    const rank = userData.rank || 'početnik';
+    const rankEmoji = rank === 'legenda' ? '🏆' : rank === 'ekspert' ? '🥇' : rank === 'majstor' ? '🥈' : rank === 'iskusan' ? '🥉' : '🌟';
+    document.getElementById('userProfileRank').textContent = `${rankEmoji} ${rank.charAt(0).toUpperCase() + rank.slice(1)}`;
+    
+    // Update beers grid
+    const beersGrid = document.getElementById('userProfileBeersGrid');
+    if (beers.length === 0) {
+      beersGrid.innerHTML = '<p class="hint">Nema skeniranih piva.</p>';
+    } else {
+      beersGrid.innerHTML = beers.slice(0, 20).map(beer => {
+        const imageUrl = beer.off?.imageUrl || '';
+        const name = beer.off?.productName || 'Pivo';
+        const rating = beer.rating ? '⭐'.repeat(beer.rating) : '';
+        
+        return `
+          <div style="border-radius: 8px; overflow: hidden; background: var(--card); border: 1px solid var(--stroke);">
+            <img src="${imageUrl}" style="width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--card2);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22%3E%3Cpath d=%22M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z%22/%3E%3C/svg%3E'">
+            <div style="padding: 6px; font-size: 10px;">
+              <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
+              ${rating ? `<div style="margin-top: 2px;">${rating}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Check if following
+    const followingDoc = await followsCollection.doc(currentUser.uid).collection('following').doc(userId).get();
+    const isFollowing = followingDoc.exists;
+    
+    const btnFollowUser = document.getElementById('btnFollowUser');
+    btnFollowUser.textContent = isFollowing ? 'Unfollow' : 'Follow';
+    btnFollowUser.className = isFollowing ? 'loginBtn' : 'loginBtn btnPrimary';
+    btnFollowUser.style.background = isFollowing ? 'transparent' : '';
+    btnFollowUser.style.border = isFollowing ? '1px solid rgba(255,255,255,0.2)' : '';
+    
+    // Update onclick
+    btnFollowUser.onclick = async () => {
+      await toggleFollow(userId, userData.nickname || 'Korisnik');
+      // Refresh modal
+      await viewUserProfile(userId);
+    };
+    
+    // Show modal
+    document.getElementById('userProfileModal').style.display = 'flex';
+  } catch (error) {
+    console.error('Greška pri učitavanju profila:', error);
+    showToast('❌ Greška pri učitavanju profila', 'error');
+  }
+}
+
+// Close user profile modal
+document.getElementById('btnCloseUserProfile').addEventListener('click', () => {
+  document.getElementById('userProfileModal').style.display = 'none';
+});
 
 // Update btnCapture to create feed activity
 const originalMarkAsTried = markAsTried;
