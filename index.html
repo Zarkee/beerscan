@@ -967,6 +967,79 @@ main::after{
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
   z-index: 1;
 }
+
+/* ===== Cheers Animation ===== */
+.cheersOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+.cheersAnimation {
+  font-size: 120px;
+  animation: cheersClank 1.5s ease-in-out;
+  filter: drop-shadow(0 0 30px rgba(255, 210, 92, 0.6));
+}
+
+@keyframes cheersClank {
+  0% {
+    transform: translateX(-100px) rotate(-20deg) scale(0.5);
+    opacity: 0;
+  }
+  40% {
+    transform: translateX(0) rotate(0deg) scale(1.2);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(5px) rotate(5deg) scale(1.15);
+  }
+  60% {
+    transform: translateX(-5px) rotate(-5deg) scale(1.15);
+  }
+  70% {
+    transform: translateX(0) rotate(0deg) scale(1.1);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.cheersText {
+  position: absolute;
+  bottom: 30%;
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  animation: fadeInUp 0.5s ease 0.5s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 /* ===== History: table -> cards on mobile ===== */
 @media (max-width: 720px){
   table thead{ display:none; }
@@ -2461,6 +2534,11 @@ select{
         Follow
       </button>
       
+      <!-- Send Cheers Button -->
+      <button id="btnSendCheers" class="loginBtn" style="width: 100%; margin-top: 10px; background: linear-gradient(135deg, rgba(255,210,92,.30), rgba(255,210,92,.12)); border-color: rgba(255,210,92,.55);">
+        🍻 Pošalji zdravicu
+      </button>
+      
       <!-- Beers Grid -->
       <div style="margin-top: 24px;">
         <h3>🍺 Piva</h3>
@@ -2731,6 +2809,9 @@ auth.onAuthStateChanged(async (user) => {
     // Setup real-time history listener
     setupHistoryListener();
     
+    // Setup notifications listener
+    setupNotificationsListener();
+    
     // Hide login overlay
     document.getElementById('loginOverlay').classList.add('hidden');
     
@@ -2753,6 +2834,12 @@ auth.onAuthStateChanged(async (user) => {
     if (historyListener) {
       historyListener();
       historyListener = null;
+    }
+    
+    // Stop notifications listener
+    if (notificationsUnsubscribe) {
+      notificationsUnsubscribe();
+      notificationsUnsubscribe = null;
     }
     
     // Show login overlay
@@ -7133,6 +7220,9 @@ async function loadNotifications() {
       } else if (notif.type === 'like') {
         message = `${escapeHtml(notif.data.fromNickname)} je lajkovao tvoje pivo`;
         icon = '❤️';
+      } else if (notif.type === 'cheers') {
+        message = `${escapeHtml(notif.data.fromNickname)} ti je poslao zdravicu! 🍻`;
+        icon = '🍻';
       }
       
       return `
@@ -7161,6 +7251,52 @@ async function loadNotifications() {
   } catch (error) {
     console.error('Greška pri učitavanju notifikacija:', error);
   }
+}
+
+// Real-time notifications listener
+let notificationsUnsubscribe = null;
+
+function setupNotificationsListener() {
+  if (!currentUser) return;
+  
+  // Unsubscribe previous listener
+  if (notificationsUnsubscribe) {
+    notificationsUnsubscribe();
+  }
+  
+  let isFirstLoad = true;
+  
+  // Listen for new notifications
+  notificationsUnsubscribe = notificationsCollection.doc(currentUser.uid).collection('items')
+    .orderBy('createdAt', 'desc')
+    .limit(20)
+    .onSnapshot((snapshot) => {
+      const unreadCount = snapshot.docs.filter(doc => !doc.data().read).length;
+      
+      if (unreadCount > 0) {
+        notificationBadge.textContent = unreadCount;
+        notificationBadge.style.display = 'flex';
+      } else {
+        notificationBadge.style.display = 'none';
+      }
+      
+      // Check for new cheers notifications (skip first load)
+      if (!isFirstLoad) {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'added') {
+            const notif = change.doc.data();
+            if (notif.type === 'cheers' && !notif.read) {
+              // Show cheers animation
+              showReceivedCheers(notif.data.fromNickname);
+            }
+          }
+        });
+      }
+      
+      isFirstLoad = false;
+    }, (error) => {
+      console.error('Greška pri slušanju notifikacija:', error);
+    });
 }
 
 // Notifications button
@@ -7286,6 +7422,12 @@ async function viewUserProfile(userId) {
       await viewUserProfile(userId);
     };
     
+    // Setup cheers button
+    const btnSendCheers = document.getElementById('btnSendCheers');
+    btnSendCheers.onclick = async () => {
+      await sendCheers(userId, userData.nickname || 'Korisnik');
+    };
+    
     // Show modal
     console.log('5️⃣ Prikazujem modal...');
     document.getElementById('userProfileModal').style.display = 'flex';
@@ -7303,6 +7445,78 @@ async function viewUserProfile(userId) {
 document.getElementById('btnCloseUserProfile').addEventListener('click', () => {
   document.getElementById('userProfileModal').style.display = 'none';
 });
+
+// Send cheers animation
+async function sendCheers(userId, userNickname) {
+  if (!currentUser) return;
+  
+  try {
+    // Get current user data
+    const currentUserDoc = await usersCollection.doc(currentUser.uid).get();
+    const currentUserData = currentUserDoc.data();
+    
+    // Create notification
+    await createNotification(userId, 'cheers', {
+      fromUserId: currentUser.uid,
+      fromNickname: currentUserData?.nickname || currentUser.email.split('@')[0],
+      fromAvatar: currentUserData?.avatar || ''
+    });
+    
+    // Show local animation
+    showCheersAnimation(userNickname);
+    
+    showToast('🍻 Zdravica poslata!', 'success');
+  } catch (error) {
+    console.error('Greška pri slanju zdravice:', error);
+    showToast('❌ Greška pri slanju zdravice', 'error');
+  }
+}
+
+// Show cheers animation
+function showCheersAnimation(nickname) {
+  const overlay = document.createElement('div');
+  overlay.className = 'cheersOverlay';
+  overlay.innerHTML = `
+    <div style="position: relative;">
+      <div class="cheersAnimation">🍺🍺</div>
+      <div class="cheersText">Zdravo ${escapeHtml(nickname)}! 🍻</div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  // Play sound effect (optional - can add audio element)
+  
+  // Remove after animation
+  setTimeout(() => {
+    overlay.style.animation = 'fadeOut 0.3s ease';
+    setTimeout(() => {
+      document.body.removeChild(overlay);
+    }, 300);
+  }, 2000);
+}
+
+// Show cheers when received
+function showReceivedCheers(fromNickname) {
+  const overlay = document.createElement('div');
+  overlay.className = 'cheersOverlay';
+  overlay.innerHTML = `
+    <div style="position: relative;">
+      <div class="cheersAnimation">🍺🍺</div>
+      <div class="cheersText">${escapeHtml(fromNickname)} ti šalje zdravicu! 🍻</div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  // Remove after animation
+  setTimeout(() => {
+    overlay.style.animation = 'fadeOut 0.3s ease';
+    setTimeout(() => {
+      document.body.removeChild(overlay);
+    }, 300);
+  }, 2500);
+}
 
 // Update btnCapture to create feed activity
 const originalMarkAsTried = markAsTried;
