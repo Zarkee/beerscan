@@ -1040,6 +1040,294 @@ main::after{
     opacity: 0;
   }
 }
+
+/* ===== Stories UI ===== */
+.storiesBar {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.storiesBar::-webkit-scrollbar {
+  display: none;
+}
+
+.storyItem {
+  flex-shrink: 0;
+  width: 70px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .2s ease;
+}
+
+.storyItem:hover {
+  transform: scale(1.05);
+}
+
+.storyAvatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  background: linear-gradient(var(--bg), var(--bg)) padding-box,
+              linear-gradient(135deg, rgba(124,178,255,.8), rgba(92,255,164,.6)) border-box;
+  padding: 3px;
+  position: relative;
+}
+
+.storyAvatar.viewed {
+  background: linear-gradient(var(--bg), var(--bg)) padding-box,
+              linear-gradient(135deg, rgba(255,255,255,.2), rgba(255,255,255,.1)) border-box;
+}
+
+.storyAvatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.storyAvatar.add {
+  background: linear-gradient(135deg, rgba(124,178,255,.2), rgba(92,255,164,.15));
+  border: 2px dashed rgba(124,178,255,.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.storyNickname {
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70px;
+}
+
+/* Story Viewer */
+.storyViewer {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+}
+
+.storyHeader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(to bottom, rgba(0,0,0,.8), transparent);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.storyProgress {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  right: 16px;
+  height: 3px;
+  background: rgba(255,255,255,.3);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.storyProgressBar {
+  height: 100%;
+  background: #fff;
+  width: 0%;
+  transition: width .1s linear;
+}
+
+.storyUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.storyUserAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.storyUserName {
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.storyTime {
+  color: rgba(255,255,255,.7);
+  font-size: 12px;
+}
+
+.storyContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.storyImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.storyText {
+  position: absolute;
+  bottom: 100px;
+  left: 20px;
+  right: 20px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0,0,0,.8);
+}
+
+.storyActions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  background: linear-gradient(to top, rgba(0,0,0,.8), transparent);
+  display: flex;
+  gap: 12px;
+}
+
+.storyReactionBtn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.1);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.storyReactionBtn:hover {
+  background: rgba(255,255,255,.2);
+  transform: scale(1.1);
+}
+
+.storyReactionBtn.active {
+  background: rgba(124,178,255,.4);
+  border-color: rgba(124,178,255,.8);
+}
+
+.storyCloseBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+}
+
+.storyNavBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.storyNavBtn.prev {
+  left: 20px;
+}
+
+.storyNavBtn.next {
+  right: 20px;
+}
+
+/* Mention autocomplete */
+.mentionAutocomplete {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 -10px 30px rgba(0,0,0,.5);
+}
+
+.mentionItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.mentionItem:hover {
+  background: rgba(124,178,255,.15);
+}
+
+.mentionAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--stroke);
+}
+
+.mentionName {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.mentionHighlight {
+  color: rgba(124,178,255,1);
+  font-weight: 800;
+}
+
 /* ===== History: table -> cards on mobile ===== */
 @media (max-width: 720px){
   table thead{ display:none; }
@@ -1853,8 +2141,9 @@ select{
         Prijavite se za razgovor o pivima, preporuke i više...
       </div>
     </div>
-    <div class="chatInputArea">
-      <input type="text" id="chatInput" placeholder="Napiši poruku..." />
+    <div class="chatInputArea" style="position: relative;">
+      <div id="mentionAutocomplete" class="mentionAutocomplete" style="display: none;"></div>
+      <input type="text" id="chatInput" placeholder="Napiši poruku... (koristi @ za mention)" />
       <button id="btnSendChat">Pošalji</button>
     </div>
   </div>
@@ -2301,6 +2590,24 @@ select{
      PAGE: SOCIAL
 ======================= -->
 <div id="pageSocial" class="tabPage">
+  
+  <!-- Stories Bar -->
+  <section class="card" style="padding: 0; overflow: hidden;">
+    <div class="storiesBar" id="storiesBar">
+      <!-- Add Story Button -->
+      <div class="storyItem" id="addStoryBtn">
+        <div class="storyAvatar add">
+          <span>+</span>
+        </div>
+        <div class="storyNickname">Dodaj story</div>
+      </div>
+      
+      <!-- Stories will be loaded here -->
+    </div>
+  </section>
+  
+  <div style="height:16px"></div>
+  
   <section class="card">
     <div class="row" style="justify-content: space-between;">
       <span class="pill">👥 Social</span>
@@ -2551,6 +2858,72 @@ select{
     <button id="btnCloseUserProfile" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
       Zatvori
     </button>
+  </div>
+</div>
+
+<!-- Create Story Modal -->
+<div id="createStoryModal" class="loginOverlay" style="display: none;">
+  <div class="loginContainer" style="max-width: 500px;">
+    <div class="loginHeader">
+      <h2>📸 Kreiraj Story</h2>
+      <p>Podeli trenutak sa prijateljima (24h)</p>
+    </div>
+    
+    <div style="padding: 20px 0;">
+      <input type="file" id="storyImageInput" accept="image/*" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); color: var(--txt);" />
+      
+      <div id="storyImagePreview" style="margin-top: 16px; display: none;">
+        <img id="storyImagePreviewImg" src="" style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 12px; border: 1px solid var(--stroke);" />
+      </div>
+      
+      <div class="formGroup" style="margin-top: 16px;">
+        <label for="storyTextInput">Tekst (opciono)</label>
+        <textarea id="storyTextInput" placeholder="Dodaj tekst..." rows="3" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); color: var(--txt); font-family: inherit; resize: vertical;"></textarea>
+      </div>
+      
+      <button id="btnPublishStory" class="loginBtn btnPrimary" style="margin-top: 16px;">
+        📤 Objavi Story
+      </button>
+      
+      <button id="btnCancelStory" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
+        Otkaži
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Story Viewer -->
+<div id="storyViewer" class="storyViewer" style="display: none;">
+  <div class="storyProgress">
+    <div class="storyProgressBar" id="storyProgressBar"></div>
+  </div>
+  
+  <div class="storyHeader">
+    <div class="storyUserInfo">
+      <img id="storyUserAvatar" class="storyUserAvatar" src="" alt="Avatar">
+      <div>
+        <div class="storyUserName" id="storyUserName">User</div>
+        <div class="storyTime" id="storyTime">2h ago</div>
+      </div>
+    </div>
+  </div>
+  
+  <button class="storyCloseBtn" id="btnCloseStoryViewer">×</button>
+  
+  <button class="storyNavBtn prev" id="btnPrevStory" style="display: none;">‹</button>
+  <button class="storyNavBtn next" id="btnNextStory" style="display: none;">›</button>
+  
+  <div class="storyContent" id="storyContent">
+    <img id="storyImage" class="storyImage" src="" alt="Story">
+    <div class="storyText" id="storyTextDisplay"></div>
+  </div>
+  
+  <div class="storyActions">
+    <button class="storyReactionBtn" data-reaction="❤️">❤️</button>
+    <button class="storyReactionBtn" data-reaction="😂">😂</button>
+    <button class="storyReactionBtn" data-reaction="😮">😮</button>
+    <button class="storyReactionBtn" data-reaction="🔥">🔥</button>
+    <button class="storyReactionBtn" data-reaction="👏">👏</button>
   </div>
 </div>
 
@@ -3494,15 +3867,25 @@ async function sendMessage() {
   if (!text || !currentUser || !currentUserData) return;
   
   try {
+    // Parse mentions
+    const mentions = parseMentions(text);
+    
     await messagesCollection.add({
       text: text,
       uid: currentUser.uid,
       nickname: currentUserData.nickname || currentUser.email.split('@')[0],
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      avatar: currentUserData.avatar || null
+      avatar: currentUserData.avatar || null,
+      mentions: mentions.map(m => m.userId) // Store mentioned user IDs
     });
     
+    // Send mention notifications
+    if (mentions.length > 0) {
+      await sendMentionNotifications(mentions, text);
+    }
+    
     chatInput.value = '';
+    hideMentionAutocomplete();
   } catch (error) {
     console.error('Send message error:', error);
     showToast('Greška pri slanju poruke', 'error');
@@ -3598,7 +3981,7 @@ function createMessageElement(data) {
     // Regular text message
     textDiv.innerHTML = `
       <strong style="color: ${isMyMessage ? '#7cb2ff' : '#5cffa4'}">${escapeHtml(data.nickname)}</strong>
-      <div style="margin-top: 4px;">${escapeHtml(data.text)}</div>
+      <div style="margin-top: 4px;">${highlightMentions(escapeHtml(data.text))}</div>
     `;
   }
   
@@ -7223,6 +7606,15 @@ async function loadNotifications() {
       } else if (notif.type === 'cheers') {
         message = `${escapeHtml(notif.data.fromNickname)} ti je poslao zdravicu! 🍻`;
         icon = '🍻';
+      } else if (notif.type === 'story') {
+        message = `${escapeHtml(notif.data.fromNickname)} je objavio novi story`;
+        icon = '📸';
+      } else if (notif.type === 'story_reaction') {
+        message = `${escapeHtml(notif.data.fromNickname)} je reagovao na tvoj story ${notif.data.reaction}`;
+        icon = notif.data.reaction || '❤️';
+      } else if (notif.type === 'mention') {
+        message = `${escapeHtml(notif.data.fromNickname)} te je pomenuo u chatu`;
+        icon = '💬';
       }
       
       return `
@@ -7311,6 +7703,8 @@ btnCloseNotifications.addEventListener("click", () => {
 
 // Load social page
 async function loadSocialPage() {
+  await loadStories();
+  await loadMentionUsers();
   await loadFriendsList();
   await loadActivityFeed();
   await loadNotifications(); // Update badge
@@ -7545,6 +7939,629 @@ handleBarcode = (function(originalFunc) {
     }
   };
 })(handleBarcode);
+
+// ===== STORIES & MENTIONS =====
+
+const storiesCollection = db.collection('stories');
+const addStoryBtn = document.getElementById('addStoryBtn');
+const createStoryModal = document.getElementById('createStoryModal');
+const storyImageInput = document.getElementById('storyImageInput');
+const storyImagePreview = document.getElementById('storyImagePreview');
+const storyImagePreviewImg = document.getElementById('storyImagePreviewImg');
+const storyTextInput = document.getElementById('storyTextInput');
+const btnPublishStory = document.getElementById('btnPublishStory');
+const btnCancelStory = document.getElementById('btnCancelStory');
+const storiesBar = document.getElementById('storiesBar');
+const storyViewer = document.getElementById('storyViewer');
+const btnCloseStoryViewer = document.getElementById('btnCloseStoryViewer');
+
+let currentStories = [];
+let currentStoryIndex = 0;
+let storyProgressInterval = null;
+
+// Open create story modal
+addStoryBtn.addEventListener('click', () => {
+  if (!currentUser) {
+    showToast('⚠️ Morate biti prijavljeni', 'warn');
+    return;
+  }
+  createStoryModal.style.display = 'flex';
+});
+
+// Cancel story
+btnCancelStory.addEventListener('click', () => {
+  createStoryModal.style.display = 'none';
+  storyImageInput.value = '';
+  storyImagePreview.style.display = 'none';
+  storyTextInput.value = '';
+});
+
+// Preview story image
+storyImageInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      storyImagePreviewImg.src = e.target.result;
+      storyImagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Publish story
+btnPublishStory.addEventListener('click', async () => {
+  if (!currentUser) return;
+  
+  const file = storyImageInput.files[0];
+  if (!file) {
+    showToast('⚠️ Dodaj sliku za story', 'warn');
+    return;
+  }
+  
+  try {
+    btnPublishStory.disabled = true;
+    btnPublishStory.textContent = '⏳ Objavljujem...';
+    
+    // Upload image to Storage
+    const storageRef = storage.ref();
+    const storyImageRef = storageRef.child(`stories/${currentUser.uid}/${Date.now()}_${file.name}`);
+    await storyImageRef.put(file);
+    const imageUrl = await storyImageRef.getDownloadURL();
+    
+    // Create story document
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    
+    const storyData = {
+      userId: currentUser.uid,
+      userNickname: currentUserData?.nickname || currentUser.email.split('@')[0],
+      userAvatar: currentUserData?.avatar || '',
+      imageUrl: imageUrl,
+      text: storyTextInput.value.trim() || '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt),
+      viewsCount: 0,
+      reactionsCount: 0
+    };
+    
+    const storyDoc = await storiesCollection.add(storyData);
+    
+    // Send notifications to followers
+    await notifyFollowersAboutStory(storyDoc.id);
+    
+    showToast('✅ Story objavljen!', 'success');
+    createStoryModal.style.display = 'none';
+    storyImageInput.value = '';
+    storyImagePreview.style.display = 'none';
+    storyTextInput.value = '';
+    btnPublishStory.disabled = false;
+    btnPublishStory.textContent = '📤 Objavi Story';
+    
+    // Reload stories
+    await loadStories();
+  } catch (error) {
+    console.error('Greška pri objavljivanju story-ja:', error);
+    showToast('❌ Greška pri objavljivanju', 'error');
+    btnPublishStory.disabled = false;
+    btnPublishStory.textContent = '📤 Objavi Story';
+  }
+});
+
+// Notify followers about new story
+async function notifyFollowersAboutStory(storyId) {
+  try {
+    const followersSnapshot = await followsCollection.doc(currentUser.uid).collection('followers').get();
+    
+    const batch = db.batch();
+    followersSnapshot.docs.forEach(doc => {
+      const followerId = doc.id;
+      const notifRef = notificationsCollection.doc(followerId).collection('items').doc();
+      batch.set(notifRef, {
+        type: 'story',
+        data: {
+          fromUserId: currentUser.uid,
+          fromNickname: currentUserData?.nickname || currentUser.email.split('@')[0],
+          fromAvatar: currentUserData?.avatar || '',
+          storyId: storyId
+        },
+        read: false,
+        viewed: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    
+    await batch.commit();
+  } catch (error) {
+    console.error('Greška pri slanju notifikacija:', error);
+  }
+}
+
+// Load stories
+async function loadStories() {
+  if (!currentUser) return;
+  
+  try {
+    // Get stories from followed users + own stories
+    const followingSnapshot = await followsCollection.doc(currentUser.uid).collection('following').get();
+    const followingIds = followingSnapshot.docs.map(doc => doc.id);
+    followingIds.push(currentUser.uid); // Add own stories
+    
+    // Get all stories that haven't expired
+    const now = firebase.firestore.Timestamp.now();
+    const storiesSnapshot = await storiesCollection
+      .where('userId', 'in', followingIds.slice(0, 10)) // Firestore limit
+      .where('expiresAt', '>', now)
+      .orderBy('expiresAt', 'desc')
+      .orderBy('createdAt', 'desc')
+      .get();
+    
+    // Group stories by user
+    const storiesByUser = {};
+    storiesSnapshot.docs.forEach(doc => {
+      const story = { id: doc.id, ...doc.data() };
+      if (!storiesByUser[story.userId]) {
+        storiesByUser[story.userId] = [];
+      }
+      storiesByUser[story.userId].push(story);
+    });
+    
+    // Clear stories bar (keep add button)
+    while (storiesBar.children.length > 1) {
+      storiesBar.removeChild(storiesBar.lastChild);
+    }
+    
+    // Add story items
+    for (const userId in storiesByUser) {
+      const userStories = storiesByUser[userId];
+      const latestStory = userStories[0];
+      
+      // Check if user has viewed all stories
+      const hasUnviewed = await checkUnviewedStories(userStories);
+      
+      const storyItem = document.createElement('div');
+      storyItem.className = 'storyItem';
+      storyItem.innerHTML = `
+        <div class="storyAvatar ${hasUnviewed ? '' : 'viewed'}">
+          <img src="${latestStory.userAvatar}" alt="${latestStory.userNickname}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
+        </div>
+        <div class="storyNickname">${escapeHtml(latestStory.userNickname)}</div>
+      `;
+      
+      storyItem.addEventListener('click', () => {
+        openStoryViewer(userStories, 0);
+      });
+      
+      storiesBar.appendChild(storyItem);
+    }
+  } catch (error) {
+    console.error('Greška pri učitavanju stories:', error);
+  }
+}
+
+// Check if user has unviewed stories
+async function checkUnviewedStories(stories) {
+  if (!currentUser) return false;
+  
+  for (const story of stories) {
+    const viewDoc = await storiesCollection.doc(story.id).collection('views').doc(currentUser.uid).get();
+    if (!viewDoc.exists) {
+      return true; // Has at least one unviewed story
+    }
+  }
+  return false;
+}
+
+// Open story viewer
+function openStoryViewer(stories, startIndex = 0) {
+  currentStories = stories;
+  currentStoryIndex = startIndex;
+  storyViewer.style.display = 'flex';
+  showStory(currentStoryIndex);
+}
+
+// Show story
+async function showStory(index) {
+  if (index < 0 || index >= currentStories.length) {
+    closeStoryViewer();
+    return;
+  }
+  
+  const story = currentStories[index];
+  
+  // Update UI
+  document.getElementById('storyUserAvatar').src = story.userAvatar;
+  document.getElementById('storyUserName').textContent = story.userNickname;
+  document.getElementById('storyTime').textContent = formatDate(story.createdAt?.toMillis());
+  document.getElementById('storyImage').src = story.imageUrl;
+  document.getElementById('storyTextDisplay').textContent = story.text || '';
+  
+  // Show/hide navigation buttons
+  document.getElementById('btnPrevStory').style.display = index > 0 ? 'flex' : 'none';
+  document.getElementById('btnNextStory').style.display = index < currentStories.length - 1 ? 'flex' : 'none';
+  
+  // Mark as viewed
+  await markStoryAsViewed(story.id);
+  
+  // Start progress bar
+  startStoryProgress();
+  
+  // Load reactions
+  await loadStoryReactions(story.id);
+}
+
+// Mark story as viewed
+async function markStoryAsViewed(storyId) {
+  if (!currentUser) return;
+  
+  try {
+    await storiesCollection.doc(storyId).collection('views').doc(currentUser.uid).set({
+      viewedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Update views count
+    await storiesCollection.doc(storyId).update({
+      viewsCount: firebase.firestore.FieldValue.increment(1)
+    });
+    
+    // Mark notification as viewed
+    const notifSnapshot = await notificationsCollection.doc(currentUser.uid).collection('items')
+      .where('data.storyId', '==', storyId)
+      .where('viewed', '==', false)
+      .get();
+    
+    const batch = db.batch();
+    notifSnapshot.docs.forEach(doc => {
+      batch.update(doc.ref, { viewed: true });
+    });
+    await batch.commit();
+  } catch (error) {
+    console.error('Greška pri označavanju story-ja:', error);
+  }
+}
+
+// Start story progress
+function startStoryProgress() {
+  stopStoryProgress();
+  
+  const progressBar = document.getElementById('storyProgressBar');
+  let progress = 0;
+  const duration = 5000; // 5 seconds
+  const interval = 50;
+  const increment = (interval / duration) * 100;
+  
+  storyProgressInterval = setInterval(() => {
+    progress += increment;
+    progressBar.style.width = progress + '%';
+    
+    if (progress >= 100) {
+      stopStoryProgress();
+      nextStory();
+    }
+  }, interval);
+}
+
+// Stop story progress
+function stopStoryProgress() {
+  if (storyProgressInterval) {
+    clearInterval(storyProgressInterval);
+    storyProgressInterval = null;
+  }
+  document.getElementById('storyProgressBar').style.width = '0%';
+}
+
+// Next story
+function nextStory() {
+  currentStoryIndex++;
+  if (currentStoryIndex < currentStories.length) {
+    showStory(currentStoryIndex);
+  } else {
+    closeStoryViewer();
+  }
+}
+
+// Previous story
+function prevStory() {
+  currentStoryIndex--;
+  if (currentStoryIndex >= 0) {
+    showStory(currentStoryIndex);
+  }
+}
+
+// Close story viewer
+function closeStoryViewer() {
+  stopStoryProgress();
+  storyViewer.style.display = 'none';
+  currentStories = [];
+  currentStoryIndex = 0;
+  
+  // Reload stories to update viewed status
+  loadStories();
+}
+
+// Story navigation
+document.getElementById('btnPrevStory').addEventListener('click', prevStory);
+document.getElementById('btnNextStory').addEventListener('click', nextStory);
+btnCloseStoryViewer.addEventListener('click', closeStoryViewer);
+
+// Story reactions
+document.querySelectorAll('.storyReactionBtn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!currentUser || currentStories.length === 0) return;
+    
+    const story = currentStories[currentStoryIndex];
+    const reaction = btn.dataset.reaction;
+    
+    try {
+      // Toggle reaction
+      const reactionRef = storiesCollection.doc(story.id).collection('reactions').doc(currentUser.uid);
+      const reactionDoc = await reactionRef.get();
+      
+      if (reactionDoc.exists && reactionDoc.data().reaction === reaction) {
+        // Remove reaction
+        await reactionRef.delete();
+        await storiesCollection.doc(story.id).update({
+          reactionsCount: firebase.firestore.FieldValue.increment(-1)
+        });
+        btn.classList.remove('active');
+      } else {
+        // Add/update reaction
+        await reactionRef.set({
+          userId: currentUser.uid,
+          reaction: reaction,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        if (!reactionDoc.exists) {
+          await storiesCollection.doc(story.id).update({
+            reactionsCount: firebase.firestore.FieldValue.increment(1)
+          });
+        }
+        
+        // Update UI
+        document.querySelectorAll('.storyReactionBtn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Send notification to story owner
+        if (story.userId !== currentUser.uid) {
+          await createNotification(story.userId, 'story_reaction', {
+            fromUserId: currentUser.uid,
+            fromNickname: currentUserData?.nickname || currentUser.email.split('@')[0],
+            fromAvatar: currentUserData?.avatar || '',
+            storyId: story.id,
+            reaction: reaction
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Greška pri reakciji:', error);
+    }
+  });
+});
+
+// Load story reactions
+async function loadStoryReactions(storyId) {
+  if (!currentUser) return;
+  
+  try {
+    const reactionDoc = await storiesCollection.doc(storyId).collection('reactions').doc(currentUser.uid).get();
+    
+    // Update UI
+    document.querySelectorAll('.storyReactionBtn').forEach(btn => {
+      btn.classList.remove('active');
+      if (reactionDoc.exists && reactionDoc.data().reaction === btn.dataset.reaction) {
+        btn.classList.add('active');
+      }
+    });
+  } catch (error) {
+    console.error('Greška pri učitavanju reakcija:', error);
+  }
+}
+
+// ===== @MENTIONS IN CHAT =====
+
+const mentionAutocomplete = document.getElementById('mentionAutocomplete');
+let mentionUsers = [];
+let selectedMentionIndex = -1;
+
+// Load users for mentions
+async function loadMentionUsers() {
+  if (!currentUser) return;
+  
+  try {
+    // Get following users
+    const followingSnapshot = await followsCollection.doc(currentUser.uid).collection('following').get();
+    mentionUsers = [];
+    
+    for (const doc of followingSnapshot.docs) {
+      const userDoc = await usersCollection.doc(doc.id).get();
+      if (userDoc.exists) {
+        mentionUsers.push({
+          id: doc.id,
+          ...userDoc.data()
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Greška pri učitavanju korisnika:', error);
+  }
+}
+
+// Chat input - detect @ mentions
+chatInput.addEventListener('input', (e) => {
+  const text = e.target.value;
+  const cursorPos = e.target.selectionStart;
+  
+  // Find @ before cursor
+  const textBeforeCursor = text.substring(0, cursorPos);
+  const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+  
+  if (lastAtIndex !== -1) {
+    const searchText = textBeforeCursor.substring(lastAtIndex + 1);
+    
+    // Check if there's a space after @
+    if (searchText.includes(' ')) {
+      hideMentionAutocomplete();
+      return;
+    }
+    
+    // Filter users
+    const filtered = mentionUsers.filter(user => 
+      user.nickname?.toLowerCase().includes(searchText.toLowerCase()) ||
+      user.name?.toLowerCase().includes(searchText.toLowerCase())
+    );
+    
+    if (filtered.length > 0 && searchText.length > 0) {
+      showMentionAutocomplete(filtered, searchText);
+    } else {
+      hideMentionAutocomplete();
+    }
+  } else {
+    hideMentionAutocomplete();
+  }
+});
+
+// Show mention autocomplete
+function showMentionAutocomplete(users, searchText) {
+  selectedMentionIndex = -1;
+  mentionAutocomplete.innerHTML = users.slice(0, 5).map((user, index) => {
+    const nickname = user.nickname || user.email.split('@')[0];
+    const highlightedNickname = nickname.replace(
+      new RegExp(searchText, 'gi'),
+      match => `<span class="mentionHighlight">${match}</span>`
+    );
+    
+    return `
+      <div class="mentionItem" data-index="${index}" data-user-id="${user.id}" data-nickname="${escapeHtml(nickname)}">
+        <img class="mentionAvatar" src="${user.avatar || ''}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
+        <div class="mentionName">${highlightedNickname}</div>
+      </div>
+    `;
+  }).join('');
+  
+  mentionAutocomplete.style.display = 'block';
+  
+  // Add click listeners
+  mentionAutocomplete.querySelectorAll('.mentionItem').forEach(item => {
+    item.addEventListener('click', () => {
+      selectMention(item.dataset.userId, item.dataset.nickname);
+    });
+  });
+}
+
+// Hide mention autocomplete
+function hideMentionAutocomplete() {
+  mentionAutocomplete.style.display = 'none';
+  selectedMentionIndex = -1;
+}
+
+// Select mention
+function selectMention(userId, nickname) {
+  const text = chatInput.value;
+  const cursorPos = chatInput.selectionStart;
+  const textBeforeCursor = text.substring(0, cursorPos);
+  const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+  
+  const newText = text.substring(0, lastAtIndex) + `@${nickname} ` + text.substring(cursorPos);
+  chatInput.value = newText;
+  chatInput.focus();
+  
+  // Set cursor after mention
+  const newCursorPos = lastAtIndex + nickname.length + 2;
+  chatInput.setSelectionRange(newCursorPos, newCursorPos);
+  
+  hideMentionAutocomplete();
+}
+
+// Keyboard navigation for mentions
+chatInput.addEventListener('keydown', (e) => {
+  if (mentionAutocomplete.style.display === 'none') return;
+  
+  const items = mentionAutocomplete.querySelectorAll('.mentionItem');
+  
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    selectedMentionIndex = Math.min(selectedMentionIndex + 1, items.length - 1);
+    updateMentionSelection(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    selectedMentionIndex = Math.max(selectedMentionIndex - 1, 0);
+    updateMentionSelection(items);
+  } else if (e.key === 'Enter' && selectedMentionIndex >= 0) {
+    e.preventDefault();
+    const item = items[selectedMentionIndex];
+    selectMention(item.dataset.userId, item.dataset.nickname);
+  } else if (e.key === 'Escape') {
+    hideMentionAutocomplete();
+  }
+});
+
+// Update mention selection
+function updateMentionSelection(items) {
+  items.forEach((item, index) => {
+    if (index === selectedMentionIndex) {
+      item.style.background = 'rgba(124,178,255,.25)';
+    } else {
+      item.style.background = '';
+    }
+  });
+}
+
+// Parse mentions in message
+function parseMentions(text) {
+  const mentionRegex = /@(\w+)/g;
+  const mentions = [];
+  let match;
+  
+  while ((match = mentionRegex.exec(text)) !== null) {
+    const nickname = match[1];
+    const user = mentionUsers.find(u => 
+      (u.nickname || u.email.split('@')[0]) === nickname
+    );
+    
+    if (user) {
+      mentions.push({
+        userId: user.id,
+        nickname: nickname
+      });
+    }
+  }
+  
+  return mentions;
+}
+
+// Send mention notifications
+async function sendMentionNotifications(mentions, messageText) {
+  if (!currentUser || mentions.length === 0) return;
+  
+  try {
+    const batch = db.batch();
+    
+    mentions.forEach(mention => {
+      const notifRef = notificationsCollection.doc(mention.userId).collection('items').doc();
+      batch.set(notifRef, {
+        type: 'mention',
+        data: {
+          fromUserId: currentUser.uid,
+          fromNickname: currentUserData?.nickname || currentUser.email.split('@')[0],
+          fromAvatar: currentUserData?.avatar || '',
+          messageText: messageText.substring(0, 100) // First 100 chars
+        },
+        read: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    
+    await batch.commit();
+  } catch (error) {
+    console.error('Greška pri slanju mention notifikacija:', error);
+  }
+}
+
+// Highlight mentions in chat messages
+function highlightMentions(text) {
+  return text.replace(/@(\w+)/g, '<span class="mentionHighlight">@$1</span>');
+}
 
 console.log('✅ Social & Profile features loaded');
 </script>

@@ -91,5 +91,34 @@ service cloud.firestore {
       allow update: if request.auth != null && request.auth.uid == userId;
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
+    
+    // Stories - 24h stories
+    match /stories/{storyId} {
+      // Svi prijavljeni mogu čitati stories
+      allow read: if request.auth != null;
+      // Samo vlasnik može kreirati svoj story
+      allow create: if request.auth != null && 
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.createdAt != null &&
+                      request.resource.data.expiresAt != null;
+      // Samo vlasnik može obrisati svoj story
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Ne može se menjati
+      allow update: if false;
+      
+      // Story views - ko je pogledao story
+      match /views/{viewerId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == viewerId;
+      }
+      
+      // Story reactions - reakcije na story
+      match /reactions/{reactionId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && 
+                        request.resource.data.userId == request.auth.uid;
+        allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      }
+    }
   }
 }
