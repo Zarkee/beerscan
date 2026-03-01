@@ -3511,11 +3511,25 @@ auth.onAuthStateChanged(async (user) => {
     setupNotificationsListener();
     
     // Hide login overlay
-    document.getElementById('loginOverlay').classList.add('hidden');
+    const loginOverlay = document.getElementById('loginOverlay');
+    console.log('Login overlay element:', loginOverlay);
+    console.log('Login overlay classes before:', loginOverlay?.className);
+    
+    loginOverlay.classList.add('hidden');
+    
+    console.log('Login overlay classes after:', loginOverlay?.className);
+    console.log('Login overlay display:', window.getComputedStyle(loginOverlay).display);
+    console.log('Calling setTab...');
+    
+    // Set tab to scan IMMEDIATELY
+    setTab("scan");
     
     // Show avatar menu button
     const avatarMenuBtn = document.getElementById('avatarMenuBtn');
-    if(avatarMenuBtn) avatarMenuBtn.classList.remove('hidden');
+    if(avatarMenuBtn) {
+      avatarMenuBtn.classList.remove('hidden');
+      console.log('Avatar menu button shown');
+    }
     
     // Update avatar images
     const headerAvatar = document.getElementById('headerAvatar');
@@ -3534,14 +3548,6 @@ auth.onAuthStateChanged(async (user) => {
     // Show user stats
     document.getElementById('userStatsBar').classList.remove('hidden');
     document.getElementById('btnLogout').classList.remove('hidden');
-    
-    // Set default tab to scan after login
-    setTimeout(() => {
-      if(typeof setTab === 'function') {
-        setTab("scan");
-        console.log('Set tab to scan after login');
-      }
-    }, 100);
     
     // Update UI
     await checkUserRank();
