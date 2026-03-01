@@ -1834,7 +1834,7 @@ select{
 #tourOverlay{
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 20000;
   display: none;
 
   /* KLJUČNO: klik ide na elemente ispod (spotlight je samo vizuelan) */
@@ -1885,7 +1885,7 @@ select{
 /* Tooltip mora da prima klik */
 .tourTooltip{
   pointer-events: auto;
-
+  z-index: 20001;
   position:absolute;
   width: min(420px, calc(100vw - 28px));
   border-radius: 24px;
