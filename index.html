@@ -6576,13 +6576,23 @@ function showCelebration(){
     animation: celebPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: none;
   `;
-  celebDiv.innerHTML = `
-    <div style="font-size: 48px; margin-bottom: 10px; animation: celebRotate 0.8s ease;">�</div>
-    <div style="letter-spacing: 0.5px;">Živeli!</div>
-    <div style="font-size: 14px; font-weight: 600; margin-top: 8px; opacity: 0.90;">
-      Završili ste uputstvo za BeerScan
-    </div>
-  `;
+  
+  // Kreiraj emoji element dinamički
+  const emojiDiv = document.createElement('div');
+  emojiDiv.style.cssText = 'font-size: 48px; margin-bottom: 10px; animation: celebRotate 0.8s ease;';
+  emojiDiv.textContent = String.fromCodePoint(0x1F37B); // 🍻
+  
+  const titleDiv = document.createElement('div');
+  titleDiv.style.cssText = 'letter-spacing: 0.5px;';
+  titleDiv.textContent = 'Živeli!';
+  
+  const subtitleDiv = document.createElement('div');
+  subtitleDiv.style.cssText = 'font-size: 14px; font-weight: 600; margin-top: 8px; opacity: 0.90;';
+  subtitleDiv.textContent = 'Završili ste uputstvo za BeerScan';
+  
+  celebDiv.appendChild(emojiDiv);
+  celebDiv.appendChild(titleDiv);
+  celebDiv.appendChild(subtitleDiv);
   
   document.body.appendChild(celebDiv);
   
