@@ -9807,41 +9807,61 @@ async function handleTouchEnd(e) {
 }
 
 async function refreshCurrentPage() {
-  // Determine which page is active and refresh it
-  const activePage = document.querySelector('.tabPage.active');
-  
-  if (!activePage) return;
-  
-  const pageId = activePage.id;
-  
-  switch(pageId) {
-    case 'pageScan':
-      // Refresh scan status
-      await new Promise(resolve => setTimeout(resolve, 500));
-      break;
-      
-    case 'pageHistory':
-      // Reload history
-      showSkeletonLoader('historyTable', 'table', 5);
-      await loadHistory();
-      break;
-      
-    case 'pageStats':
-      // Reload stats
-      await loadStats();
-      break;
-      
-    case 'pageSocial':
-      // Reload social feed
-      showSkeletonLoader('storiesBar', 'story', 5);
-      await loadStories();
-      await loadActivityFeed();
-      break;
-      
-    case 'pageProfile':
-      // Reload profile
-      await loadUserProfile();
-      break;
+  try {
+    // Determine which page is active and refresh it
+    const activePage = document.querySelector('.tabPage.active');
+    
+    if (!activePage) {
+      console.log('No active page found');
+      return;
+    }
+    
+    const pageId = activePage.id;
+    console.log('Refreshing page:', pageId);
+    
+    switch(pageId) {
+      case 'pageScan':
+        // Refresh scan status
+        await new Promise(resolve => setTimeout(resolve, 500));
+        break;
+        
+      case 'pageHistory':
+        // Reload history
+        showSkeletonLoader('historyTable', 'table', 5);
+        await refreshHistory();
+        break;
+        
+      case 'pageStats':
+        // Reload stats
+        const allRecords = await dbGetAll();
+        await updateStats(allRecords);
+        break;
+        
+      case 'pageSocial':
+        // Reload social feed
+        showSkeletonLoader('storiesBar', 'story', 5);
+        if (typeof loadStories === 'function') {
+          await loadStories();
+        }
+        if (typeof loadActivityFeed === 'function') {
+          await loadActivityFeed();
+        }
+        if (typeof loadFriendsList === 'function') {
+          await loadFriendsList();
+        }
+        break;
+        
+      case 'pageProfile':
+        // Reload profile - just refresh history which updates profile stats
+        await refreshHistory();
+        break;
+        
+      default:
+        console.log('Unknown page:', pageId);
+    }
+  } catch (error) {
+    console.error('Error in refreshCurrentPage:', error);
+    throw error; // Re-throw so handleTouchEnd can catch it
   }
 }
 
