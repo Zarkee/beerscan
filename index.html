@@ -9838,8 +9838,7 @@ async function refreshCurrentPage() {
         break;
         
       case 'pageSocial':
-        // Reload social feed
-        showSkeletonLoader('storiesBar', 'story', 5);
+        // Reload social feed (don't show skeleton in storiesBar to preserve Add button)
         if (typeof loadStories === 'function') {
           await loadStories();
         }
