@@ -1356,6 +1356,201 @@ main::after{
     color: var(--muted);
   }
 }
+
+/* ===== SKELETON LOADERS ===== */
+.skeleton-loader {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,.05) 0%,
+    rgba(255,255,255,.10) 50%,
+    rgba(255,255,255,.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  margin-bottom: 12px;
+}
+
+.skeleton-line {
+  height: 16px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.medium {
+  width: 80%;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.skeleton-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+}
+
+/* ===== PULL TO REFRESH ===== */
+.pull-to-refresh {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, rgba(7,10,16,.95), transparent);
+  backdrop-filter: blur(10px);
+  transform: translateY(-100%);
+  transition: transform .3s ease;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.pull-to-refresh.visible {
+  transform: translateY(0);
+}
+
+.pull-to-refresh-icon {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(124,178,255,.3);
+  border-top-color: rgba(124,178,255,.9);
+  border-radius: 50%;
+  transition: transform .3s ease;
+}
+
+.pull-to-refresh.pulling .pull-to-refresh-icon {
+  transform: rotate(180deg);
+}
+
+.pull-to-refresh.refreshing .pull-to-refresh-icon {
+  animation: spin 0.8s linear infinite;
+}
+
+.pull-to-refresh-text {
+  margin-left: 12px;
+  color: var(--txt);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* ===== ERROR TOAST ===== */
+.error-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  max-width: 90%;
+  width: 400px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255,92,92,.95), rgba(255,60,60,.90));
+  border: 1px solid rgba(255,92,92,.6);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 20px 60px rgba(0,0,0,.70), 0 0 30px rgba(255,92,92,.45);
+  backdrop-filter: blur(20px);
+  z-index: 10001;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.error-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.error-toast-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.error-toast-icon {
+  font-size: 24px;
+}
+
+.error-toast-title {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.error-toast-message {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.95;
+  line-height: 1.4;
+}
+
+.error-toast-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.3);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background .2s ease;
+}
+
+.error-toast-close:hover {
+  background: rgba(0,0,0,.5);
+}
+
+.error-toast.success {
+  background: linear-gradient(135deg, rgba(92,255,164,.95), rgba(60,220,140,.90));
+  border-color: rgba(92,255,164,.6);
+  box-shadow: 0 20px 60px rgba(0,0,0,.70), 0 0 30px rgba(92,255,164,.45);
+}
+
+.error-toast.warning {
+  background: linear-gradient(135deg, rgba(255,210,92,.95), rgba(255,190,60,.90));
+  border-color: rgba(255,210,92,.6);
+  box-shadow: 0 20px 60px rgba(0,0,0,.70), 0 0 30px rgba(255,210,92,.45);
+}
+
+.error-toast.info {
+  background: linear-gradient(135deg, rgba(124,178,255,.95), rgba(100,150,255,.90));
+  border-color: rgba(124,178,255,.6);
+  box-shadow: 0 20px 60px rgba(0,0,0,.70), 0 0 30px rgba(124,178,255,.45);
+}
 /* ===== Status mini variants (so JS ok/warn/bad still looks good) ===== */
 #status.ok{ border-color: var(--goodStroke); background: var(--good); color: var(--txt); }
 #status.warn{ border-color: var(--warnStroke); background: var(--warn); color: var(--txt); }
@@ -2264,6 +2459,22 @@ main{
 </head>
 
 <body>
+  <!-- Pull to Refresh Indicator -->
+  <div id="pullToRefresh" class="pull-to-refresh">
+    <div class="pull-to-refresh-icon"></div>
+    <div class="pull-to-refresh-text">Povuci za osvežavanje...</div>
+  </div>
+
+  <!-- Error Toast -->
+  <div id="errorToast" class="error-toast">
+    <button class="error-toast-close" onclick="hideErrorToast()">✕</button>
+    <div class="error-toast-header">
+      <span class="error-toast-icon">⚠️</span>
+      <span class="error-toast-title">Greška</span>
+    </div>
+    <div class="error-toast-message"></div>
+  </div>
+
   <!-- Login/Register Overlay -->
   <div id="loginOverlay" class="loginOverlay">
     <div class="loginContainer">
@@ -4652,10 +4863,27 @@ async function dbClear(){
    Open Food Facts API
 ======================= */
 async function fetchOFF(barcode){
-  const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`;
-  const res = await fetch(url, { cache: "no-store" });
-  if(!res.ok) throw new Error("OFF API greška");
-  return await res.json();
+  try {
+    const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(barcode)}.json`;
+    const res = await fetch(url, { cache: "no-store" });
+    
+    if(!res.ok) {
+      throw new Error(`OFF API greška: ${res.status} ${res.statusText}`);
+    }
+    
+    return await res.json();
+  } catch (error) {
+    console.error('fetchOFF error:', error);
+    
+    // User-friendly error message
+    if (!navigator.onLine) {
+      throw new Error('Nema internet konekcije. Proverite mrežu.');
+    } else if (error.message.includes('Failed to fetch')) {
+      throw new Error('Ne mogu da se povežem sa serverom. Proverite internet.');
+    } else {
+      throw error;
+    }
+  }
 }
 
 function offSummary(offJson){
@@ -4896,8 +5124,14 @@ function downloadText(filename, text){
    Istorija / prikaz
 ======================= */
 async function refreshHistory(){
-  const all = await dbGetAll();
-  const q = (historySearchEl?.value || "").trim().toLowerCase();
+  // Show skeleton loader
+  if (window.showSkeletonLoader) {
+    showSkeletonLoader('historyTable', 'table', 5);
+  }
+  
+  try {
+    const all = await dbGetAll();
+    const q = (historySearchEl?.value || "").trim().toLowerCase();
 let list = all;
 
 if(historyFilter === "new") list = list.filter(r => (r.timesTried || 0) === 0);
@@ -4984,6 +5218,13 @@ list.sort((a,b) => {
     });
   }
   updateStats(all).catch(()=>{});
+  } catch (error) {
+    console.error('Error refreshing history:', error);
+    if (window.handleError) {
+      handleError(error, 'refreshHistory');
+    }
+    historyTableEl.innerHTML = `<tr><td colspan="5" class="hint">Greška pri učitavanju istorije.</td></tr>`;
+  }
 }
 
 // Quick actions functions
@@ -5264,65 +5505,72 @@ let currentBarcode = null;
 let editingNote = false;
 
 async function handleBarcode(raw, opts = {}){
-  const bc = normalizeBarcode(raw);
-  if(!bc) return;
+  try {
+    const bc = normalizeBarcode(raw);
+    if(!bc) return;
 
-  // Prikaži rezultat blok
-  const resultBlock = document.getElementById('resultBlock');
-  if(resultBlock) resultBlock.style.display = 'block';
+    // Prikaži rezultat blok
+    const resultBlock = document.getElementById('resultBlock');
+    if(resultBlock) resultBlock.style.display = 'block';
 
-  currentBarcode = bc;
-  currentBarcodeEl.textContent = bc;
-  btnCapture.disabled = false;  if(btnCapturePhoto) btnCapturePhoto.disabled = false;
-  if(btnFav) btnFav.disabled = false;
-  if(btnShare) btnShare.disabled = false;
-  if(btnSaveNote) btnSaveNote.disabled = false;
-  if(btnLocation) btnLocation.disabled = false;
-  if(btnUntappd) btnUntappd.disabled = false;
-  if(btnCalendar) btnCalendar.disabled = false;
+    currentBarcode = bc;
+    currentBarcodeEl.textContent = bc;
+    btnCapture.disabled = false;  if(btnCapturePhoto) btnCapturePhoto.disabled = false;
+    if(btnFav) btnFav.disabled = false;
+    if(btnShare) btnShare.disabled = false;
+    if(btnSaveNote) btnSaveNote.disabled = false;
+    if(btnLocation) btnLocation.disabled = false;
+    if(btnUntappd) btnUntappd.disabled = false;
+    if(btnCalendar) btnCalendar.disabled = false;
 
-  lastPhotoEl.style.display = "none";
-  lastPhotoEl.src = "";
+    lastPhotoEl.style.display = "none";
+    lastPhotoEl.src = "";
 
-  // učitaj iz baze ili napravi novi zapis
-  let rec = await dbGet(bc);
-  if(!rec){
-    rec = {
-  barcode: bc,
-  createdAt: Date.now(),
-  updatedAt: Date.now(),
-  timesTried: 0,
-  off: null,
-  photo: null,
-  
-  // NOVO:
-  favorite: false,
-  rating: 0,
-  note: ""
-};
-    setStatus(`Skenirano ${bc} — NOVO PIVO`, "warn");
-  } else {
-    setStatus(`Skenirano ${bc} — postoji u istoriji`, "ok");
-  }
-
-  // OFF podaci
-  try{
-    const offJson = await fetchOFF(bc);
-    if(offJson && offJson.status === 1){
-      rec.off = offSummary(offJson);
-      rec.updatedAt = Date.now();
-      await dbPut(rec);
-      setStatus(`Skenirano ${bc} — OFF podaci pronađeni`, "ok");
+    // učitaj iz baze ili napravi novi zapis
+    let rec = await dbGet(bc);
+    if(!rec){
+      rec = {
+    barcode: bc,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    timesTried: 0,
+    off: null,
+    photo: null,
+    
+    // NOVO:
+    favorite: false,
+    rating: 0,
+    note: ""
+  };
+      setStatus(`Skenirano ${bc} — NOVO PIVO`, "warn");
     } else {
+      setStatus(`Skenirano ${bc} — postoji u istoriji`, "ok");
+    }
+
+    // OFF podaci
+    try{
+      const offJson = await fetchOFF(bc);
+      if(offJson && offJson.status === 1){
+        rec.off = offSummary(offJson);
+        rec.updatedAt = Date.now();
+        await dbPut(rec);
+        setStatus(`Skenirano ${bc} — OFF podaci pronađeni`, "ok");
+      } else {
+        rec.updatedAt = Date.now();
+        await dbPut(rec);
+        setStatus(`Skenirano ${bc} — nema OFF zapisa`, "warn");
+      }
+    } catch (error) {
+      console.error('OFF fetch error:', error);
       rec.updatedAt = Date.now();
       await dbPut(rec);
-      setStatus(`Skenirano ${bc} — nema OFF zapisa`, "warn");
+      
+      if (window.showWarningToast) {
+        showWarningToast('OFF nedostupan', error.message || 'Ne mogu da učitam podatke sa Open Food Facts');
+      }
+      
+      setStatus(`Skenirano ${bc} — OFF nedostupan (offline ili greška)`, "warn");
     }
-  } catch {
-    rec.updatedAt = Date.now();
-    await dbPut(rec);
-    setStatus(`Skenirano ${bc} — OFF nedostupan (offline ili greška)`, "warn");
-  }
 
   // UI prikaz
   const name = (rec.off?.productName || "").trim();
@@ -5416,6 +5664,12 @@ if (photoHintEl) {
 
 
   await refreshHistory();
+  } catch (error) {
+    console.error('handleBarcode error:', error);
+    if (window.handleError) {
+      handleError(error, 'handleBarcode');
+    }
+  }
 }
 
 /* =======================
@@ -5503,6 +5757,11 @@ async function scanLoop(){
         const bc = normalizeBarcode(raw);
 
         if (bc && bc !== currentBarcode) {
+          // Haptic feedback on successful scan
+          if (window.haptic) {
+            haptic.scan();
+          }
+          
           // Success animation
           const frameBox = document.querySelector('.frameBox');
           if(frameBox){
@@ -5747,7 +6006,19 @@ if(scanFab){
   });
 }
 btnTorch.addEventListener("click", toggleTorch);
-btnCapture.addEventListener("click", markAsTried);
+btnCapture.addEventListener("click", async () => {
+  if (window.haptic) haptic.medium();
+  try {
+    await markAsTried();
+    if (window.showSuccessToast) {
+      showSuccessToast('Uspešno označeno kao "Probao"!');
+    }
+  } catch (error) {
+    if (window.handleError) {
+      handleError(error, 'markAsTried');
+    }
+  }
+});
 
 const btnCapturePhoto = document.getElementById("btnCapturePhoto");
 if(btnCapturePhoto){
@@ -5755,6 +6026,8 @@ if(btnCapturePhoto){
 }
 
 btnLookup.addEventListener("click", async () => {
+  if (window.haptic) haptic.light();
+  
   const bc = normalizeBarcode(manualBarcodeEl.value);
   if(!bc){
     setStatus("Unesite bar-kod.", "warn");
@@ -5860,13 +6133,27 @@ if(btnDeselectAll){
 if(btnFav){
   btnFav.addEventListener("click", async () => {
     if(!currentBarcode) return;
-    const rec = await dbGet(currentBarcode);
-    if(!rec) return;
-    rec.favorite = !rec.favorite;
-    rec.updatedAt = Date.now();
-    await dbPut(rec);
-    buzz(25);
-    await handleBarcode(currentBarcode, { fromHistoryClick:true });
+    
+    if (window.haptic) haptic.medium();
+    
+    try {
+      const rec = await dbGet(currentBarcode);
+      if(!rec) return;
+      rec.favorite = !rec.favorite;
+      rec.updatedAt = Date.now();
+      await dbPut(rec);
+      buzz(25);
+      
+      if (window.showSuccessToast) {
+        showSuccessToast(rec.favorite ? 'Dodato u favorite!' : 'Uklonjeno iz favorita');
+      }
+      
+      await handleBarcode(currentBarcode, { fromHistoryClick:true });
+    } catch (error) {
+      if (window.handleError) {
+        handleError(error, 'toggleFavorite');
+      }
+    }
   });
 }
 
@@ -5928,14 +6215,28 @@ if(ratingWrap){
     const t = e.target.closest(".starBtn");
     if(!t) return;
     if(!currentBarcode) return;
-    const val = Number(t.getAttribute("data-star")) || 0;
-    const rec = await dbGet(currentBarcode);
-    if(!rec) return;
-    rec.rating = val;
-    rec.updatedAt = Date.now();
-    await dbPut(rec);
-    buzz(20);
-    await handleBarcode(currentBarcode, { fromHistoryClick:true });
+    
+    if (window.haptic) haptic.light();
+    
+    try {
+      const val = Number(t.getAttribute("data-star")) || 0;
+      const rec = await dbGet(currentBarcode);
+      if(!rec) return;
+      rec.rating = val;
+      rec.updatedAt = Date.now();
+      await dbPut(rec);
+      buzz(20);
+      
+      if (window.showSuccessToast) {
+        showSuccessToast(`Ocena: ${val}/5 ⭐`);
+      }
+      
+      await handleBarcode(currentBarcode, { fromHistoryClick:true });
+    } catch (error) {
+      if (window.handleError) {
+        handleError(error, 'setRating');
+      }
+    }
   });
 }
 if(noteInput){
@@ -9284,6 +9585,431 @@ function highlightMentions(text) {
 }
 
 console.log('✅ Social & Profile features loaded');
+
+/* =======================
+   ENHANCED UX FEATURES
+   - Skeleton Loaders
+   - Pull to Refresh
+   - Haptic Feedback
+   - Enhanced Error Handling
+======================= */
+
+// ===== HAPTIC FEEDBACK =====
+const haptic = {
+  light: () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(10);
+    }
+  },
+  medium: () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(20);
+    }
+  },
+  heavy: () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
+  },
+  success: () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([10, 50, 10]);
+    }
+  },
+  error: () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([50, 100, 50]);
+    }
+  },
+  scan: () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([30, 50, 30]);
+    }
+  }
+};
+
+// ===== SKELETON LOADERS =====
+function showSkeletonLoader(containerId, type = 'card', count = 3) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  let skeletonHTML = '';
+  
+  switch(type) {
+    case 'card':
+      for (let i = 0; i < count; i++) {
+        skeletonHTML += `
+          <div class="skeleton-card">
+            <div class="skeleton-loader skeleton-line"></div>
+            <div class="skeleton-loader skeleton-line medium"></div>
+            <div class="skeleton-loader skeleton-line short"></div>
+          </div>
+        `;
+      }
+      break;
+      
+    case 'table':
+      for (let i = 0; i < count; i++) {
+        skeletonHTML += `
+          <tr>
+            <td><div class="skeleton-loader skeleton-line short"></div></td>
+            <td><div class="skeleton-loader skeleton-line"></div></td>
+            <td><div class="skeleton-loader skeleton-line medium"></div></td>
+            <td><div class="skeleton-loader skeleton-line short"></div></td>
+          </tr>
+        `;
+      }
+      break;
+      
+    case 'user':
+      for (let i = 0; i < count; i++) {
+        skeletonHTML += `
+          <div class="skeleton-card" style="display: flex; gap: 12px; align-items: center;">
+            <div class="skeleton-loader skeleton-avatar"></div>
+            <div style="flex: 1;">
+              <div class="skeleton-loader skeleton-line short"></div>
+              <div class="skeleton-loader skeleton-line medium" style="margin-top: 8px;"></div>
+            </div>
+          </div>
+        `;
+      }
+      break;
+      
+    case 'story':
+      for (let i = 0; i < count; i++) {
+        skeletonHTML += `
+          <div class="storyItem">
+            <div class="skeleton-loader skeleton-avatar" style="width: 70px; height: 70px;"></div>
+            <div class="skeleton-loader skeleton-line short" style="margin-top: 6px; width: 70px;"></div>
+          </div>
+        `;
+      }
+      break;
+  }
+  
+  container.innerHTML = skeletonHTML;
+}
+
+function hideSkeletonLoader(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.innerHTML = '';
+  }
+}
+
+// ===== PULL TO REFRESH =====
+let pullToRefreshEnabled = true;
+let startY = 0;
+let currentY = 0;
+let isPulling = false;
+let isRefreshing = false;
+
+const pullToRefreshEl = document.getElementById('pullToRefresh');
+const pullToRefreshIcon = pullToRefreshEl?.querySelector('.pull-to-refresh-icon');
+const pullToRefreshText = pullToRefreshEl?.querySelector('.pull-to-refresh-text');
+
+function initPullToRefresh() {
+  if (!pullToRefreshEl) return;
+  
+  // Only enable on touch devices
+  if (!('ontouchstart' in window)) {
+    pullToRefreshEnabled = false;
+    return;
+  }
+  
+  document.addEventListener('touchstart', handleTouchStart, { passive: true });
+  document.addEventListener('touchmove', handleTouchMove, { passive: false });
+  document.addEventListener('touchend', handleTouchEnd, { passive: true });
+}
+
+function handleTouchStart(e) {
+  if (!pullToRefreshEnabled || isRefreshing) return;
+  
+  // Only trigger if at top of page
+  if (window.scrollY > 0) return;
+  
+  startY = e.touches[0].clientY;
+  isPulling = false;
+}
+
+function handleTouchMove(e) {
+  if (!pullToRefreshEnabled || isRefreshing || startY === 0) return;
+  
+  currentY = e.touches[0].clientY;
+  const pullDistance = currentY - startY;
+  
+  // Only trigger if pulling down
+  if (pullDistance > 0 && window.scrollY === 0) {
+    isPulling = true;
+    
+    // Prevent default scroll
+    if (pullDistance > 10) {
+      e.preventDefault();
+    }
+    
+    // Show indicator
+    const threshold = 80;
+    const progress = Math.min(pullDistance / threshold, 1);
+    
+    if (pullDistance > 10) {
+      pullToRefreshEl.classList.add('visible');
+      pullToRefreshIcon.style.transform = `rotate(${progress * 180}deg)`;
+      
+      if (pullDistance >= threshold) {
+        pullToRefreshEl.classList.add('pulling');
+        pullToRefreshText.textContent = 'Pusti za osvežavanje...';
+        haptic.light();
+      } else {
+        pullToRefreshEl.classList.remove('pulling');
+        pullToRefreshText.textContent = 'Povuci za osvežavanje...';
+      }
+    }
+  }
+}
+
+async function handleTouchEnd(e) {
+  if (!pullToRefreshEnabled || isRefreshing || !isPulling) {
+    startY = 0;
+    return;
+  }
+  
+  const pullDistance = currentY - startY;
+  const threshold = 80;
+  
+  if (pullDistance >= threshold) {
+    // Trigger refresh
+    isRefreshing = true;
+    pullToRefreshEl.classList.add('refreshing');
+    pullToRefreshText.textContent = 'Osvežavanje...';
+    haptic.medium();
+    
+    try {
+      await refreshCurrentPage();
+      showSuccessToast('Uspešno osveženo!');
+      haptic.success();
+    } catch (error) {
+      showErrorToast('Greška pri osvežavanju', error.message);
+      haptic.error();
+    }
+    
+    // Hide indicator
+    setTimeout(() => {
+      pullToRefreshEl.classList.remove('visible', 'pulling', 'refreshing');
+      isRefreshing = false;
+    }, 500);
+  } else {
+    // Cancel refresh
+    pullToRefreshEl.classList.remove('visible', 'pulling');
+  }
+  
+  startY = 0;
+  isPulling = false;
+}
+
+async function refreshCurrentPage() {
+  // Determine which page is active and refresh it
+  const activePage = document.querySelector('.tabPage.active');
+  
+  if (!activePage) return;
+  
+  const pageId = activePage.id;
+  
+  switch(pageId) {
+    case 'pageScan':
+      // Refresh scan status
+      await new Promise(resolve => setTimeout(resolve, 500));
+      break;
+      
+    case 'pageHistory':
+      // Reload history
+      showSkeletonLoader('historyTable', 'table', 5);
+      await loadHistory();
+      break;
+      
+    case 'pageStats':
+      // Reload stats
+      await loadStats();
+      break;
+      
+    case 'pageSocial':
+      // Reload social feed
+      showSkeletonLoader('storiesBar', 'story', 5);
+      await loadStories();
+      await loadActivityFeed();
+      break;
+      
+    case 'pageProfile':
+      // Reload profile
+      await loadUserProfile();
+      break;
+  }
+}
+
+// ===== ENHANCED ERROR HANDLING =====
+const errorToast = document.getElementById('errorToast');
+let errorToastTimeout;
+
+function showErrorToast(title, message, type = 'error') {
+  if (!errorToast) return;
+  
+  // Clear existing timeout
+  if (errorToastTimeout) {
+    clearTimeout(errorToastTimeout);
+  }
+  
+  // Set icon based on type
+  const icons = {
+    error: '⚠️',
+    success: '✅',
+    warning: '⚡',
+    info: 'ℹ️'
+  };
+  
+  const iconEl = errorToast.querySelector('.error-toast-icon');
+  const titleEl = errorToast.querySelector('.error-toast-title');
+  const messageEl = errorToast.querySelector('.error-toast-message');
+  
+  if (iconEl) iconEl.textContent = icons[type] || icons.error;
+  if (titleEl) titleEl.textContent = title;
+  if (messageEl) messageEl.textContent = message;
+  
+  // Set type class
+  errorToast.className = `error-toast ${type}`;
+  
+  // Show toast
+  setTimeout(() => {
+    errorToast.classList.add('show');
+  }, 10);
+  
+  // Haptic feedback
+  if (type === 'error') {
+    haptic.error();
+  } else if (type === 'success') {
+    haptic.success();
+  } else {
+    haptic.light();
+  }
+  
+  // Auto hide after 5 seconds
+  errorToastTimeout = setTimeout(() => {
+    hideErrorToast();
+  }, 5000);
+}
+
+function hideErrorToast() {
+  if (errorToast) {
+    errorToast.classList.remove('show');
+  }
+  if (errorToastTimeout) {
+    clearTimeout(errorToastTimeout);
+  }
+}
+
+function showSuccessToast(message) {
+  showErrorToast('Uspeh', message, 'success');
+}
+
+function showWarningToast(title, message) {
+  showErrorToast(title, message, 'warning');
+}
+
+function showInfoToast(title, message) {
+  showErrorToast(title, message, 'info');
+}
+
+// Enhanced error handler with user-friendly messages
+function handleError(error, context = '') {
+  console.error(`Error in ${context}:`, error);
+  
+  let title = 'Greška';
+  let message = 'Došlo je do neočekivane greške.';
+  
+  // Firebase errors
+  if (error.code) {
+    switch(error.code) {
+      case 'permission-denied':
+        title = 'Pristup odbijen';
+        message = 'Nemate dozvolu za ovu akciju.';
+        break;
+      case 'not-found':
+        title = 'Nije pronađeno';
+        message = 'Traženi podaci ne postoje.';
+        break;
+      case 'already-exists':
+        title = 'Već postoji';
+        message = 'Ovi podaci već postoje.';
+        break;
+      case 'unauthenticated':
+        title = 'Niste prijavljeni';
+        message = 'Molimo prijavite se da nastavite.';
+        break;
+      case 'unavailable':
+        title = 'Servis nedostupan';
+        message = 'Proverite internet konekciju.';
+        break;
+      default:
+        message = error.message || message;
+    }
+  } else if (error.message) {
+    message = error.message;
+  }
+  
+  showErrorToast(title, message, 'error');
+}
+
+// Wrap async functions with error handling
+function withErrorHandling(fn, context = '') {
+  return async function(...args) {
+    try {
+      return await fn.apply(this, args);
+    } catch (error) {
+      handleError(error, context);
+      throw error;
+    }
+  };
+}
+
+// ===== INTEGRATE HAPTIC FEEDBACK INTO EXISTING FUNCTIONS =====
+
+// Add haptic to button clicks
+document.addEventListener('click', (e) => {
+  const button = e.target.closest('button');
+  if (button && !button.disabled) {
+    haptic.light();
+  }
+});
+
+// Add haptic to scan success (hook into existing scan function)
+const originalOnDetected = window.onDetected;
+if (typeof originalOnDetected === 'function') {
+  window.onDetected = function(code) {
+    haptic.scan();
+    return originalOnDetected.call(this, code);
+  };
+}
+
+// ===== INITIALIZE =====
+document.addEventListener('DOMContentLoaded', () => {
+  initPullToRefresh();
+  console.log('✅ Enhanced UX features loaded');
+  console.log('  - Skeleton loaders ready');
+  console.log('  - Pull to refresh:', pullToRefreshEnabled ? 'enabled' : 'disabled');
+  console.log('  - Haptic feedback:', 'vibrate' in navigator ? 'enabled' : 'disabled');
+  console.log('  - Enhanced error handling ready');
+});
+
+// Export functions for use in other parts of the app
+window.showSkeletonLoader = showSkeletonLoader;
+window.hideSkeletonLoader = hideSkeletonLoader;
+window.showErrorToast = showErrorToast;
+window.showSuccessToast = showSuccessToast;
+window.showWarningToast = showWarningToast;
+window.showInfoToast = showInfoToast;
+window.hideErrorToast = hideErrorToast;
+window.haptic = haptic;
+window.handleError = handleError;
+window.withErrorHandling = withErrorHandling;
+
 </script>
 
 </body>
