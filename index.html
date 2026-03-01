@@ -255,6 +255,21 @@ button.clicked{
       font-size: 12px;
       color: var(--muted);
     }
+    
+    .onlineDot{
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #5cffb4;
+      box-shadow: 0 0 8px rgba(92,255,180,.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse{
+      0%, 100%{ opacity: 1; transform: scale(1); }
+      50%{ opacity: 0.7; transform: scale(0.9); }
+    }
+    
     .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 
     .status{
@@ -2033,11 +2048,23 @@ select{
   top: 20px;
   right: 20px;
   z-index: 1000;
-  cursor: pointer;
+  cursor: grab;
   transition: transform .2s ease;
+  touch-action: none;
+  user-select: none;
 }
 
-.avatar-menu-btn:hover{
+.avatar-menu-btn:active{
+  cursor: grabbing;
+}
+
+.avatar-menu-btn.dragging{
+  cursor: grabbing;
+  transition: none;
+  transform: scale(1.1);
+}
+
+.avatar-menu-btn:hover:not(.dragging){
   transform: scale(1.05);
 }
 
@@ -2400,6 +2427,18 @@ main{
         </div>
       </div>
       <button class="slide-menu-close" id="slideMenuClose">✕</button>
+    </div>
+    
+    <!-- User Stats -->
+    <div style="padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,.1); display: flex; gap: 8px; flex-wrap: wrap;">
+      <div class="pill" id="menuActiveUsersPill" title="Aktivni korisnici" style="flex: 1; min-width: 120px; justify-content: center;">
+        <span class="onlineDot"></span>
+        <span id="menuActiveUsersCount">0</span> online
+      </div>
+      
+      <div class="pill" id="menuTotalUsersPill" title="Ukupno registrovanih" style="flex: 1; min-width: 120px; justify-content: center;">
+        👥 <span id="menuTotalUsersCount">0</span>
+      </div>
     </div>
     
     <div class="slide-menu-content">
@@ -3828,7 +3867,9 @@ async function updateUserCounts() {
     const usersSnapshot = await usersCollection.get();
     const totalUsers = usersSnapshot.size;
     const totalUsersEl = document.getElementById('totalUsersCount');
+    const menuTotalUsersEl = document.getElementById('menuTotalUsersCount');
     if (totalUsersEl) totalUsersEl.textContent = totalUsers;
+    if (menuTotalUsersEl) menuTotalUsersEl.textContent = totalUsers;
     
     // KLJUČNO: Broji samo korisnike koji su EKSPLICITNO online
     // i čiji je lastActive u poslednjih 30 sekundi
@@ -3845,7 +3886,9 @@ async function updateUserCounts() {
       
       const activeUsers = activeSnapshot.size;
       const activeUsersEl = document.getElementById('activeUsersCount');
+      const menuActiveUsersEl = document.getElementById('menuActiveUsersCount');
       if (activeUsersEl) activeUsersEl.textContent = activeUsers;
+      if (menuActiveUsersEl) menuActiveUsersEl.textContent = activeUsers;
       
       console.log('✅ User counts:', { 
         total: totalUsers, 
@@ -3889,7 +3932,9 @@ async function updateUserCounts() {
       });
       
       const activeUsersEl = document.getElementById('activeUsersCount');
+      const menuActiveUsersEl = document.getElementById('menuActiveUsersCount');
       if (activeUsersEl) activeUsersEl.textContent = activeCount;
+      if (menuActiveUsersEl) menuActiveUsersEl.textContent = activeCount;
       
       console.log('✅ User counts (fallback):', { 
         total: totalUsers, 
@@ -5975,9 +6020,138 @@ if(btnImport && importFile){
    NOTE: setTab function and menu elements are now defined ABOVE onAuthStateChanged
 ======================= */
 
-// Avatar menu button click
+// Avatar menu button - draggable functionality
 if(avatarMenuBtn) {
-  avatarMenuBtn.addEventListener('click', openMenu);
+  let isDragging = false;
+  let startX, startY;
+  let currentX, currentY;
+  let hasMoved = false;
+  
+  // Load saved position from localStorage
+  const savedPosition = localStorage.getItem('avatarMenuPosition');
+  if(savedPosition) {
+    try {
+      const pos = JSON.parse(savedPosition);
+      avatarMenuBtn.style.top = pos.top + 'px';
+      avatarMenuBtn.style.right = pos.right + 'px';
+    } catch(e) {
+      console.error('Error loading avatar position:', e);
+    }
+  }
+  
+  // Mouse events
+  avatarMenuBtn.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    hasMoved = false;
+    avatarMenuBtn.classList.add('dragging');
+    
+    const rect = avatarMenuBtn.getBoundingClientRect();
+    startX = e.clientX - rect.left;
+    startY = e.clientY - rect.top;
+    
+    e.preventDefault();
+  });
+  
+  document.addEventListener('mousemove', (e) => {
+    if(!isDragging) return;
+    hasMoved = true;
+    
+    currentX = e.clientX - startX;
+    currentY = e.clientY - startY;
+    
+    // Keep within viewport bounds
+    const maxX = window.innerWidth - avatarMenuBtn.offsetWidth;
+    const maxY = window.innerHeight - avatarMenuBtn.offsetHeight;
+    
+    currentX = Math.max(0, Math.min(currentX, maxX));
+    currentY = Math.max(0, Math.min(currentY, maxY));
+    
+    avatarMenuBtn.style.left = currentX + 'px';
+    avatarMenuBtn.style.top = currentY + 'px';
+    avatarMenuBtn.style.right = 'auto';
+    avatarMenuBtn.style.bottom = 'auto';
+  });
+  
+  document.addEventListener('mouseup', () => {
+    if(isDragging) {
+      avatarMenuBtn.classList.remove('dragging');
+      
+      // Save position
+      if(hasMoved) {
+        const rect = avatarMenuBtn.getBoundingClientRect();
+        const position = {
+          top: rect.top,
+          right: window.innerWidth - rect.right
+        };
+        localStorage.setItem('avatarMenuPosition', JSON.stringify(position));
+      }
+      
+      isDragging = false;
+      
+      // If didn't move, open menu
+      if(!hasMoved) {
+        openMenu();
+      }
+    }
+  });
+  
+  // Touch events for mobile
+  avatarMenuBtn.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    hasMoved = false;
+    avatarMenuBtn.classList.add('dragging');
+    
+    const touch = e.touches[0];
+    const rect = avatarMenuBtn.getBoundingClientRect();
+    startX = touch.clientX - rect.left;
+    startY = touch.clientY - rect.top;
+    
+    e.preventDefault();
+  }, { passive: false });
+  
+  document.addEventListener('touchmove', (e) => {
+    if(!isDragging) return;
+    hasMoved = true;
+    
+    const touch = e.touches[0];
+    currentX = touch.clientX - startX;
+    currentY = touch.clientY - startY;
+    
+    // Keep within viewport bounds
+    const maxX = window.innerWidth - avatarMenuBtn.offsetWidth;
+    const maxY = window.innerHeight - avatarMenuBtn.offsetHeight;
+    
+    currentX = Math.max(0, Math.min(currentX, maxX));
+    currentY = Math.max(0, Math.min(currentY, maxY));
+    
+    avatarMenuBtn.style.left = currentX + 'px';
+    avatarMenuBtn.style.top = currentY + 'px';
+    avatarMenuBtn.style.right = 'auto';
+    avatarMenuBtn.style.bottom = 'auto';
+  }, { passive: false });
+  
+  document.addEventListener('touchend', () => {
+    if(isDragging) {
+      avatarMenuBtn.classList.remove('dragging');
+      
+      // Save position
+      if(hasMoved) {
+        const rect = avatarMenuBtn.getBoundingClientRect();
+        const position = {
+          top: rect.top,
+          right: window.innerWidth - rect.right
+        };
+        localStorage.setItem('avatarMenuPosition', JSON.stringify(position));
+      }
+      
+      isDragging = false;
+      
+      // If didn't move, open menu
+      if(!hasMoved) {
+        openMenu();
+      }
+    }
+  });
 }
 
 // Close menu button
@@ -6162,14 +6336,20 @@ function getEl(selectorOrEl){
 function buildTourSteps(){
   return [
     {
-      target: "#scanFab",
+      target: "#avatarMenuBtn",
       title: "🎯 Dobrodošli u BeerScan!",
-      text: "Ovo je vaš glavni Scan FAB dugme. Kliknite ovde da pokrenete kameru i započnete skeniranje bar-kodova sa piva. Kada je kamera aktivna, dugme postaje crveno i možete ga ponovo kliknuti da zaustavite skeniranje.",
+      text: "Ovo je vaš avatar meni. Kliknite ovde da otvorite meni sa svim opcijama - Istorija, Statistika, Social, Profil, i podešavanja. Možete ga pomerati gde god želite na ekranu!",
+      tapHint: "Kliknite da otvorite meni"
+    },
+    {
+      target: "#scanFab",
+      title: "� Skeniranje bar-koda",
+      text: "Ovo je vaše glavno Scan dugme. Kliknite ovde da pokrenete kameru i započnete skeniranje bar-kodova sa piva. Kada je kamera aktivna, dugme postaje crveno i možete ga ponovo kliknuti da zaustavite skeniranje.",
       tapHint: "Kliknite da pokrenete kameru"
     },
     {
       target: ".scanFrame",
-      title: "📸 Skeniranje bar-koda",
+      title: "🎯 Okvir za skeniranje",
       text: "Kada pokrenete kameru, pojaviće se ovaj animirani okvir. Postavite bar-kod piva unutar ovog okvira i držite telefon stabilno. Aplikacija će automatski detektovati i skenirati bar-kod bez potrebe da pritiskate bilo šta!",
       tapHint: "Pozicionirajte bar-kod ovde"
     },
@@ -6181,33 +6361,27 @@ function buildTourSteps(){
     },
     {
       target: "#btnLookup",
-      title: "🔍 Pretraga podataka",
+      title: "� Pretraga podataka",
       text: "Nakon što unesete bar-kod (automatski ili ručno), kliknite ovo dugme da preuzmete sve dostupne informacije o pivu sa Open Food Facts baze podataka. Dobićete naziv, brendove, nutritivne vrednosti i još mnogo toga!",
       tapHint: "Kliknite za pretragu"
     },
     {
-      target: "#btnClear",
-      title: "🗑️ Brisanje istorije",
-      text: "Ovo dugme briše kompletnu istoriju skeniranja sa vašeg uređaja. Koristite ga pažljivo jer se podaci ne mogu vratiti! Svi skenirani bar-kodovi, ocene i favoriti će biti trajno obrisani.",
-      tapHint: "Obriši sve podatke"
+      target: ".ratingWrap",
+      title: "⭐ Ocenjivanje",
+      text: "Ovde možete oceniti pivo od 1 do 5 zvezdica. Vaše ocene se čuvaju lokalno i možete ih videti u istoriji. Ovo vam pomaže da zapamtite koja piva su vam se svidela!",
+      tapHint: "Ocenite pivo"
     },
     {
-      target: "#tabHistoryBottom",
-      title: "📋 Istorija skeniranja",
-      text: "Ovde možete videti sve prethodno skenirane proizvode. Možete ih pretražiti, filtrirati po ocenama, označiti kao favorite, i dodati svoje lične ocene. Svi podaci se čuvaju lokalno na vašem uređaju.",
-      tapHint: "Pogledajte istoriju"
+      target: "#avatarMenuBtn",
+      title: "� Istorija i Statistika",
+      text: "Kliknite na vaš avatar da otvorite meni. Tamo možete pristupiti Istoriji (svi skenirani proizvodi), Statistici (dostignuća i bedževi), Social funkcijama, i svom Profilu. Sve je na jednom mestu!",
+      tapHint: "Otvorite meni"
     },
     {
-      target: "#tabStatsBottom",
-      title: "📊 Statistika i dostignuća",
-      text: "U ovoj sekciji možete pratiti svoju aktivnost - koliko ste piva skenirali, koji su vaši omiljeni brendovi, i koje značke (badges) ste otključali. Skenirajte više proizvoda da otključate nove dostignuća!",
-      tapHint: "Vidite statistiku"
-    },
-    {
-      target: ".bottomBar",
-      title: "✨ Navigacija",
-      text: "Ova donja traka omogućava brzu navigaciju između glavnih sekcija aplikacije. Trenutno aktivna sekcija je označena svetlijim tonom i sjajem. Možete lako prelaziti između skeniranja, istorije i statistike.",
-      tapHint: "Koristite za navigaciju"
+      target: "#scanFab",
+      title: "✨ Spremni ste!",
+      text: "Sada znate sve osnove! Počnite sa skeniranjem piva, ocenjujte ih, i otključavajte bedževe. Uživajte u BeerScan aplikaciji! 🍺",
+      tapHint: "Započnite skeniranje"
     }
   ];
 }
@@ -6339,41 +6513,43 @@ function closeTour(markSeen = true){
 }
 
 function showCelebration(){
-  // Kreiraj confetti particles
-  const colors = [
-    'rgba(124,178,255,0.9)',
-    'rgba(92,255,164,0.9)',
-    'rgba(255,210,92,0.9)',
-    'rgba(255,92,164,0.9)'
-  ];
+  // Kreiraj dva piva koja nazdravljaju
+  const leftBeer = document.createElement('div');
+  leftBeer.style.cssText = `
+    position: fixed;
+    left: -100px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 120px;
+    z-index: 10002;
+    animation: beerSlideInLeft 1s ease-out forwards;
+  `;
+  leftBeer.textContent = '🍺';
   
-  for(let i = 0; i < 30; i++){
+  const rightBeer = document.createElement('div');
+  rightBeer.style.cssText = `
+    position: fixed;
+    right: -100px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 120px;
+    z-index: 10002;
+    animation: beerSlideInRight 1s ease-out forwards;
+  `;
+  rightBeer.textContent = '🍺';
+  
+  document.body.appendChild(leftBeer);
+  document.body.appendChild(rightBeer);
+  
+  // Ukloni piva nakon animacije
+  setTimeout(() => {
+    leftBeer.style.animation = 'beerSlideOutLeft 0.8s ease-in forwards';
+    rightBeer.style.animation = 'beerSlideOutRight 0.8s ease-in forwards';
     setTimeout(() => {
-      const particle = document.createElement('div');
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      const startX = 50 + (Math.random() - 0.5) * 20;
-      const endX = startX + (Math.random() - 0.5) * 100;
-      const rotation = Math.random() * 720 - 360;
-      
-      particle.style.cssText = `
-        position: fixed;
-        left: ${startX}%;
-        top: 50%;
-        width: 10px;
-        height: 10px;
-        background: ${color};
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 10002;
-        animation: confettiFall 1.5s ease-out forwards;
-        --end-x: ${endX}%;
-        --rotation: ${rotation}deg;
-      `;
-      
-      document.body.appendChild(particle);
-      setTimeout(() => particle.remove(), 1500);
-    }, i * 30);
-  }
+      leftBeer.remove();
+      rightBeer.remove();
+    }, 800);
+  }, 2500);
   
   // Celebration poruka
   const celebDiv = document.createElement("div");
@@ -6386,11 +6562,11 @@ function showCelebration(){
     padding: 28px 36px;
     border-radius: 26px;
     background: 
-      radial-gradient(circle at 30% 20%, rgba(92,255,164,.45), transparent 70%),
-      linear-gradient(135deg, rgba(92,255,164,.38), rgba(124,178,255,.28));
-    border: 1px solid rgba(92,255,164,.75);
+      radial-gradient(circle at 30% 20%, rgba(255,210,92,.45), transparent 70%),
+      linear-gradient(135deg, rgba(255,210,92,.38), rgba(124,178,255,.28));
+    border: 1px solid rgba(255,210,92,.75);
     box-shadow: 
-      0 0 70px rgba(92,255,164,.65), 
+      0 0 70px rgba(255,210,92,.65), 
       0 35px 90px rgba(0,0,0,.80),
       inset 0 1px 0 rgba(255,255,255,.20);
     color: #fff;
@@ -6401,8 +6577,8 @@ function showCelebration(){
     pointer-events: none;
   `;
   celebDiv.innerHTML = `
-    <div style="font-size: 48px; margin-bottom: 10px; animation: celebRotate 0.8s ease;">🎉</div>
-    <div style="letter-spacing: 0.5px;">Čestitamo!</div>
+    <div style="font-size: 48px; margin-bottom: 10px; animation: celebRotate 0.8s ease;">�</div>
+    <div style="letter-spacing: 0.5px;">Živeli!</div>
     <div style="font-size: 14px; font-weight: 600; margin-top: 8px; opacity: 0.90;">
       Završili ste uputstvo za BeerScan
     </div>
@@ -6419,6 +6595,52 @@ function showCelebration(){
 // Dodaj CSS animacije za celebration
 const celebStyle = document.createElement("style");
 celebStyle.textContent = `
+  @keyframes beerSlideInLeft {
+    0% { 
+      left: -100px;
+      transform: translateY(-50%) rotate(-20deg);
+    }
+    60% {
+      left: 25%;
+      transform: translateY(-50%) rotate(5deg);
+    }
+    100% { 
+      left: 20%;
+      transform: translateY(-50%) rotate(0deg);
+    }
+  }
+  
+  @keyframes beerSlideInRight {
+    0% { 
+      right: -100px;
+      transform: translateY(-50%) rotate(20deg);
+    }
+    60% {
+      right: 25%;
+      transform: translateY(-50%) rotate(-5deg);
+    }
+    100% { 
+      right: 20%;
+      transform: translateY(-50%) rotate(0deg);
+    }
+  }
+  
+  @keyframes beerSlideOutLeft {
+    to { 
+      left: -100px;
+      transform: translateY(-50%) rotate(-20deg);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes beerSlideOutRight {
+    to { 
+      right: -100px;
+      transform: translateY(-50%) rotate(20deg);
+      opacity: 0;
+    }
+  }
+  
   @keyframes celebPop {
     from { 
       opacity: 0; 
@@ -6439,16 +6661,6 @@ celebStyle.textContent = `
     0% { transform: rotate(0deg) scale(0.5); }
     50% { transform: rotate(180deg) scale(1.2); }
     100% { transform: rotate(360deg) scale(1); }
-  }
-  @keyframes confettiFall {
-    0% {
-      transform: translateY(0) translateX(0) rotate(0deg);
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(100vh) translateX(calc(var(--end-x) - 50%)) rotate(var(--rotation));
-      opacity: 0;
-    }
   }
 `;
 document.head.appendChild(celebStyle);
