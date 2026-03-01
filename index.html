@@ -2250,6 +2250,61 @@ main{
   padding-bottom: 40px;
 }
 
+/* Bottom Navigation */
+.bottomNav{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: linear-gradient(to top, rgba(7,10,16,.95), rgba(7,10,16,.85));
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--stroke);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 100;
+  box-shadow: 0 -10px 40px rgba(0,0,0,.5);
+}
+
+.bottomNavItem{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 24px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .25s ease;
+  position: relative;
+}
+
+.bottomNavItem:hover{
+  color: var(--txt);
+  background: rgba(124,178,255,.1);
+  border-color: rgba(124,178,255,.2);
+}
+
+.bottomNavItem.active{
+  color: var(--txt);
+  background: linear-gradient(135deg, rgba(124,178,255,.25), rgba(124,178,255,.15));
+  border-color: rgba(124,178,255,.4);
+  box-shadow: 0 0 20px rgba(124,178,255,.3);
+}
+
+.bottomNavIcon{
+  font-size: 24px;
+}
+
+.bottomNavLabel{
+  font-size: 12px;
+  font-weight: 600;
+}
+
   </style>
 </head>
 
@@ -3220,6 +3275,19 @@ main{
     </div>
   </div>
 </div>
+
+<!-- Bottom Navigation -->
+<nav class="bottomNav">
+  <button class="bottomNavItem" id="tabSocialBottom">
+    <span class="bottomNavIcon">👥</span>
+    <span class="bottomNavLabel">Social</span>
+  </button>
+  <button class="bottomNavItem" id="tabProfileBottom">
+    <span class="bottomNavIcon">👤</span>
+    <span class="bottomNavLabel">Profil</span>
+  </button>
+</nav>
+
 </main>
 
 <script>
@@ -7203,6 +7271,9 @@ const feedCollection = db.collection('feed');
 const reactionsCollection = db.collection('reactions');
 const notificationsCollection = db.collection('notifications');
 
+// Real-time listeners
+let notificationsUnsubscribe = null;
+
 // Profile elements - already defined above, removing duplicates
 // const pageSocial = document.getElementById("pageSocial"); // REMOVED - duplicate
 // const pageProfile = document.getElementById("pageProfile"); // REMOVED - duplicate
@@ -7281,16 +7352,23 @@ setTab = function(which) {
 };
 
 // Tab listeners
-tabSocialBottom.addEventListener("click", () => setTab("social"));
-tabProfileBottom.addEventListener("click", () => setTab("profile"));
+if(tabSocialBottom){
+  tabSocialBottom.addEventListener("click", () => setTab("social"));
+}
+if(tabProfileBottom){
+  tabProfileBottom.addEventListener("click", () => setTab("profile"));
+}
 
 // Avatar upload
-btnUploadAvatar.addEventListener("click", () => {
-  avatarInput.click();
-});
+if(btnUploadAvatar){
+  btnUploadAvatar.addEventListener("click", () => {
+    avatarInput.click();
+  });
+}
 
-avatarInput.addEventListener("change", async (e) => {
-  const file = e.target.files[0];
+if(avatarInput){
+  avatarInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
   if (!file || !currentUser) {
     console.log('Avatar upload: nema fajla ili korisnika', { file: !!file, user: !!currentUser });
     return;
@@ -7345,6 +7423,7 @@ avatarInput.addEventListener("change", async (e) => {
     showToast('❌ Greška: ' + error.message, 'error');
   }
 });
+}
 
 // Helper: Blob to Base64
 function blobToBase64(blob) {
@@ -7393,21 +7472,26 @@ function resizeImage(file, maxWidth, maxHeight) {
 }
 
 // Edit profile
-btnEditProfile.addEventListener("click", () => {
-  if (!currentUserData) return;
-  
-  document.getElementById("editNickname").value = currentUserData.nickname || '';
-  document.getElementById("editName").value = currentUserData.name || '';
-  document.getElementById("editBio").value = currentUserData.bio || '';
-  
-  editProfileModal.style.display = 'flex';
-});
+if(btnEditProfile){
+  btnEditProfile.addEventListener("click", () => {
+    if (!currentUserData) return;
+    
+    document.getElementById("editNickname").value = currentUserData.nickname || '';
+    document.getElementById("editName").value = currentUserData.name || '';
+    document.getElementById("editBio").value = currentUserData.bio || '';
+    
+    editProfileModal.style.display = 'flex';
+  });
+}
 
-btnCancelEditProfile.addEventListener("click", () => {
-  editProfileModal.style.display = 'none';
-});
+if(btnCancelEditProfile){
+  btnCancelEditProfile.addEventListener("click", () => {
+    editProfileModal.style.display = 'none';
+  });
+}
 
-btnSaveProfile.addEventListener("click", async () => {
+if(btnSaveProfile){
+  btnSaveProfile.addEventListener("click", async () => {
   if (!currentUser) return;
   
   const nickname = document.getElementById("editNickname").value.trim();
@@ -7445,6 +7529,7 @@ btnSaveProfile.addEventListener("click", async () => {
     showToast('❌ Greška pri ažuriranju', 'error');
   }
 });
+}
 
 // Load profile page
 async function loadProfilePage() {
@@ -8034,8 +8119,7 @@ async function loadNotifications() {
   }
 }
 
-// Real-time notifications listener
-let notificationsUnsubscribe = null;
+// Real-time notifications listener (already declared above)
 
 function setupNotificationsListener() {
   if (!currentUser) return;
