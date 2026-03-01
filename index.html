@@ -3376,6 +3376,80 @@ function hideLoginMessage() {
   }
 }
 
+/* =======================
+   Tab Navigation System
+======================= */
+// Get page elements
+const pageScan = document.getElementById("pageScan");
+const pageHistory = document.getElementById("pageHistory");
+const pageStats = document.getElementById("pageStats");
+const pageSocial = document.getElementById("pageSocial");
+const pageProfile = document.getElementById("pageProfile");
+
+// Get menu elements
+const avatarMenuBtn = document.getElementById("avatarMenuBtn");
+const slideMenu = document.getElementById("slideMenu");
+const menuOverlay = document.getElementById("menuOverlay");
+const slideMenuClose = document.getElementById("slideMenuClose");
+const menuItems = document.querySelectorAll('.menu-item[data-page]');
+
+// Tab switching function
+function setTab(which) {
+  console.log('setTab called with:', which);
+  
+  const scanOn = (which === "scan");
+  const historyOn = (which === "history");
+  const statsOn = (which === "stats");
+  const socialOn = (which === "social");
+  const profileOn = (which === "profile");
+  
+  console.log('Page states:', { scanOn, historyOn, statsOn, socialOn, profileOn });
+  
+  // Toggle pages
+  if(pageScan) {
+    pageScan.classList.toggle("active", scanOn);
+    console.log('pageScan active:', pageScan.classList.contains('active'));
+  } else {
+    console.error('pageScan element not found!');
+  }
+  
+  if(pageHistory) pageHistory.classList.toggle("active", historyOn);
+  if(pageStats) pageStats.classList.toggle("active", statsOn);
+  if(pageSocial) pageSocial.classList.toggle("active", socialOn);
+  if(pageProfile) pageProfile.classList.toggle("active", profileOn);
+  
+  // Update menu items active state
+  if(menuItems) {
+    menuItems.forEach(item => {
+      const page = item.getAttribute('data-page');
+      item.classList.toggle('active', page === which);
+    });
+  }
+  
+  // Load page content when switching
+  if(socialOn && typeof loadSocialPage === 'function') loadSocialPage();
+  if(profileOn && typeof loadProfilePage === 'function') loadProfilePage();
+  
+  // Close menu after selection
+  if(typeof closeMenu === 'function') closeMenu();
+  
+  // Stop scanner when leaving scan page
+  if(!scanOn && typeof stopScanner === 'function') stopScanner();
+}
+
+// Menu functions
+function openMenu() {
+  if(slideMenu) slideMenu.classList.add('open');
+  if(menuOverlay) menuOverlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMenu() {
+  if(slideMenu) slideMenu.classList.remove('open');
+  if(menuOverlay) menuOverlay.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
 // Check auth state on load
 auth.onAuthStateChanged(async (user) => {
   if (user) {
@@ -5972,73 +6046,8 @@ if(btnImport && importFile){
 }
    /* =======================
    Tabs (Skeniranje / Istorija / Statistika)
+   NOTE: setTab function and menu elements are now defined ABOVE onAuthStateChanged
 ======================= */
-const pageScan = document.getElementById("pageScan");
-const pageHistory = document.getElementById("pageHistory");
-const pageStats = document.getElementById("pageStats");
-const pageSocial = document.getElementById("pageSocial");
-const pageProfile = document.getElementById("pageProfile");
-
-// Avatar Menu Elements
-const avatarMenuBtn = document.getElementById("avatarMenuBtn");
-const slideMenu = document.getElementById("slideMenu");
-const menuOverlay = document.getElementById("menuOverlay");
-const slideMenuClose = document.getElementById("slideMenuClose");
-const menuItems = document.querySelectorAll('.menu-item[data-page]');
-
-function setTab(which) {
-  console.log('setTab called with:', which);
-  
-  const scanOn = (which === "scan");
-  const historyOn = (which === "history");
-  const statsOn = (which === "stats");
-  const socialOn = (which === "social");
-  const profileOn = (which === "profile");
-  
-  console.log('Page states:', { scanOn, historyOn, statsOn, socialOn, profileOn });
-  
-  // Toggle pages
-  if(pageScan) {
-    pageScan.classList.toggle("active", scanOn);
-    console.log('pageScan active:', pageScan.classList.contains('active'));
-  } else {
-    console.error('pageScan element not found!');
-  }
-  
-  if(pageHistory) pageHistory.classList.toggle("active", historyOn);
-  if(pageStats) pageStats.classList.toggle("active", statsOn);
-  if(pageSocial) pageSocial.classList.toggle("active", socialOn);
-  if(pageProfile) pageProfile.classList.toggle("active", profileOn);
-  
-  // Update menu items active state
-  menuItems.forEach(item => {
-    const page = item.getAttribute('data-page');
-    item.classList.toggle('active', page === which);
-  });
-  
-  // Load page content when switching
-  if(socialOn && typeof loadSocialPage === 'function') loadSocialPage();
-  if(profileOn && typeof loadProfilePage === 'function') loadProfilePage();
-  
-  // Close menu after selection
-  closeMenu();
-  
-  // Stop scanner when leaving scan page
-  if(!scanOn) stopScanner();
-}
-
-// Menu functions
-function openMenu() {
-  if(slideMenu) slideMenu.classList.add('open');
-  if(menuOverlay) menuOverlay.classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMenu() {
-  if(slideMenu) slideMenu.classList.remove('open');
-  if(menuOverlay) menuOverlay.classList.remove('show');
-  document.body.style.overflow = '';
-}
 
 // Avatar menu button click
 if(avatarMenuBtn) {
@@ -6056,12 +6065,14 @@ if(menuOverlay) {
 }
 
 // Menu item clicks
-menuItems.forEach(item => {
-  item.addEventListener('click', () => {
-    const page = item.getAttribute('data-page');
-    if(page) setTab(page);
+if(menuItems) {
+  menuItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const page = item.getAttribute('data-page');
+      if(page) setTab(page);
+    });
   });
-});
+}
 
 // Menu theme toggle
 const menuThemeToggle = document.getElementById('menuThemeToggle');
