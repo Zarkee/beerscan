@@ -2042,269 +2042,6 @@ select{
 @keyframes tourPulse{ 0%{ transform: scale(1);} 50%{ transform: scale(1.01);} 100%{ transform: scale(1);} }
 /* Nikad ne prikazuj “Kamera je ugašena” */
 #cameraPlaceholder{ display:none !important; }
-/* ===== Avatar Menu Button (Top Right) ===== */
-/* DODAJ OVO PRE </style> TAGA U index.html (oko linije 2045) */
-
-.avatar-menu-btn{
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  cursor: pointer;
-  transition: transform .2s ease;
-}
-
-.avatar-menu-btn:hover{
-  transform: scale(1.05);
-}
-
-.avatar-menu-btn img{
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 3px solid rgba(124,178,255,.6);
-  background: var(--card);
-  object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0,0,0,.3);
-}
-
-.avatar-badge{
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: #ff5c5c;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  border: 2px solid var(--bg);
-}
-
-/* ===== Slide-out Menu ===== */
-.slide-menu{
-  position: fixed;
-  top: 0;
-  right: -320px;
-  width: 320px;
-  height: 100vh;
-  background: linear-gradient(135deg, rgba(20,25,45,.98), rgba(10,14,25,.95));
-  backdrop-filter: blur(20px);
-  border-left: 1px solid rgba(255,255,255,.15);
-  box-shadow: -10px 0 40px rgba(0,0,0,.5);
-  z-index: 10001;
-  transition: right .3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-y: auto;
-}
-
-.slide-menu.open{
-  right: 0;
-}
-
-.slide-menu-header{
-  padding: 24px 20px;
-  border-bottom: 1px solid rgba(255,255,255,.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.slide-menu-profile{
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.slide-menu-profile img{
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 2px solid rgba(124,178,255,.5);
-  object-fit: cover;
-  background: var(--card);
-}
-
-.menu-user-name{
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--txt);
-  margin-bottom: 4px;
-}
-
-.menu-user-email{
-  font-size: 12px;
-  color: var(--muted2);
-}
-
-.slide-menu-close{
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.05);
-  color: var(--txt);
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all .2s ease;
-}
-
-.slide-menu-close:hover{
-  background: rgba(255,92,92,.2);
-  border-color: rgba(255,92,92,.4);
-}
-
-.slide-menu-content{
-  padding: 16px;
-}
-
-.menu-item{
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.04);
-  color: var(--txt);
-  text-align: left;
-  cursor: pointer;
-  transition: all .2s ease;
-  margin-bottom: 8px;
-  position: relative;
-}
-
-.menu-item:hover{
-  background: rgba(124,178,255,.15);
-  border-color: rgba(124,178,255,.3);
-  transform: translateX(4px);
-}
-
-.menu-item.active{
-  background: rgba(124,178,255,.25);
-  border-color: rgba(124,178,255,.5);
-}
-
-.menu-item.danger{
-  border-color: rgba(255,92,92,.2);
-}
-
-.menu-item.danger:hover{
-  background: rgba(255,92,92,.15);
-  border-color: rgba(255,92,92,.4);
-}
-
-.menu-icon{
-  font-size: 24px;
-  width: 32px;
-  text-align: center;
-}
-
-.menu-label{
-  flex: 1;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.menu-badge{
-  background: #ff5c5c;
-  color: white;
-  border-radius: 12px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.menu-divider{
-  height: 1px;
-  background: rgba(255,255,255,.1);
-  margin: 16px 0;
-}
-
-/* Menu Overlay */
-.menu-overlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-  backdrop-filter: blur(4px);
-  z-index: 10000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .3s ease;
-}
-
-.menu-overlay.show{
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Adjust main padding for no bottom bar */
-main{
-  padding-bottom: 40px;
-}
-
-/* Bottom Navigation */
-.bottomNav{
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 70px;
-  background: linear-gradient(to top, rgba(7,10,16,.95), rgba(7,10,16,.85));
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--stroke);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 0 20px;
-  z-index: 100;
-  box-shadow: 0 -10px 40px rgba(0,0,0,.5);
-}
-
-.bottomNavItem{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 24px;
-  border-radius: 16px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all .25s ease;
-  position: relative;
-}
-
-.bottomNavItem:hover{
-  color: var(--txt);
-  background: rgba(124,178,255,.1);
-  border-color: rgba(124,178,255,.2);
-}
-
-.bottomNavItem.active{
-  color: var(--txt);
-  background: linear-gradient(135deg, rgba(124,178,255,.25), rgba(124,178,255,.15));
-  border-color: rgba(124,178,255,.4);
-  box-shadow: 0 0 20px rgba(124,178,255,.3);
-}
-
-.bottomNavIcon{
-  font-size: 24px;
-}
-
-.bottomNavLabel{
-  font-size: 12px;
-  font-weight: 600;
-}
-
   </style>
 </head>
 
@@ -2517,74 +2254,56 @@ main{
 </header>
 
 <main>
-  <!-- Avatar Menu Button (Top Right) -->
-  <div id="avatarMenuBtn" class="avatar-menu-btn hidden">
-    <img id="headerAvatar" src="" alt="Profile" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
-    <div class="avatar-badge" id="avatarNotificationBadge" style="display: none;">0</div>
-  </div>
-
-  <!-- Slide-out Menu -->
-  <div id="slideMenu" class="slide-menu">
-    <div class="slide-menu-header">
-      <div class="slide-menu-profile">
-        <img id="menuAvatar" src="" alt="Profile" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23EAF1FF%22 stroke-width=%222%22%3E%3Cpath d=%22M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2%22/%3E%3Ccircle cx=%2212%22 cy=%227%22 r=%224%22/%3E%3C/svg%3E'">
-        <div>
-          <div class="menu-user-name" id="menuUserName">Korisnik</div>
-          <div class="menu-user-email" id="menuUserEmail">email@example.com</div>
-        </div>
-      </div>
-      <button class="slide-menu-close" id="slideMenuClose">✕</button>
-    </div>
-    
-    <div class="slide-menu-content">
-      <button class="menu-item" data-page="scan">
-        <span class="menu-icon">📷</span>
-        <span class="menu-label">Skeniranje</span>
-      </button>
-      
-      <button class="menu-item" data-page="history">
-        <span class="menu-icon">📚</span>
-        <span class="menu-label">Istorija</span>
-      </button>
-      
-      <button class="menu-item" data-page="stats">
-        <span class="menu-icon">📊</span>
-        <span class="menu-label">Statistika</span>
-      </button>
-      
-      <button class="menu-item" data-page="social">
-        <span class="menu-icon">👥</span>
-        <span class="menu-label">Social</span>
-        <span class="menu-badge" id="menuSocialBadge" style="display: none;">0</span>
-      </button>
-      
-      <button class="menu-item" data-page="profile">
-        <span class="menu-icon">👤</span>
-        <span class="menu-label">Profil</span>
-      </button>
-      
-      <div class="menu-divider"></div>
-      
-      <button class="menu-item" id="menuThemeToggle">
-        <span class="menu-icon">🌙</span>
-        <span class="menu-label">Tema</span>
-      </button>
-      
-      <button class="menu-item" id="menuHelpBtn">
-        <span class="menu-icon">❓</span>
-        <span class="menu-label">Pomoć</span>
-      </button>
-      
-      <button class="menu-item danger" id="menuLogoutBtn">
-        <span class="menu-icon">🚪</span>
-        <span class="menu-label">Odjava</span>
-      </button>
-    </div>
-  </div>
+  <div class="bottomBar" id="tabsBottom">
+  <button class="tabBtn active" id="tabScanBottom">
+    <span class="ico">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M9 7H7a2 2 0 0 0-2 2v2M15 7h2a2 2 0 0 1 2 2v2M9 17H7a2 2 0 0 1-2-2v-2M15 17h2a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </span>
+    Skeniranje
+  </button>
   
-  <!-- Menu Overlay -->
-  <div id="menuOverlay" class="menu-overlay"></div>
-
+  <button class="tabBtn" id="tabHistoryBottom">
+    <span class="ico">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M7 4h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+      </svg>
+    </span>
+    Istorija
+  </button>
+  
+  <button class="tabBtn" id="tabSocialBottom">
+    <span class="ico">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    Social
+  </button>
+  
+  <button class="tabBtn" id="tabStatsBottom">
+    <span class="ico">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M4 19V5M8 19v-7M12 19V9M16 19v-4M20 19V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </span>
+    Statistika
+  </button>
+  
+  <button class="tabBtn" id="tabProfileBottom">
+    <span class="ico">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    Profil
+  </button>
+</div>
   <div id="pageScan" class="tabPage active">
   <section class="scanShell">
     <!-- Top kontrolna traka -->
@@ -3275,19 +2994,6 @@ main{
     </div>
   </div>
 </div>
-
-<!-- Bottom Navigation -->
-<nav class="bottomNav">
-  <button class="bottomNavItem" id="tabSocialBottom">
-    <span class="bottomNavIcon">👥</span>
-    <span class="bottomNavLabel">Social</span>
-  </button>
-  <button class="bottomNavItem" id="tabProfileBottom">
-    <span class="bottomNavIcon">👤</span>
-    <span class="bottomNavLabel">Profil</span>
-  </button>
-</nav>
-
 </main>
 
 <script>
@@ -3444,80 +3150,6 @@ function hideLoginMessage() {
   }
 }
 
-/* =======================
-   Tab Navigation System
-======================= */
-// Get page elements
-const pageScan = document.getElementById("pageScan");
-const pageHistory = document.getElementById("pageHistory");
-const pageStats = document.getElementById("pageStats");
-const pageSocial = document.getElementById("pageSocial");
-const pageProfile = document.getElementById("pageProfile");
-
-// Get menu elements
-const avatarMenuBtn = document.getElementById("avatarMenuBtn");
-const slideMenu = document.getElementById("slideMenu");
-const menuOverlay = document.getElementById("menuOverlay");
-const slideMenuClose = document.getElementById("slideMenuClose");
-const menuItems = document.querySelectorAll('.menu-item[data-page]');
-
-// Tab switching function
-function setTab(which) {
-  console.log('setTab called with:', which);
-  
-  const scanOn = (which === "scan");
-  const historyOn = (which === "history");
-  const statsOn = (which === "stats");
-  const socialOn = (which === "social");
-  const profileOn = (which === "profile");
-  
-  console.log('Page states:', { scanOn, historyOn, statsOn, socialOn, profileOn });
-  
-  // Toggle pages
-  if(pageScan) {
-    pageScan.classList.toggle("active", scanOn);
-    console.log('pageScan active:', pageScan.classList.contains('active'));
-  } else {
-    console.error('pageScan element not found!');
-  }
-  
-  if(pageHistory) pageHistory.classList.toggle("active", historyOn);
-  if(pageStats) pageStats.classList.toggle("active", statsOn);
-  if(pageSocial) pageSocial.classList.toggle("active", socialOn);
-  if(pageProfile) pageProfile.classList.toggle("active", profileOn);
-  
-  // Update menu items active state
-  if(menuItems) {
-    menuItems.forEach(item => {
-      const page = item.getAttribute('data-page');
-      item.classList.toggle('active', page === which);
-    });
-  }
-  
-  // Load page content when switching
-  if(socialOn && typeof loadSocialPage === 'function') loadSocialPage();
-  if(profileOn && typeof loadProfilePage === 'function') loadProfilePage();
-  
-  // Close menu after selection
-  if(typeof closeMenu === 'function') closeMenu();
-  
-  // Stop scanner when leaving scan page
-  if(!scanOn && typeof stopScanner === 'function') stopScanner();
-}
-
-// Menu functions
-function openMenu() {
-  if(slideMenu) slideMenu.classList.add('open');
-  if(menuOverlay) menuOverlay.classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMenu() {
-  if(slideMenu) slideMenu.classList.remove('open');
-  if(menuOverlay) menuOverlay.classList.remove('show');
-  document.body.style.overflow = '';
-}
-
 // Check auth state on load
 auth.onAuthStateChanged(async (user) => {
   if (user) {
@@ -3579,39 +3211,7 @@ auth.onAuthStateChanged(async (user) => {
     setupNotificationsListener();
     
     // Hide login overlay
-    const loginOverlay = document.getElementById('loginOverlay');
-    console.log('Login overlay element:', loginOverlay);
-    console.log('Login overlay classes before:', loginOverlay?.className);
-    
-    loginOverlay.classList.add('hidden');
-    
-    console.log('Login overlay classes after:', loginOverlay?.className);
-    console.log('Login overlay display:', window.getComputedStyle(loginOverlay).display);
-    console.log('Calling setTab...');
-    
-    // Set tab to scan IMMEDIATELY
-    setTab("scan");
-    
-    // Show avatar menu button
-    const avatarMenuBtn = document.getElementById('avatarMenuBtn');
-    if(avatarMenuBtn) {
-      avatarMenuBtn.classList.remove('hidden');
-      console.log('Avatar menu button shown');
-    }
-    
-    // Update avatar images
-    const headerAvatar = document.getElementById('headerAvatar');
-    const menuAvatar = document.getElementById('menuAvatar');
-    if(currentUserData.avatar) {
-      if(headerAvatar) headerAvatar.src = currentUserData.avatar;
-      if(menuAvatar) menuAvatar.src = currentUserData.avatar;
-    }
-    
-    // Update menu user info
-    const menuUserName = document.getElementById('menuUserName');
-    const menuUserEmail = document.getElementById('menuUserEmail');
-    if(menuUserName) menuUserName.textContent = currentUserData.nickname || currentUserData.name || 'Korisnik';
-    if(menuUserEmail) menuUserEmail.textContent = currentUserData.email || '';
+    document.getElementById('loginOverlay').classList.add('hidden');
     
     // Show user stats
     document.getElementById('userStatsBar').classList.remove('hidden');
@@ -3627,10 +3227,6 @@ auth.onAuthStateChanged(async (user) => {
     currentUser = null;
     currentUserData = null;
     console.log('Nema prijavljenog korisnika');
-    
-    // Hide avatar menu button
-    const avatarMenuBtn = document.getElementById('avatarMenuBtn');
-    if(avatarMenuBtn) avatarMenuBtn.classList.add('hidden');
     
     // Stop history listener
     if (historyListener) {
@@ -6120,63 +5716,35 @@ if(btnImport && importFile){
 }
    /* =======================
    Tabs (Skeniranje / Istorija / Statistika)
-   NOTE: setTab function and menu elements are now defined ABOVE onAuthStateChanged
 ======================= */
+const pageScan = document.getElementById("pageScan");
+const pageHistory = document.getElementById("pageHistory");
+const pageStats = document.getElementById("pageStats");
 
-// Avatar menu button click
-if(avatarMenuBtn) {
-  avatarMenuBtn.addEventListener('click', openMenu);
+const tabScanBottom = document.getElementById("tabScanBottom");
+const tabHistoryBottom = document.getElementById("tabHistoryBottom");
+const tabStatsBottom = document.getElementById("tabStatsBottom");
+
+function setTab(which) {
+  const scanOn = (which === "scan");
+  const historyOn = (which === "history");
+  const statsOn = (which === "stats");
+  
+  pageScan.classList.toggle("active", scanOn);
+  pageHistory.classList.toggle("active", historyOn);
+  pageStats.classList.toggle("active", statsOn);
+  
+  tabScanBottom.classList.toggle("active", scanOn);
+  tabHistoryBottom.classList.toggle("active", historyOn);
+  tabStatsBottom.classList.toggle("active", statsOn);
+  
+  // Ako želite da se kamera automatski gasi kad napustite skeniranje:
+  if(!scanOn) stopScanner();
 }
 
-// Close menu button
-if(slideMenuClose) {
-  slideMenuClose.addEventListener('click', closeMenu);
-}
-
-// Overlay click
-if(menuOverlay) {
-  menuOverlay.addEventListener('click', closeMenu);
-}
-
-// Menu item clicks
-if(menuItems) {
-  menuItems.forEach(item => {
-    item.addEventListener('click', () => {
-      const page = item.getAttribute('data-page');
-      if(page) setTab(page);
-    });
-  });
-}
-
-// Menu theme toggle
-const menuThemeToggle = document.getElementById('menuThemeToggle');
-if(menuThemeToggle) {
-  menuThemeToggle.addEventListener('click', () => {
-    if(btnTheme) btnTheme.click();
-  });
-}
-
-// Menu help button
-const menuHelpBtn = document.getElementById('menuHelpBtn');
-if(menuHelpBtn) {
-  menuHelpBtn.addEventListener('click', () => {
-    closeMenu();
-    if(btnHelp) btnHelp.click();
-  });
-}
-
-// Menu logout button
-const menuLogoutBtn = document.getElementById('menuLogoutBtn');
-if(menuLogoutBtn) {
-  menuLogoutBtn.addEventListener('click', () => {
-    closeMenu();
-    if(btnLogout) btnLogout.click();
-  });
-}
-
-// Default tab will be set after login in onAuthStateChanged
-// setTab("scan"); // REMOVED - now set after login
-
+tabScanBottom.addEventListener("click", () => setTab("scan"));
+tabHistoryBottom.addEventListener("click", () => setTab("history"));
+tabStatsBottom.addEventListener("click", () => setTab("stats"));
 /* =======================
    Theme toggle (Dark/Light)
 ======================= */
@@ -7271,12 +6839,9 @@ const feedCollection = db.collection('feed');
 const reactionsCollection = db.collection('reactions');
 const notificationsCollection = db.collection('notifications');
 
-// Real-time listeners
-let notificationsUnsubscribe = null;
-
-// Profile elements - already defined above, removing duplicates
-// const pageSocial = document.getElementById("pageSocial"); // REMOVED - duplicate
-// const pageProfile = document.getElementById("pageProfile"); // REMOVED - duplicate
+// Profile elements
+const pageSocial = document.getElementById("pageSocial");
+const pageProfile = document.getElementById("pageProfile");
 const tabSocialBottom = document.getElementById("tabSocialBottom");
 const tabProfileBottom = document.getElementById("tabProfileBottom");
 
@@ -7352,23 +6917,16 @@ setTab = function(which) {
 };
 
 // Tab listeners
-if(tabSocialBottom){
-  tabSocialBottom.addEventListener("click", () => setTab("social"));
-}
-if(tabProfileBottom){
-  tabProfileBottom.addEventListener("click", () => setTab("profile"));
-}
+tabSocialBottom.addEventListener("click", () => setTab("social"));
+tabProfileBottom.addEventListener("click", () => setTab("profile"));
 
 // Avatar upload
-if(btnUploadAvatar){
-  btnUploadAvatar.addEventListener("click", () => {
-    avatarInput.click();
-  });
-}
+btnUploadAvatar.addEventListener("click", () => {
+  avatarInput.click();
+});
 
-if(avatarInput){
-  avatarInput.addEventListener("change", async (e) => {
-    const file = e.target.files[0];
+avatarInput.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
   if (!file || !currentUser) {
     console.log('Avatar upload: nema fajla ili korisnika', { file: !!file, user: !!currentUser });
     return;
@@ -7423,7 +6981,6 @@ if(avatarInput){
     showToast('❌ Greška: ' + error.message, 'error');
   }
 });
-}
 
 // Helper: Blob to Base64
 function blobToBase64(blob) {
@@ -7472,26 +7029,21 @@ function resizeImage(file, maxWidth, maxHeight) {
 }
 
 // Edit profile
-if(btnEditProfile){
-  btnEditProfile.addEventListener("click", () => {
-    if (!currentUserData) return;
-    
-    document.getElementById("editNickname").value = currentUserData.nickname || '';
-    document.getElementById("editName").value = currentUserData.name || '';
-    document.getElementById("editBio").value = currentUserData.bio || '';
-    
-    editProfileModal.style.display = 'flex';
-  });
-}
+btnEditProfile.addEventListener("click", () => {
+  if (!currentUserData) return;
+  
+  document.getElementById("editNickname").value = currentUserData.nickname || '';
+  document.getElementById("editName").value = currentUserData.name || '';
+  document.getElementById("editBio").value = currentUserData.bio || '';
+  
+  editProfileModal.style.display = 'flex';
+});
 
-if(btnCancelEditProfile){
-  btnCancelEditProfile.addEventListener("click", () => {
-    editProfileModal.style.display = 'none';
-  });
-}
+btnCancelEditProfile.addEventListener("click", () => {
+  editProfileModal.style.display = 'none';
+});
 
-if(btnSaveProfile){
-  btnSaveProfile.addEventListener("click", async () => {
+btnSaveProfile.addEventListener("click", async () => {
   if (!currentUser) return;
   
   const nickname = document.getElementById("editNickname").value.trim();
@@ -7529,7 +7081,6 @@ if(btnSaveProfile){
     showToast('❌ Greška pri ažuriranju', 'error');
   }
 });
-}
 
 // Load profile page
 async function loadProfilePage() {
@@ -8119,7 +7670,8 @@ async function loadNotifications() {
   }
 }
 
-// Real-time notifications listener (already declared above)
+// Real-time notifications listener
+let notificationsUnsubscribe = null;
 
 function setupNotificationsListener() {
   if (!currentUser) return;
