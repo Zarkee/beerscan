@@ -11059,9 +11059,9 @@ async function registerFCMToken() {
   if (!messaging || !currentUser) return;
   
   try {
-    // ⚠️ VAŽNO: Zameni 'YOUR_VAPID_KEY_HERE' sa pravim VAPID key-em iz Firebase Console
+    // ⚠️ VAŽNO: VAPID key mora biti u navodnicima kao string!
     // Idi na: Firebase Console → Project Settings → Cloud Messaging → Web Push certificates → Generate key pair
-    const vapidKey = BJ56O02Efh6gWgrnT-TmkoSeGpC1ZxfIVcdG1aDyBqBgYtVYquCXZuDh96iDniyBy6U0-Yu-ADCc9Nl_s7HbT_I; // 👈 ZAMENI OVO!
+    const vapidKey = 'BJ56O02Efh6gWgrnT-TmkoSeGpC1ZxfIVcdG1aDyBqBgYtVYquCXZuDh96iDniyBy6U0-Yu-ADCc9Nl_s7HbT_I'; // ✅ SA NAVODNICIMA!
     
     // Dobij FCM token
     const token = await messaging.getToken({
