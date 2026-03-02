@@ -10442,19 +10442,29 @@ function loadNotificationSettings() {
 // Save settings to localStorage
 function saveNotificationSettings() {
   localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
+  console.log('💾 Podešavanja sačuvana:', notificationSettings);
   updateDNDIndicator();
+  updateNotificationUI(); // ✅ Ažuriraj UI nakon čuvanja
 }
 
 // Update UI toggles
 function updateNotificationUI() {
+  console.log('🔄 Ažuriram UI toggle-ove...');
+  
   document.querySelectorAll('.notification-toggle').forEach(toggle => {
     const setting = toggle.dataset.setting;
-    if (notificationSettings[setting]) {
+    const shouldBeActive = notificationSettings[setting];
+    
+    console.log(`   ${setting}: ${shouldBeActive ? 'active' : 'inactive'}`);
+    
+    if (shouldBeActive) {
       toggle.classList.add('active');
     } else {
       toggle.classList.remove('active');
     }
   });
+  
+  console.log('✅ UI toggle-ovi ažurirani');
 }
 
 // Update DND indicator
@@ -10471,15 +10481,18 @@ function updateDNDIndicator() {
 
 // Show in-app notification popup
 function showNotificationPopup(type, title, message, data = {}) {
+  console.log('📬 showNotificationPopup pozvana:', { type, title, message, data });
+  console.log('⚙️ Notification settings:', notificationSettings);
+  
   // Check if notifications are enabled
   if (!notificationSettings.enabled || notificationSettings.dnd) {
-    console.log('Notifications disabled or DND mode active');
+    console.log('❌ Notifications disabled or DND mode active');
     return;
   }
   
   // Check if this type is enabled
   if (!notificationSettings[type]) {
-    console.log(`Notification type ${type} is disabled`);
+    console.log(`❌ Notification type ${type} is disabled`);
     return;
   }
   
@@ -10489,7 +10502,12 @@ function showNotificationPopup(type, title, message, data = {}) {
   const messageEl = document.getElementById('notifMessage');
   const timeEl = document.getElementById('notifTime');
   
-  if (!popup) return;
+  if (!popup) {
+    console.error('❌ notificationPopup element nije pronađen!');
+    return;
+  }
+  
+  console.log('✅ Svi elementi pronađeni, prikazujem popup...');
   
   // Set icon based on type
   const icons = {
@@ -10516,12 +10534,29 @@ function showNotificationPopup(type, title, message, data = {}) {
   
   // Play sound
   if (notificationSettings.sound) {
-    playNotificationSound(type);
+    try {
+      playNotificationSound(type);
+      console.log('🔊 Zvuk notifikacije pušten');
+    } catch (error) {
+      console.error('❌ Greška pri puštanju zvuka:', error);
+    }
+  } else {
+    console.log('🔇 Zvuk notifikacija isključen');
   }
   
   // Vibrate
-  if (notificationSettings.vibration && window.haptic) {
-    haptic.medium();
+  if (notificationSettings.vibration) {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([200, 100, 200]); // Pattern: vibrate-pause-vibrate
+      console.log('📳 Vibracija aktivirana');
+    } else if (window.haptic) {
+      haptic.medium();
+      console.log('📳 Haptic feedback aktiviran');
+    } else {
+      console.log('⚠️ Vibracija nije podržana');
+    }
+  } else {
+    console.log('📳 Vibracija isključena');
   }
   
   // Auto hide after 5 seconds
@@ -10779,13 +10814,51 @@ function toggleNotificationSetting(setting) {
 
 // Event listeners for notification settings
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔔 Inicijalizujem notification settings event listenere...');
+  
   // Toggle switches
   document.querySelectorAll('.notification-toggle').forEach(toggle => {
     toggle.addEventListener('click', () => {
       const setting = toggle.dataset.setting;
-      toggleNotificationSetting(setting);
+      
+      console.log(`🔄 Toggle kliknut: ${setting}`);
+      console.log(`   Staro stanje: ${toggle.classList.contains('active') ? 'uključeno' : 'isključeno'}`);
+      
+      // Toggle active class
+      toggle.classList.toggle('active');
+      
+      // Update settings
+      const newValue = toggle.classList.contains('active');
+      notificationSettings[setting] = newValue;
+      
+      console.log(`   Novo stanje: ${newValue ? 'uključeno' : 'isključeno'}`);
+      console.log(`   notificationSettings.${setting} = ${notificationSettings[setting]}`);
+      
+      // Save to localStorage
+      saveNotificationSettings();
+      
+      // Show feedback
+      const statusText = newValue ? 'uključena' : 'isključena';
+      const emoji = newValue ? '✅' : '❌';
+      
+      let settingName = setting;
+      switch(setting) {
+        case 'enabled': settingName = 'Notifikacije'; break;
+        case 'followers': settingName = 'Novi followeri'; break;
+        case 'mentions': settingName = 'Mentions'; break;
+        case 'reactions': settingName = 'Reactions'; break;
+        case 'cheers': settingName = 'Cheers'; break;
+        case 'badges': settingName = 'Bedževi'; break;
+        case 'sound': settingName = 'Zvuk'; break;
+        case 'vibration': settingName = 'Vibracija'; break;
+        case 'dnd': settingName = 'Ne uznemiravaj'; break;
+      }
+      
+      console.log(`${emoji} ${settingName} ${statusText}`);
     });
   });
+  
+  console.log('✅ Event listeneri dodati');
   
   // Open notification settings
   const menuNotifSettings = document.getElementById('menuNotificationSettings');
@@ -10819,12 +10892,29 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('🔔 Test notifikacija kliknuta');
       
       try {
+        // Privremeno omogući sve notifikacije za test
+        const originalEnabled = notificationSettings.enabled;
+        const originalBadge = notificationSettings.badge;
+        const originalDND = notificationSettings.dnd;
+        
+        notificationSettings.enabled = true;
+        notificationSettings.badge = true;
+        notificationSettings.dnd = false;
+        
         showNotificationPopup(
           'badge',
           'Test notifikacija',
           'Ovo je test notifikacija. Ako vidiš ovo, notifikacije rade! 🎉',
           { type: 'test' }
         );
+        
+        // Vrati originalna podešavanja nakon 100ms
+        setTimeout(() => {
+          notificationSettings.enabled = originalEnabled;
+          notificationSettings.badge = originalBadge;
+          notificationSettings.dnd = originalDND;
+        }, 100);
+        
         console.log('✅ showNotificationPopup pozvana');
       } catch (error) {
         console.error('❌ Greška pri test notifikaciji:', error);
@@ -10857,23 +10947,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  // Toggle switches for notification settings
-  document.querySelectorAll('.notification-toggle').forEach(toggle => {
-    toggle.addEventListener('click', () => {
-      const setting = toggle.dataset.setting;
-      
-      // Toggle active class
-      toggle.classList.toggle('active');
-      
-      // Update settings
-      notificationSettings[setting] = toggle.classList.contains('active');
-      
-      // Save to localStorage
-      saveNotificationSettings();
-      
-      console.log(`✅ Notification setting "${setting}" = ${notificationSettings[setting]}`);
-    });
-  });
+  // ❌ DUPLIKAT UKLONJEN - event listeneri su već dodati u DOMContentLoaded gore
   
   // Click on notification popup
   const notifPopup = document.getElementById('notificationPopup');
