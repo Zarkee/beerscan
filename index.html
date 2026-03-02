@@ -3441,7 +3441,7 @@ main{
 
 <!-- Notification Settings Modal -->
 <div id="notificationSettingsModal" class="loginOverlay" style="display: none;">
-  <div class="loginContainer" style="max-width: 500px;">
+  <div class="loginContainer" style="max-width: 500px; max-height: 90vh; overflow-y: auto;">
     <div class="loginHeader">
       <h2>🔔 Podešavanja notifikacija</h2>
       <p>Prilagodi kako želiš da primaš notifikacije</p>
@@ -3514,12 +3514,12 @@ main{
       </div>
       
       <!-- Test Notification -->
-      <button id="btnTestNotification" class="loginBtn btnPrimary" style="margin-top: 20px;">
+      <button id="btnTestNotification" class="loginBtn btnPrimary" style="margin-top: 20px; width: 100%;">
         🔔 Testiraj notifikaciju
       </button>
       
       <!-- Enable Push Notifications -->
-      <button id="btnEnablePushNotifications" class="loginBtn good" style="margin-top: 12px;">
+      <button id="btnEnablePushNotifications" class="loginBtn good" style="margin-top: 12px; width: 100%;">
         📲 Omogući push notifikacije
       </button>
       <p class="hint" style="margin-top: 8px; text-align: center;">
@@ -3527,7 +3527,7 @@ main{
       </p>
     </div>
     
-    <button id="btnCloseNotificationSettings" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
+    <button id="btnCloseNotificationSettings" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px; width: 100%;">
       Zatvori
     </button>
   </div>
@@ -10791,8 +10791,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuNotifSettings = document.getElementById('menuNotificationSettings');
   if (menuNotifSettings) {
     menuNotifSettings.addEventListener('click', () => {
+      console.log('🔔 Otvaranje notification settings modal-a');
+      
+      // Učitaj trenutna podešavanja
+      loadNotificationSettings();
+      
+      // Prikaži modal
       document.getElementById('notificationSettingsModal').style.display = 'flex';
       closeMenu();
+      
+      console.log('✅ Modal prikazan');
     });
   }
   
@@ -10808,13 +10816,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnTestNotif = document.getElementById('btnTestNotification');
   if (btnTestNotif) {
     btnTestNotif.addEventListener('click', () => {
-      showNotificationPopup(
-        'badge',
-        'Test notifikacija',
-        'Ovo je test notifikacija. Ako vidiš ovo, notifikacije rade! 🎉',
-        { type: 'test' }
-      );
+      console.log('🔔 Test notifikacija kliknuta');
+      
+      try {
+        showNotificationPopup(
+          'badge',
+          'Test notifikacija',
+          'Ovo je test notifikacija. Ako vidiš ovo, notifikacije rade! 🎉',
+          { type: 'test' }
+        );
+        console.log('✅ showNotificationPopup pozvana');
+      } catch (error) {
+        console.error('❌ Greška pri test notifikaciji:', error);
+        alert('Greška: ' + error.message);
+      }
     });
+    console.log('✅ Test notifikacija event listener dodat');
+  } else {
+    console.warn('⚠️ btnTestNotification element nije pronađen');
   }
   
   // Enable push notifications
@@ -10837,6 +10856,24 @@ document.addEventListener('DOMContentLoaded', () => {
       btnEnablePush.style.opacity = '0.6';
     }
   }
+  
+  // Toggle switches for notification settings
+  document.querySelectorAll('.notification-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      const setting = toggle.dataset.setting;
+      
+      // Toggle active class
+      toggle.classList.toggle('active');
+      
+      // Update settings
+      notificationSettings[setting] = toggle.classList.contains('active');
+      
+      // Save to localStorage
+      saveNotificationSettings();
+      
+      console.log(`✅ Notification setting "${setting}" = ${notificationSettings[setting]}`);
+    });
+  });
   
   // Click on notification popup
   const notifPopup = document.getElementById('notificationPopup');
