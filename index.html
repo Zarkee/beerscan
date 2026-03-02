@@ -17,8 +17,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
   <style>
     :root{
@@ -1575,6 +1575,227 @@ main::after{
   border: 2px solid var(--bg);
 }
 
+/* ===== IN-APP NOTIFICATIONS ===== */
+.notification-popup {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  max-width: 360px;
+  width: calc(100% - 40px);
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(20,25,45,.98), rgba(10,14,25,.95));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(124,178,255,.35);
+  box-shadow: 0 20px 60px rgba(0,0,0,.70), 0 0 30px rgba(124,178,255,.25);
+  z-index: 10002;
+  transform: translateX(400px);
+  opacity: 0;
+  transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+
+.notification-popup.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification-popup:hover {
+  transform: translateX(0) scale(1.02);
+  box-shadow: 0 25px 70px rgba(0,0,0,.75), 0 0 40px rgba(124,178,255,.35);
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.notification-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: linear-gradient(135deg, rgba(124,178,255,.25), rgba(92,255,164,.15));
+  border: 2px solid rgba(124,178,255,.45);
+  flex-shrink: 0;
+}
+
+.notification-icon.follower {
+  background: linear-gradient(135deg, rgba(124,178,255,.30), rgba(92,255,164,.20));
+  border-color: rgba(124,178,255,.55);
+}
+
+.notification-icon.mention {
+  background: linear-gradient(135deg, rgba(255,210,92,.30), rgba(255,178,92,.20));
+  border-color: rgba(255,210,92,.55);
+}
+
+.notification-icon.reaction {
+  background: linear-gradient(135deg, rgba(255,92,164,.30), rgba(255,92,92,.20));
+  border-color: rgba(255,92,164,.55);
+}
+
+.notification-icon.cheers {
+  background: linear-gradient(135deg, rgba(255,210,92,.35), rgba(255,178,92,.25));
+  border-color: rgba(255,210,92,.60);
+}
+
+.notification-icon.badge {
+  background: linear-gradient(135deg, rgba(92,255,164,.35), rgba(124,178,255,.25));
+  border-color: rgba(92,255,164,.60);
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--txt);
+}
+
+.notification-message {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.notification-time {
+  font-size: 11px;
+  color: var(--muted2);
+  margin-top: 6px;
+}
+
+.notification-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.3);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  opacity: 0;
+  transition: all .2s ease;
+}
+
+.notification-popup:hover .notification-close {
+  opacity: 1;
+}
+
+.notification-close:hover {
+  background: rgba(255,92,92,.5);
+  transform: scale(1.1);
+}
+
+/* Notification sound toggle */
+.notification-settings {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  margin-top: 12px;
+}
+
+.notification-settings label {
+  flex: 1;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.notification-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(255,255,255,.1);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .3s ease;
+}
+
+.notification-toggle.active {
+  background: linear-gradient(135deg, rgba(124,178,255,.6), rgba(92,255,164,.4));
+}
+
+.notification-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,.2);
+}
+
+.notification-toggle.active::after {
+  transform: translateX(20px);
+}
+
+/* DND Mode indicator */
+.dnd-indicator {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255,92,92,.95), rgba(255,60,60,.90));
+  border: 1px solid rgba(255,92,92,.6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,.3);
+  z-index: 10003;
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.dnd-indicator.show {
+  display: flex;
+}
+
+.dnd-indicator .icon {
+  font-size: 16px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 520px) {
+  .notification-popup {
+    top: 70px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    width: auto;
+  }
+}
+
 /* ===== Camera OFF placeholder ===== */
 .cameraPlaceholder{
   padding: 40px 20px;
@@ -2475,6 +2696,25 @@ main{
     <div class="error-toast-message"></div>
   </div>
 
+  <!-- In-App Notification Popup -->
+  <div id="notificationPopup" class="notification-popup">
+    <button class="notification-close" onclick="hideNotificationPopup()">✕</button>
+    <div class="notification-header">
+      <div class="notification-icon" id="notifIcon">🔔</div>
+      <div class="notification-content">
+        <div class="notification-title" id="notifTitle">Notifikacija</div>
+        <div class="notification-message" id="notifMessage">Poruka</div>
+        <div class="notification-time" id="notifTime">Upravo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DND Mode Indicator -->
+  <div id="dndIndicator" class="dnd-indicator">
+    <span class="icon">🔕</span>
+    <span>Ne uznemiravaj režim aktivan</span>
+  </div>
+
   <!-- Login/Register Overlay -->
   <div id="loginOverlay" class="loginOverlay">
     <div class="loginContainer">
@@ -2684,6 +2924,11 @@ main{
       <button class="menu-item" id="menuThemeToggle">
         <span class="menu-icon">🌙</span>
         <span class="menu-label">Tema</span>
+      </button>
+      
+      <button class="menu-item" id="menuNotificationSettings">
+        <span class="menu-icon">🔔</span>
+        <span class="menu-label">Notifikacije</span>
       </button>
       
       <button class="menu-item" id="menuHelpBtn">
@@ -3194,6 +3439,100 @@ main{
   </div>
 </div>
 
+<!-- Notification Settings Modal -->
+<div id="notificationSettingsModal" class="loginOverlay" style="display: none;">
+  <div class="loginContainer" style="max-width: 500px;">
+    <div class="loginHeader">
+      <h2>🔔 Podešavanja notifikacija</h2>
+      <p>Prilagodi kako želiš da primaš notifikacije</p>
+    </div>
+    
+    <div style="padding: 20px 0;">
+      <!-- Enable/Disable Notifications -->
+      <div class="notification-settings">
+        <label for="toggleNotifications">Omogući notifikacije</label>
+        <div class="notification-toggle active" id="toggleNotifications" data-setting="enabled"></div>
+      </div>
+      
+      <!-- Notification Types -->
+      <div style="margin-top: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 12px;">Tipovi notifikacija</h3>
+        
+        <div class="notification-settings">
+          <label for="toggleFollowers">👥 Novi followeri</label>
+          <div class="notification-toggle active" id="toggleFollowers" data-setting="followers"></div>
+        </div>
+        
+        <div class="notification-settings">
+          <label for="toggleMentions">💬 Mentions u četu</label>
+          <div class="notification-toggle active" id="toggleMentions" data-setting="mentions"></div>
+        </div>
+        
+        <div class="notification-settings">
+          <label for="toggleReactions">❤️ Reactions na stories</label>
+          <div class="notification-toggle active" id="toggleReactions" data-setting="reactions"></div>
+        </div>
+        
+        <div class="notification-settings">
+          <label for="toggleCheers">🍻 Cheers</label>
+          <div class="notification-toggle active" id="toggleCheers" data-setting="cheers"></div>
+        </div>
+        
+        <div class="notification-settings">
+          <label for="toggleBadges">🏆 Novi bedževi</label>
+          <div class="notification-toggle active" id="toggleBadges" data-setting="badges"></div>
+        </div>
+      </div>
+      
+      <!-- Sound Settings -->
+      <div style="margin-top: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 12px;">Zvuk</h3>
+        
+        <div class="notification-settings">
+          <label for="toggleSound">🔊 Zvuk notifikacija</label>
+          <div class="notification-toggle active" id="toggleSound" data-setting="sound"></div>
+        </div>
+        
+        <div class="notification-settings">
+          <label for="toggleVibration">📳 Vibracija</label>
+          <div class="notification-toggle active" id="toggleVibration" data-setting="vibration"></div>
+        </div>
+      </div>
+      
+      <!-- DND Mode -->
+      <div style="margin-top: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 12px;">Ne uznemiravaj</h3>
+        
+        <div class="notification-settings">
+          <label for="toggleDND">🔕 Ne uznemiravaj režim</label>
+          <div class="notification-toggle" id="toggleDND" data-setting="dnd"></div>
+        </div>
+        
+        <p class="hint" style="margin-top: 8px;">
+          Kada je aktivno, nećeš primati notifikacije. Možeš i dalje videti notifikacije u aplikaciji.
+        </p>
+      </div>
+      
+      <!-- Test Notification -->
+      <button id="btnTestNotification" class="loginBtn btnPrimary" style="margin-top: 20px;">
+        🔔 Testiraj notifikaciju
+      </button>
+      
+      <!-- Enable Push Notifications -->
+      <button id="btnEnablePushNotifications" class="loginBtn good" style="margin-top: 12px;">
+        📲 Omogući push notifikacije
+      </button>
+      <p class="hint" style="margin-top: 8px; text-align: center;">
+        Push notifikacije ti omogućavaju da primaš obaveštenja čak i kada aplikacija nije otvorena.
+      </p>
+    </div>
+    
+    <button id="btnCloseNotificationSettings" class="loginBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-top: 12px;">
+      Zatvori
+    </button>
+  </div>
+</div>
+
 <!-- User Profile Modal -->
 <div id="userProfileModal" class="loginOverlay" style="display: none;">
   <div class="loginContainer" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
@@ -3416,13 +3755,32 @@ firebase.initializeApp(firebaseConfig);
 const analytics = firebase.analytics();
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
+
+// ❌ STORAGE JE ONEMOGUĆEN - Koristimo Base64 umesto Firebase Storage
+// const storage = firebase.storage(); // NE KORISTIMO - zahteva kreditnu karticu
+
+// Firebase Messaging za push notifikacije
+let messaging = null;
+try {
+  if (firebase.messaging.isSupported()) {
+    messaging = firebase.messaging();
+    console.log('✅ Firebase Messaging podržan');
+  } else {
+    console.warn('⚠️ Firebase Messaging nije podržan u ovom browseru');
+  }
+} catch (error) {
+  console.warn('⚠️ Firebase Messaging greška:', error);
+}
 
 // Firebase references
 const usersCollection = db.collection('users');
 const messagesCollection = db.collection('chatMessages');
 const activeUsersRef = db.collection('activeUsers');
 const historyCollection = db.collection('userHistory');
+const storiesCollection = db.collection('stories');
+const followsCollection = db.collection('follows');
+const notificationsCollection = db.collection('notifications');
+const cheersCollection = db.collection('cheers');
 
 console.log('Firebase inicijalizovan:', firebaseConfig.projectId);
 
@@ -5495,6 +5853,11 @@ topBrandsEl.innerHTML = top.map(([name, n]) => {
   `;
 }).join("");
     }
+  }
+  
+  // Check for new badges
+  if (typeof checkForNewBadges === 'function') {
+    checkForNewBadges({ tried, total });
   }
 }
 
@@ -7584,9 +7947,10 @@ loadCalendarEvents();
 ======================= */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    // Registruj glavni Service Worker za PWA
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        console.log('SW registered:', registration.scope);
+        console.log('✅ PWA Service Worker registrovan:', registration.scope);
         
         // Check for updates
         registration.addEventListener('updatefound', () => {
@@ -7599,7 +7963,16 @@ if ('serviceWorker' in navigator) {
         });
       })
       .catch((err) => {
-        console.log('SW registration failed:', err);
+        console.log('❌ PWA Service Worker greška:', err);
+      });
+    
+    // Registruj Firebase Messaging Service Worker za push notifikacije
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+      .then((registration) => {
+        console.log('✅ Firebase Messaging Service Worker registrovan:', registration.scope);
+      })
+      .catch((err) => {
+        console.log('❌ Firebase Messaging Service Worker greška:', err);
       });
   });
 }
@@ -7625,11 +7998,11 @@ if(urlAction === 'scan'){
    SOCIAL & PROFILE FEATURES - v3.0.0
 ======================= */
 
-// Firebase references for social features
-const followsCollection = db.collection('follows');
+// Firebase references for social features (već definisano gore, uklanjam duplikate)
+// const followsCollection = db.collection('follows'); // ❌ DUPLIKAT - već definisano
 const feedCollection = db.collection('feed');
 const reactionsCollection = db.collection('reactions');
-const notificationsCollection = db.collection('notifications');
+// const notificationsCollection = db.collection('notifications'); // ❌ DUPLIKAT - već definisano
 
 // Real-time listeners
 let notificationsUnsubscribe = null;
@@ -7976,35 +8349,40 @@ btnUploadBeerPhoto.addEventListener("click", async () => {
   }
   
   try {
-    showToast('📤 Upload-ujem sliku...', 'info');
+    showToast('📤 Obrađujem sliku...', 'info');
     
     // Resize image
     const resizedBlob = await resizeImage(file, 800, 800);
     
-    // Upload to Firebase Storage
-    const photoId = Date.now();
-    const storageRef = storage.ref(`beers/${currentUser.uid}/${currentBarcode}/${photoId}.jpg`);
-    await storageRef.put(resizedBlob);
+    // ✅ CONVERT TO BASE64 (NO STORAGE NEEDED!)
+    const base64Image = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(resizedBlob);
+    });
     
-    // Get download URL
-    const photoURL = await storageRef.getDownloadURL();
-    
-    // Update beer record
+    // Update beer record with Base64 image
     const rec = await dbGet(currentBarcode);
     if (rec) {
       if (!rec.photos) rec.photos = [];
       rec.photos.push({
-        url: photoURL,
+        base64: base64Image, // ✅ Čuvamo Base64 umesto URL-a
         uploadedAt: Date.now()
       });
       rec.updatedAt = Date.now();
       await dbPut(rec);
       
+      // Sync to cloud
+      if (currentUser) {
+        await cloudSaveHistory(rec);
+      }
+      
       // Create activity feed
       await createFeedActivity('photo', {
         beerName: rec.off?.productName || 'Pivo',
         beerBarcode: currentBarcode,
-        photoURL: photoURL
+        photoBase64: base64Image // ✅ Šaljemo Base64
       });
     }
     
@@ -8012,13 +8390,13 @@ btnUploadBeerPhoto.addEventListener("click", async () => {
     beerPhotoInput.value = '';
     beerPhotoPreview.style.display = 'none';
     
-    showToast('✅ Slika upload-ovana!', 'success');
+    showToast('✅ Slika sačuvana!', 'success');
     buzz(20);
     
     await handleBarcode(currentBarcode, { fromHistoryClick: true });
   } catch (error) {
-    console.error('Greška pri upload-u slike:', error);
-    showToast('❌ Greška pri upload-u', 'error');
+    console.error('Greška pri obradi slike:', error);
+    showToast('❌ Greška pri obradi slike', 'error');
   }
 });
 
@@ -8334,13 +8712,14 @@ async function loadActivityFeed() {
           </div>
         `;
       } else if (activity.type === 'photo') {
+        const photoSrc = activity.data.photoBase64 || activity.data.photoURL || ''; // ✅ Podrška za Base64 i stare URL-ove
         return `
           <div style="padding: 12px; border-radius: 12px; border: 1px solid var(--stroke); background: var(--card); margin-bottom: 8px;">
             <div style="font-weight: 700;">${escapeHtml(activity.nickname)}</div>
             <div style="color: var(--muted); font-size: 13px; margin-top: 4px;">
               Dodao sliku za ${escapeHtml(activity.data.beerName)}
             </div>
-            ${activity.data.photoURL ? `<img src="${activity.data.photoURL}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid var(--stroke);">` : ''}
+            ${photoSrc ? `<img src="${photoSrc}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid var(--stroke);">` : ''}
             <div style="color: var(--muted2); font-size: 12px; margin-top: 4px;">${time}</div>
           </div>
         `;
@@ -8759,7 +9138,7 @@ handleBarcode = (function(originalFunc) {
 
 // ===== STORIES & MENTIONS =====
 
-const storiesCollection = db.collection('stories');
+// const storiesCollection = db.collection('stories'); // ❌ DUPLIKAT - već definisano gore
 const addStoryBtn = document.getElementById('addStoryBtn');
 const createStoryModal = document.getElementById('createStoryModal');
 const storyImageInput = document.getElementById('storyImageInput');
@@ -10028,6 +10407,617 @@ window.hideErrorToast = hideErrorToast;
 window.haptic = haptic;
 window.handleError = handleError;
 window.withErrorHandling = withErrorHandling;
+
+/* =======================
+   NOTIFICATION SYSTEM
+   - In-app notifications
+   - Firebase Cloud Messaging
+   - Notification settings
+   - DND mode
+   - Custom sounds
+======================= */
+
+// Notification settings (stored in localStorage)
+const notificationSettings = {
+  enabled: true,
+  followers: true,
+  mentions: true,
+  reactions: true,
+  cheers: true,
+  badges: true,
+  sound: true,
+  vibration: true,
+  dnd: false
+};
+
+// Load settings from localStorage
+function loadNotificationSettings() {
+  const saved = localStorage.getItem('notificationSettings');
+  if (saved) {
+    Object.assign(notificationSettings, JSON.parse(saved));
+  }
+  updateNotificationUI();
+}
+
+// Save settings to localStorage
+function saveNotificationSettings() {
+  localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
+  updateDNDIndicator();
+}
+
+// Update UI toggles
+function updateNotificationUI() {
+  document.querySelectorAll('.notification-toggle').forEach(toggle => {
+    const setting = toggle.dataset.setting;
+    if (notificationSettings[setting]) {
+      toggle.classList.add('active');
+    } else {
+      toggle.classList.remove('active');
+    }
+  });
+}
+
+// Update DND indicator
+function updateDNDIndicator() {
+  const indicator = document.getElementById('dndIndicator');
+  if (indicator) {
+    if (notificationSettings.dnd) {
+      indicator.classList.add('show');
+    } else {
+      indicator.classList.remove('show');
+    }
+  }
+}
+
+// Show in-app notification popup
+function showNotificationPopup(type, title, message, data = {}) {
+  // Check if notifications are enabled
+  if (!notificationSettings.enabled || notificationSettings.dnd) {
+    console.log('Notifications disabled or DND mode active');
+    return;
+  }
+  
+  // Check if this type is enabled
+  if (!notificationSettings[type]) {
+    console.log(`Notification type ${type} is disabled`);
+    return;
+  }
+  
+  const popup = document.getElementById('notificationPopup');
+  const icon = document.getElementById('notifIcon');
+  const titleEl = document.getElementById('notifTitle');
+  const messageEl = document.getElementById('notifMessage');
+  const timeEl = document.getElementById('notifTime');
+  
+  if (!popup) return;
+  
+  // Set icon based on type
+  const icons = {
+    follower: '👥',
+    mention: '💬',
+    reaction: '❤️',
+    cheers: '🍻',
+    badge: '🏆'
+  };
+  
+  icon.textContent = icons[type] || '🔔';
+  icon.className = `notification-icon ${type}`;
+  
+  // Set content
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+  timeEl.textContent = 'Upravo';
+  
+  // Store data for click handler
+  popup.dataset.notificationData = JSON.stringify(data);
+  
+  // Show popup
+  popup.classList.add('show');
+  
+  // Play sound
+  if (notificationSettings.sound) {
+    playNotificationSound(type);
+  }
+  
+  // Vibrate
+  if (notificationSettings.vibration && window.haptic) {
+    haptic.medium();
+  }
+  
+  // Auto hide after 5 seconds
+  setTimeout(() => {
+    hideNotificationPopup();
+  }, 5000);
+}
+
+// Hide notification popup
+function hideNotificationPopup() {
+  const popup = document.getElementById('notificationPopup');
+  if (popup) {
+    popup.classList.remove('show');
+  }
+}
+
+// Play notification sound
+function playNotificationSound(type) {
+  try {
+    // Create audio context
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Different sounds for different types
+    const frequencies = {
+      follower: [523.25, 659.25], // C5, E5
+      mention: [659.25, 783.99], // E5, G5
+      reaction: [783.99, 659.25], // G5, E5
+      cheers: [523.25, 659.25, 783.99], // C5, E5, G5
+      badge: [659.25, 783.99, 1046.50] // E5, G5, C6
+    };
+    
+    const freq = frequencies[type] || [523.25];
+    
+    oscillator.frequency.value = freq[0];
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+    
+    // Play additional notes for multi-note sounds
+    if (freq.length > 1) {
+      freq.slice(1).forEach((f, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.frequency.value = f;
+        osc.type = 'sine';
+        
+        const startTime = audioContext.currentTime + (i + 1) * 0.15;
+        gain.gain.setValueAtTime(0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+        
+        osc.start(startTime);
+        osc.stop(startTime + 0.3);
+      });
+    }
+  } catch (error) {
+    console.error('Error playing notification sound:', error);
+  }
+}
+
+// Listen for new followers
+async function listenForFollowers() {
+  if (!currentUser) return;
+  
+  const followersRef = followsCollection.doc(currentUser.uid).collection('followers');
+  
+  followersRef.onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === 'added' && change.doc.metadata.hasPendingWrites === false) {
+        const followerData = change.doc.data();
+        
+        // Don't show notification for initial load
+        if (Date.now() - followerData.createdAt?.toMillis() < 5000) {
+          showNotificationPopup(
+            'follower',
+            'Novi follower!',
+            `${followerData.nickname || 'Neko'} te je zapratio`,
+            { userId: change.doc.id, type: 'follower' }
+          );
+        }
+      }
+    });
+  });
+}
+
+// Listen for mentions in chat
+async function listenForMentions() {
+  if (!currentUser || !currentUserData) return;
+  
+  const userNickname = currentUserData.nickname || currentUser.email.split('@')[0];
+  
+  messagesCollection
+    .where('mentions', 'array-contains', currentUser.uid)
+    .orderBy('createdAt', 'desc')
+    .limit(1)
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'added' && change.doc.metadata.hasPendingWrites === false) {
+          const message = change.doc.data();
+          
+          // Don't show notification for own messages
+          if (message.userId !== currentUser.uid) {
+            // Don't show notification for old messages
+            if (Date.now() - message.createdAt?.toMillis() < 5000) {
+              showNotificationPopup(
+                'mention',
+                'Mention u četu!',
+                `${message.nickname} te je pomenuo: ${message.text.substring(0, 50)}...`,
+                { messageId: change.doc.id, type: 'mention' }
+              );
+            }
+          }
+        }
+      });
+    });
+}
+
+// Listen for story reactions
+async function listenForStoryReactions() {
+  if (!currentUser) return;
+  
+  storiesCollection
+    .where('userId', '==', currentUser.uid)
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'modified') {
+          const story = change.doc.data();
+          const reactions = story.reactions || {};
+          
+          // Check for new reactions
+          Object.keys(reactions).forEach(userId => {
+            if (userId !== currentUser.uid) {
+              const reaction = reactions[userId];
+              
+              // Show notification for recent reactions
+              if (Date.now() - reaction.timestamp?.toMillis() < 5000) {
+                showNotificationPopup(
+                  'reaction',
+                  'Nova reakcija!',
+                  `${reaction.nickname} je reagovao na tvoj story: ${reaction.emoji}`,
+                  { storyId: change.doc.id, userId, type: 'reaction' }
+                );
+              }
+            }
+          });
+        }
+      });
+    });
+}
+
+// Listen for cheers
+async function listenForCheers() {
+  if (!currentUser) return;
+  
+  const cheersRef = db.collection('cheers').where('toUserId', '==', currentUser.uid);
+  
+  cheersRef.onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === 'added' && change.doc.metadata.hasPendingWrites === false) {
+        const cheers = change.doc.data();
+        
+        // Don't show notification for old cheers
+        if (Date.now() - cheers.createdAt?.toMillis() < 5000) {
+          showNotificationPopup(
+            'cheers',
+            'Cheers! 🍻',
+            `${cheers.fromNickname} ti je poslao zdravicu!`,
+            { cheersId: change.doc.id, userId: cheers.fromUserId, type: 'cheers' }
+          );
+        }
+      }
+    });
+  });
+}
+
+// Check for new badges
+function checkForNewBadges(stats) {
+  const badges = [
+    { id: 'bronze', name: 'Bronza', threshold: 10, emoji: '🥉' },
+    { id: 'silver', name: 'Srebro', threshold: 25, emoji: '🥈' },
+    { id: 'gold', name: 'Zlato', threshold: 50, emoji: '🥇' },
+    { id: 'legend', name: 'Legenda', threshold: 100, emoji: '🏆' }
+  ];
+  
+  const unlockedBadges = localStorage.getItem('unlockedBadges');
+  const unlocked = unlockedBadges ? JSON.parse(unlockedBadges) : [];
+  
+  badges.forEach(badge => {
+    if (stats.tried >= badge.threshold && !unlocked.includes(badge.id)) {
+      unlocked.push(badge.id);
+      localStorage.setItem('unlockedBadges', JSON.stringify(unlocked));
+      
+      showNotificationPopup(
+        'badge',
+        'Novi bedž otključan!',
+        `Čestitamo! Osvojio si ${badge.emoji} ${badge.name} bedž!`,
+        { badgeId: badge.id, type: 'badge' }
+      );
+    }
+  });
+}
+
+// Initialize notification listeners
+function initNotificationListeners() {
+  if (!currentUser) return;
+  
+  console.log('🔔 Initializing notification listeners...');
+  
+  loadNotificationSettings();
+  
+  listenForFollowers();
+  listenForMentions();
+  listenForStoryReactions();
+  listenForCheers();
+  
+  console.log('✅ Notification listeners initialized');
+}
+
+// Toggle notification setting
+function toggleNotificationSetting(setting) {
+  notificationSettings[setting] = !notificationSettings[setting];
+  saveNotificationSettings();
+  updateNotificationUI();
+  
+  if (window.haptic) haptic.light();
+  
+  // Show feedback
+  const settingNames = {
+    enabled: 'Notifikacije',
+    followers: 'Followeri',
+    mentions: 'Mentions',
+    reactions: 'Reactions',
+    cheers: 'Cheers',
+    badges: 'Bedževi',
+    sound: 'Zvuk',
+    vibration: 'Vibracija',
+    dnd: 'Ne uznemiravaj'
+  };
+  
+  const status = notificationSettings[setting] ? 'uključeno' : 'isključeno';
+  showSuccessToast(`${settingNames[setting]} ${status}`);
+}
+
+// Event listeners for notification settings
+document.addEventListener('DOMContentLoaded', () => {
+  // Toggle switches
+  document.querySelectorAll('.notification-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      const setting = toggle.dataset.setting;
+      toggleNotificationSetting(setting);
+    });
+  });
+  
+  // Open notification settings
+  const menuNotifSettings = document.getElementById('menuNotificationSettings');
+  if (menuNotifSettings) {
+    menuNotifSettings.addEventListener('click', () => {
+      document.getElementById('notificationSettingsModal').style.display = 'flex';
+      closeMenu();
+    });
+  }
+  
+  // Close notification settings
+  const btnCloseNotifSettings = document.getElementById('btnCloseNotificationSettings');
+  if (btnCloseNotifSettings) {
+    btnCloseNotifSettings.addEventListener('click', () => {
+      document.getElementById('notificationSettingsModal').style.display = 'none';
+    });
+  }
+  
+  // Test notification
+  const btnTestNotif = document.getElementById('btnTestNotification');
+  if (btnTestNotif) {
+    btnTestNotif.addEventListener('click', () => {
+      showNotificationPopup(
+        'badge',
+        'Test notifikacija',
+        'Ovo je test notifikacija. Ako vidiš ovo, notifikacije rade! 🎉',
+        { type: 'test' }
+      );
+    });
+  }
+  
+  // Enable push notifications
+  const btnEnablePush = document.getElementById('btnEnablePushNotifications');
+  if (btnEnablePush) {
+    btnEnablePush.addEventListener('click', async () => {
+      const result = await requestNotificationPermission();
+      
+      if (result) {
+        btnEnablePush.textContent = '✅ Push notifikacije omogućene';
+        btnEnablePush.disabled = true;
+        btnEnablePush.style.opacity = '0.6';
+      }
+    });
+    
+    // Proveri da li su već omogućene
+    if (Notification.permission === 'granted') {
+      btnEnablePush.textContent = '✅ Push notifikacije omogućene';
+      btnEnablePush.disabled = true;
+      btnEnablePush.style.opacity = '0.6';
+    }
+  }
+  
+  // Click on notification popup
+  const notifPopup = document.getElementById('notificationPopup');
+  if (notifPopup) {
+    notifPopup.addEventListener('click', (e) => {
+      if (e.target.classList.contains('notification-close')) return;
+      
+      try {
+        const data = JSON.parse(notifPopup.dataset.notificationData || '{}');
+        
+        // Handle different notification types
+        switch(data.type) {
+          case 'follower':
+            // Open user profile
+            if (data.userId) {
+              viewUserProfile(data.userId);
+            }
+            break;
+          case 'mention':
+            // Open chat
+            setTab('social');
+            document.getElementById('chatToggle')?.click();
+            break;
+          case 'reaction':
+            // Open story viewer
+            if (data.storyId) {
+              // TODO: Open specific story
+              setTab('social');
+            }
+            break;
+          case 'cheers':
+            // Open user profile
+            if (data.userId) {
+              viewUserProfile(data.userId);
+            }
+            break;
+          case 'badge':
+            // Open stats page
+            setTab('stats');
+            break;
+        }
+        
+        hideNotificationPopup();
+      } catch (error) {
+        console.error('Error handling notification click:', error);
+      }
+    });
+  }
+});
+
+// Initialize when user logs in
+auth.onAuthStateChanged(user => {
+  if (user) {
+    setTimeout(() => {
+      initNotificationListeners();
+      initFirebaseMessaging(); // ✅ Inicijalizuj FCM
+    }, 2000); // Wait for user data to load
+  }
+});
+
+/* =======================
+   FIREBASE CLOUD MESSAGING (FCM)
+   - Push notifikacije
+   - Background notifications
+   - Token management
+======================= */
+
+async function initFirebaseMessaging() {
+  if (!messaging) {
+    console.warn('⚠️ Firebase Messaging nije dostupan');
+    return;
+  }
+  
+  try {
+    console.log('🔔 Inicijalizujem Firebase Cloud Messaging...');
+    
+    // Proveri da li su notifikacije dozvoljene
+    if (Notification.permission === 'granted') {
+      await registerFCMToken();
+    } else if (Notification.permission !== 'denied') {
+      // Pitaj korisnika za dozvolu
+      console.log('📢 Tražim dozvolu za notifikacije...');
+    }
+    
+    // Slušaj za poruke u foreground-u
+    messaging.onMessage((payload) => {
+      console.log('📬 Primljena FCM poruka:', payload);
+      
+      const { notification, data } = payload;
+      
+      if (notification) {
+        showNotificationPopup(
+          data?.type || 'info',
+          notification.title || 'Notifikacija',
+          notification.body || '',
+          data || {}
+        );
+      }
+    });
+    
+    console.log('✅ Firebase Cloud Messaging inicijalizovan');
+  } catch (error) {
+    console.error('❌ Greška pri inicijalizaciji FCM:', error);
+  }
+}
+
+// Registruj FCM token
+async function registerFCMToken() {
+  if (!messaging || !currentUser) return;
+  
+  try {
+    // ⚠️ VAŽNO: Zameni 'YOUR_VAPID_KEY_HERE' sa pravim VAPID key-em iz Firebase Console
+    // Idi na: Firebase Console → Project Settings → Cloud Messaging → Web Push certificates → Generate key pair
+    const vapidKey = BJ56O02Efh6gWgrnT-TmkoSeGpC1ZxfIVcdG1aDyBqBgYtVYquCXZuDh96iDniyBy6U0-Yu-ADCc9Nl_s7HbT_I; // 👈 ZAMENI OVO!
+    
+    // Dobij FCM token
+    const token = await messaging.getToken({
+      vapidKey: vapidKey
+    });
+    
+    if (token) {
+      console.log('✅ FCM Token dobijen:', token.substring(0, 20) + '...');
+      
+      // Sačuvaj token u Firestore
+      await usersCollection.doc(currentUser.uid).update({
+        fcmToken: token,
+        fcmTokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      console.log('✅ FCM Token sačuvan u Firestore');
+    }
+  } catch (error) {
+    console.error('❌ Greška pri registraciji FCM tokena:', error);
+    
+    // Ako je greška zbog nedostajućeg VAPID key-a
+    if (error.code === 'messaging/invalid-vapid-key') {
+      console.warn('⚠️ VAPID key nije konfigurisan. Dodaj ga u Firebase Console > Project Settings > Cloud Messaging');
+    }
+  }
+}
+
+// Request notification permission
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) {
+    console.warn('⚠️ Browser ne podržava notifikacije');
+    return false;
+  }
+  
+  if (Notification.permission === 'granted') {
+    console.log('✅ Notifikacije su već dozvoljene');
+    await registerFCMToken();
+    return true;
+  }
+  
+  if (Notification.permission === 'denied') {
+    console.warn('⚠️ Korisnik je blokirao notifikacije');
+    showToast('❌ Notifikacije su blokirane. Omogući ih u podešavanjima browsera.', 'error');
+    return false;
+  }
+  
+  try {
+    const permission = await Notification.requestPermission();
+    
+    if (permission === 'granted') {
+      console.log('✅ Korisnik je dozvolio notifikacije');
+      showToast('✅ Notifikacije omogućene!', 'success');
+      await registerFCMToken();
+      return true;
+    } else {
+      console.log('⚠️ Korisnik je odbio notifikacije');
+      showToast('⚠️ Notifikacije nisu omogućene', 'warn');
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Greška pri traženju dozvole:', error);
+    return false;
+  }
+}
+
+console.log('✅ Notification system loaded');
+console.log('✅ Firebase Cloud Messaging ready');
 
 </script>
 

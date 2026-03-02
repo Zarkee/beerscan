@@ -2,130 +2,209 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // User history - svi mogu čitati, samo vlasnik može pisati
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function isValidUser() {
+      return isSignedIn() && 
+             request.resource.data.keys().hasAll(['nickname', 'email']) &&
+             request.resource.data.nickname is string &&
+             request.resource.data.email is string;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Anyone can read user profiles (for social features)
+      allow read: if isSignedIn();
+      
+      // Only owner can create/update their profile
+      allow create: if isOwner(userId) && isValidUser();
+      allow update: if isOwner(userId);
+      
+      // Only owner can delete their profile
+      allow delete: if isOwner(userId);
+    }
+    
+    // User history (private) - struktura: /userHistory/{userId}/beers/{barcode}
     match /userHistory/{userId} {
-      // Dozvoli čitanje parent dokumenta svim prijavljenim korisnicima
-      allow read: if request.auth != null;
+      // Anyone signed in can read (for viewing other users' profiles)
+      allow read: if isSignedIn();
+      // Only owner can write
+      allow write: if isOwner(userId);
       
       // Beers subcollection
       match /beers/{barcode} {
-        // Svi prijavljeni mogu čitati istoriju (za profile view)
-        allow read: if request.auth != null;
-        // Samo vlasnik može pisati/menjati svoju istoriju
-        allow write: if request.auth != null && request.auth.uid == userId;
+        // Anyone signed in can read beer history (for social features)
+        allow read: if isSignedIn();
+        // Only owner can write their beer history
+        allow write: if isOwner(userId);
       }
     }
     
-    // Chat messages - svi prijavljeni mogu čitati i pisati
-    match /chatMessages/{messageId} {
-      // Svi prijavljeni mogu čitati poruke
-      allow read: if request.auth != null;
-      
-      // Samo prijavljeni mogu kreirati poruke sa svojim UID-om
-      allow create: if request.auth != null && 
-                      request.resource.data.uid == request.auth.uid &&
-                      request.resource.data.timestamp != null &&
-                      // Dozvoli opciono beerData polje
-                      (!request.resource.data.keys().hasAny(['beerData']) || 
-                       request.resource.data.beerData is map);
-      
-      // Poruke mogu biti obrisane od strane:
-      // 1. Vlasnika poruke
-      // 2. Automatski nakon 24h (server-side cleanup)
-      allow delete: if request.auth != null && 
-                      (resource.data.uid == request.auth.uid || 
-                       request.time > resource.data.timestamp + duration.value(1, 'd'));
-      
-      // Poruke ne mogu biti izmenjene
-      allow update: if false;
+    // Legacy support - stara struktura /userHistory/{userId}/items/{itemId}
+    match /userHistory/{userId}/items/{itemId} {
+      // Anyone signed in can read (for social features)
+      allow read: if isSignedIn();
+      // Only owner can write
+      allow write: if isOwner(userId);
     }
     
-    // Users collection - korisnici mogu čitati sve profile, ali menjati samo svoj
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Active users - za tracking online korisnika
+    // Active users (for online status)
     match /activeUsers/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+    
+    // Chat messages
+    match /chatMessages/{messageId} {
+      // Anyone can read messages
+      allow read: if isSignedIn();
       
-      // Automatsko brisanje neaktivnih korisnika (5 minuta)
-      allow delete: if request.auth != null;
+      // Only authenticated users can create messages
+      // Podrška za oba formata: userId/createdAt i uid/timestamp
+      allow create: if isSignedIn() && 
+                       (request.resource.data.userId == request.auth.uid || 
+                        request.resource.data.uid == request.auth.uid) &&
+                       request.resource.data.keys().hasAll(['text', 'nickname']);
+      
+      // Only message owner can update/delete
+      allow update, delete: if isSignedIn() && 
+                               (resource.data.userId == request.auth.uid ||
+                                resource.data.uid == request.auth.uid);
     }
     
-    // Follows - follow/unfollow sistem
-    match /follows/{userId}/following/{followedId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    match /follows/{userId}/followers/{followerId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
-    }
-    
-    // Feed - aktivnosti korisnika
-    match /feed/{userId}/items/{itemId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
-    }
-    
-    // Reactions - lajkovi na piva
-    match /reactions/{beerId}/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Notifications - notifikacije za korisnika
-    match /notifications/{userId}/items/{notificationId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      // Dozvoli kreiranje notifikacija od bilo kog prijavljenog korisnika
-      allow create: if request.auth != null &&
-                      request.resource.data.type != null &&
-                      request.resource.data.data != null &&
-                      request.resource.data.createdAt != null;
-      // Dozvoli ažuriranje samo vlasniku (za read status)
-      allow update: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Stories - 24h stories
+    // Stories
     match /stories/{storyId} {
-      // Svi prijavljeni mogu čitati stories
-      allow read: if request.auth != null;
+      // Anyone can read stories
+      allow read: if isSignedIn();
       
-      // Samo vlasnik može kreirati svoj story
-      allow create: if request.auth != null && 
-                      request.resource.data.userId == request.auth.uid &&
-                      request.resource.data.createdAt != null &&
-                      request.resource.data.expiresAt != null;
+      // Only authenticated users can create stories
+      allow create: if isSignedIn() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'userNickname', 'imageUrl', 'createdAt', 'expiresAt']);
       
-      // Dozvoli update za viewsCount i reactionsCount
-      allow update: if request.auth != null && (
-        // Samo ažuriranje brojača
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewsCount', 'reactionsCount'])
-      );
+      // Only story owner can update (for reactions)
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
       
-      // Samo vlasnik može obrisati svoj story
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Only story owner can delete
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Follows collection
+    match /follows/{userId} {
+      // Anyone can read follows
+      allow read: if isSignedIn();
       
-      // Story views - ko je pogledao story
-      match /views/{viewerId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null && request.auth.uid == viewerId;
-        allow update: if request.auth != null && request.auth.uid == viewerId;
-        allow delete: if request.auth != null && request.auth.uid == viewerId;
+      // Followers subcollection
+      match /followers/{followerId} {
+        // Anyone can read followers
+        allow read: if isSignedIn();
+        
+        // Only the follower can create/delete their follow
+        allow create, delete: if isSignedIn() && followerId == request.auth.uid;
       }
       
-      // Story reactions - reakcije na story
-      match /reactions/{userId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null && request.auth.uid == userId;
-        allow update: if request.auth != null && request.auth.uid == userId;
-        allow delete: if request.auth != null && request.auth.uid == userId;
+      // Following subcollection
+      match /following/{followingId} {
+        // Anyone can read following
+        allow read: if isSignedIn();
+        
+        // Only the user can create/delete their following
+        allow create, delete: if isOwner(userId);
+      }
+    }
+    
+    // Notifications
+    match /notifications/{userId} {
+      // Only owner can read their notifications
+      allow read: if isOwner(userId);
+      
+      // Notification items subcollection
+      match /items/{notificationId} {
+        // Only owner can read their notifications
+        allow read: if isOwner(userId);
+        
+        // Anyone can create notifications for other users
+        allow create: if isSignedIn();
+        
+        // Only owner can update (mark as read) or delete
+        allow update, delete: if isOwner(userId);
+      }
+    }
+    
+    // Cheers collection
+    match /cheers/{cheersId} {
+      // Anyone can read cheers
+      allow read: if isSignedIn();
+      
+      // Only authenticated users can create cheers
+      allow create: if isSignedIn() && 
+                       request.resource.data.fromUserId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['fromUserId', 'fromNickname', 'toUserId', 'createdAt']);
+      
+      // Only sender can delete
+      allow delete: if isSignedIn() && resource.data.fromUserId == request.auth.uid;
+    }
+    
+    // Reactions (if separate collection)
+    match /reactions/{reactionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // User settings (private)
+    match /userSettings/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+    
+    // Badges (read-only for users)
+    match /badges/{badgeId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only admin can write
+    }
+    
+    // User badges
+    match /userBadges/{userId}/badges/{badgeId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+    
+    // Leaderboard (read-only)
+    match /leaderboard/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+    
+    // Reports (for moderation)
+    match /reports/{reportId} {
+      allow read: if false; // Only admin
+      allow create: if isSignedIn();
+    }
+    
+    // Block list
+    match /blocks/{userId}/blocked/{blockedUserId} {
+      allow read, write: if isOwner(userId);
+    }
+    
+    // Feed collection - aktivnosti korisnika
+    match /feed/{userId} {
+      // Anyone can read feed (for following)
+      allow read: if isSignedIn();
+      
+      // Feed items subcollection
+      match /items/{itemId} {
+        // Anyone can read feed items
+        allow read: if isSignedIn();
+        
+        // Only owner can create/update/delete their feed items
+        allow create, update, delete: if isOwner(userId);
       }
     }
   }
